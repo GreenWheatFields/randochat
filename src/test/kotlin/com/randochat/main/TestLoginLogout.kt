@@ -36,6 +36,7 @@ class TestLoginLogout {
         account.email = "email@email.com"
         account.password = "password"
         account.userName = "username"
+        val accountToCompare = AccountAccessor.stringToAccount(accountString)
 
     }
 

@@ -1,8 +1,6 @@
 package com.randochat.main.database
 
-import java.lang.StringBuilder
-import java.util.Base64
-import java.util.function.ToDoubleBiFunction
+import java.util.*
 
 class AccountAccessor (val accountRepository: AccountRepository){
     companion object {
@@ -17,7 +15,19 @@ class AccountAccessor (val accountRepository: AccountRepository){
             val temp = account.toCharArray()
             // escape = "%"
 
-            return TODO()
+            var start = 0
+            val extractedAccount = Account()
+            for (i in temp.indices){
+                if (temp[i] == '%'){
+                    println("entry")
+                    for (j in start .. i){
+                        print(temp[j])
+                    }
+                    start = i + 1
+                }
+            }
+
+            return Account()
         }
 
     }
