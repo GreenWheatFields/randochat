@@ -14,9 +14,9 @@ class RegisterAccount @Autowired constructor(final val accountRepo: AccountRepos
 
 
     @RequestMapping("/accounts/create")
-    fun register(@RequestHeader("Authorization", required = false) auth: String): String {
+    fun register(@RequestHeader("newAccount", required = false) newAccount: String): String {
         println("registered")
-        println(auth)
+        println(newAccount)
         //userAgent and contains the key in the app.
 //        println(accountRepository.findByUserName("username"))
         return "registered"
