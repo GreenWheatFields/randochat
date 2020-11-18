@@ -4,7 +4,7 @@ import org.springframework.data.repository.CrudRepository
 
 
 interface AccountRepository : CrudRepository<Account, String>{
-//    fun findByEmail(email: String): List<Account>
+    fun findByUserName(email: String): Account?
     //todo, ^ breaks for some reason
 }
 
