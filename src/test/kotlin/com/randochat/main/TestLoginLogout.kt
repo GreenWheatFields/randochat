@@ -14,7 +14,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class TestLoginLogout {
+class TestLoginLogoutServer {
 
     @Test
     fun testRegisterEndpoint(@Autowired mockServer: MockMvc) {
@@ -23,6 +23,11 @@ class TestLoginLogout {
                 .andExpect(status().isOk)
                 .andExpect(content().string("registered"))
     }
+
+
+}
+
+class TestLoginLogoutMethods {
     @Test
     fun testEncodeAndDecode(){
         val account = "email@email.com%username%password"
@@ -39,5 +44,9 @@ class TestLoginLogout {
         val accountToCompare = AccountAccessor.stringToAccount(accountString)
 
     }
-
+    @Test
+    fun testValidEmail(){
+        val email = "kfajsfnd@email.com"
+        assert(AccountAccessor.validEmail(email))
+    }
 }
