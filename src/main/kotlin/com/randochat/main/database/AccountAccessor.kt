@@ -1,5 +1,6 @@
 package com.randochat.main.database
 
+import java.lang.IndexOutOfBoundsException
 import java.util.*
 
 class AccountAccessor (val accountRepository: AccountRepository){
@@ -13,20 +14,21 @@ class AccountAccessor (val accountRepository: AccountRepository){
         //this method might be better off outside comapnion object
         fun stringToAccount(account: String): Account{
             val temp = account.toCharArray()
-            // escape = "%"
+            // escape = "\" todo, comments in email addresses will break this
+            //staing example email@email.com\username\password\
 
             var start = 0
             val extractedAccount = Account()
             for (i in temp.indices){
-                if (temp[i] == '%'){
-                    println("entry")
-                    for (j in start .. i){
+                if (temp[i] == '\\'){
+                    for (j in start until i){
                         print(temp[j])
                     }
+                    println()
                     start = i + 1
                 }
             }
-
+            //todo, validate email adresses username passwords before defining account object varibles
             return Account()
         }
 

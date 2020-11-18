@@ -31,7 +31,7 @@ class TestLoginLogout {
     }
     @Test
     fun testExtractAccountfromString(){
-        val accountString = "email@email.com%username%password"
+        val accountString = "email@email.com\\username\\password"
         val account = Account()
         account.email = "email@email.com"
         account.password = "password"
