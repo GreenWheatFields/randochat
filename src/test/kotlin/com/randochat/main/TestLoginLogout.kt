@@ -10,6 +10,8 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.apache.commons.validator.routines.EmailValidator
+
 
 
 @SpringBootTest
@@ -45,9 +47,18 @@ class TestLoginLogoutMethods {
 
     }
     @Test
-    fun testValidEmail(){
-        var email = "kfajsfnd@email.com"
-        assert(AccountAccessor.validEmail(email))
+    fun testUserNameValidator(){
+        val badUserNames = mutableListOf("lol", "123", "$%%%", "abfhgnsjgurognsjfksp", "a", "&uuuu!!fsdf!")
+        for (i in badUserNames){
+            println(i)
+            assert(!AccountAccessor.validUserName(i))
+        }
+        val goodUserNames = mutableListOf("1234", "2342jkkj", "%%yolo", "LEADER", "!!KJFSKGJND!")
+        for (i in goodUserNames){
+            println(i)
+            assert(AccountAccessor.validUserName(i))
+        }
 
     }
+
 }

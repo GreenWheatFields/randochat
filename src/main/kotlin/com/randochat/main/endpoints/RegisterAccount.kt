@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
+
 @RestController
 class RegisterAccount @Autowired constructor(final val accountRepo: AccountRepository) {
     val accountAccessor: AccountAccessor = AccountAccessor(accountRepo)
