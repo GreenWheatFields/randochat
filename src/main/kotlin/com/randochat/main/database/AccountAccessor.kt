@@ -3,7 +3,7 @@ package com.randochat.main.database
 import java.lang.IndexOutOfBoundsException
 import java.util.*
 import kotlin.collections.HashSet
-
+import org.apache.commons.validator.routines.EmailValidator
 class AccountAccessor (val accountRepository: AccountRepository){
     companion object {
         fun encodeAccount(string: String): String{
@@ -49,30 +49,49 @@ class AccountAccessor (val accountRepository: AccountRepository){
             return Account()
         }
         fun validEmail(email: String): Boolean{
-            //find @, make sure it isn't proceded by dots?
-            //find .com or other ending
+            var localFound = false
             var start = 0
-            val validCharsAll = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-!#\$%&'*+/=?^_`{|}~".toCharArray()
-            //todo dont forget to add '.'
-            val validCharSetEmail = HashSet(listOf(validCharsAll))
-
-            for (i in email.indices + 1){
-                if (i == email.length + 1){
-                    //todo check domaio
-                }
-                else if (email[i] == '@'){
-                    for(j in email.slice(start..i - 1)){
-                        if (!validCharSetEmail.contains(j)){
-                            //invalid email?
-                            //check for two dots ..
-                        }
+            val validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-!#\$%&'*+/=?^_`{|}~.".toHashSet()
+            val validDomainChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-".toHashSet()
+            for (i in 0 until email.length + 1){
+                if (i == email.length){
+                    if (email[start] == '-' || email[i - 1] == '-'){
+                        return false
                     }
-                }else if (email[i] == '.' && start != 0){
-                    //todo, check domain
+                    for (j in start until i){
+                        if (!validDomainChars.contains(email[j]))
+                            return false
+                    }
+                    return true
+                }
+                if (email[i] == '@'){
+                    for(j in start until i){
+                        if (!validChars.contains(email[j])){
+                            return false
+                        }else if (email[j] == '.'){
+                            if (j == 0 || j == i - 1){
+                                return false
+                            }else if (email[j - 1] == '.' || email[j + 1] == '.'){
+                                return false
+                            }
+                        }
+                        localFound = true
+                        start = i + 1
+                    }
+                }else if (email[i] == '.' && localFound || i == email.length){
+                    if (email[start] == '-' || email[i - 1] == '-'){
+                        return false
+                    }else if (i != email.length){
+                        for (j in start until i){
+                            if (!validDomainChars.contains(email[j])){
+                                return false
+                            }
+                        }
+                        start = i + 1
+                    }
                 }
             }
-            return false
-
+            return true
         }
 
     }

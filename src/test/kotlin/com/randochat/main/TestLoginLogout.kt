@@ -46,7 +46,8 @@ class TestLoginLogoutMethods {
     }
     @Test
     fun testValidEmail(){
-        val email = "kfajsfnd@email.com"
+        var email = "kfajsfnd@email.com"
         assert(AccountAccessor.validEmail(email))
+
     }
 }
