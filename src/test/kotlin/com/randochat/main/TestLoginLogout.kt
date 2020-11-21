@@ -61,8 +61,20 @@ class TestLoginLogoutMethods {
 
     }
     @Test
-    fun testPasswordValidator(){
-
+    fun testPasswordValidatorGoodPass(){
+        val goodPasswords = mutableListOf("Testing123!", "1AKJFDS!!!", "lolmAk5?", "!sodOLf6", "&&&&&&&&&&&&P")
+        for (i in goodPasswords.indices){
+            println(goodPasswords[i])
+            assert(AccountAccessor.validPassword(goodPasswords[i].toCharArray()))
+        }
+    }
+    @Test
+    fun testPasswordValidatorBadPass(){
+        val badPassowrds = mutableListOf("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "123", "#############################", "pas123", "!!!!!!!aslkfdslkmfldklskdfm")
+        for (i in badPassowrds.indices){
+            println(badPassowrds[i])
+            assert(!AccountAccessor.validPassword(badPassowrds[i].toCharArray()))
+        }
     }
 
 }
