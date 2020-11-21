@@ -2,6 +2,7 @@ package com.randochat.main
 
 import com.randochat.main.database.Account
 import com.randochat.main.database.AccountFormatter
+import com.randochat.main.values.AuthCodes
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -21,7 +22,8 @@ class TestLoginLogoutServer {
     @Test
     fun testRegisterEndpoint(@Autowired mockServer: MockMvc) {
         mockServer.perform(get("/accounts/create", )
-                .header("newAccount", AccountFormatter.encodeAccount("email@email.com\\username\\VALIDPASSWORD856!\\")))
+                .header("newAccount", AccountFormatter.encodeAccount("email@email.com\\username\\VALIDPASSWORD856!\\"))
+                .header("code", AuthCodes.codeAcsess[0]))
                 .andExpect(status().isOk)
                 .andExpect(content().string("registered"))
     }

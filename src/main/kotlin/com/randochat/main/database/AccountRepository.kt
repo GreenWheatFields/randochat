@@ -4,8 +4,8 @@ import org.springframework.data.repository.CrudRepository
 
 
 interface AccountRepository : CrudRepository<Account, String>{
-    fun findByUserName(email: String): Account?
-    //todo, ^ breaks for some reason
+    fun findByUserName(username: String): Account?
+    fun findByEmail(email: String): Account?
 }
 
 //authenticate accounts, get account profiles?
