@@ -1,9 +1,8 @@
 package com.randochat.main.database
 
-import java.lang.IndexOutOfBoundsException
-import java.util.*
-import kotlin.collections.HashSet
 import org.apache.commons.validator.routines.EmailValidator
+import java.util.*
+
 class AccountAccessor (val accountRepository: AccountRepository){
     companion object {
         fun encodeAccount(string: String): String{
@@ -36,6 +35,7 @@ class AccountAccessor (val accountRepository: AccountRepository){
                               extractedValues++
                           }else{
                               //todo, handle invalid email. maybe return a null object for the caller to handle?
+                              //invalid formats should be handled client side anyway
                           }
                         }
                         1 -> {
@@ -46,7 +46,14 @@ class AccountAccessor (val accountRepository: AccountRepository){
                             }
                         }
                         2 ->{
-                            //todo, validate password
+                            if (validPassword(sb.toString().toCharArray())){
+                                val password = sb.toString().toCharArray()
+                                sb.clear()
+                                //hash password
+
+                            }else{
+
+                            }
                             break
                         }
                     }
@@ -61,7 +68,7 @@ class AccountAccessor (val accountRepository: AccountRepository){
             //todo, no swears?
             if (user.length >= 4 && user.length <= 16){
                 val temp = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toHashSet()
-                val temp2 = "-!#\\\$%&'*+/=?^_`{|}~."
+                val temp2 = "-!#\\\$%&'*+/=?^_`{|}~.".toHashSet()
                 var counter = 0
                 for (i in user){
                     if (!temp.contains(i)){
@@ -76,9 +83,34 @@ class AccountAccessor (val accountRepository: AccountRepository){
             }
             return false
         }
+        fun validPassword(password: CharArray): Boolean{
+            // 8 - 26 chars with symbols. needs one capital letter and one symbol
+            //todo, keep reusing this. replace with enum?
+            val temp = "abcdefghijklmnopqrstuvwxyz0123456789".toHashSet()
+            val temp2 = "-!#\\\$%&'*+/=?^_`{|}~.".toHashSet()
+            val temp3 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toHashSet()
+            var symbol = 0
+            var capital = 1
+            for (i in password.indices){
+                if (password.size < 8 || password.size > 26){
+                    break
+                }
+                if (!temp.contains(password[i])){
+                    if (temp2.contains(password[i])){
+                        symbol = 2
+                    }else if (temp3.contains(password[i])){
+                        capital = 2
+                    }
+                }
+
+            }
+            for (i in password.indices){
+                password[i] = 0.toChar()
+            }
+            return symbol == capital
+        }
 
     }
-    //todo, put all methods that help validate and acsess data in here
 
     fun correctPassword(): Nothing = TODO()
 

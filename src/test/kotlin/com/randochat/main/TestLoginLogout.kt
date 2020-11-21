@@ -60,5 +60,9 @@ class TestLoginLogoutMethods {
         }
 
     }
+    @Test
+    fun testPasswordValidator(){
+
+    }
 
 }
