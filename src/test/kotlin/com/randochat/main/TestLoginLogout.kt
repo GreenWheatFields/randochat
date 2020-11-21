@@ -1,7 +1,7 @@
 package com.randochat.main
 
 import com.randochat.main.database.Account
-import com.randochat.main.database.AccountAccessor
+import com.randochat.main.database.AccountFormatter
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -10,8 +10,8 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import org.apache.commons.validator.routines.EmailValidator
-
+import org.junit.jupiter.api.fail
+import org.springframework.security.crypto.bcrypt.BCrypt
 
 
 @SpringBootTest
@@ -21,7 +21,7 @@ class TestLoginLogoutServer {
     @Test
     fun testRegisterEndpoint(@Autowired mockServer: MockMvc) {
         mockServer.perform(get("/accounts/create", )
-                .header("newAccount", AccountAccessor.encodeAccount("email@email.com-username-password")))
+                .header("newAccount", AccountFormatter.encodeAccount("email@email.com\\username\\VALIDPASSWORD856!\\")))
                 .andExpect(status().isOk)
                 .andExpect(content().string("registered"))
     }
@@ -33,30 +33,46 @@ class TestLoginLogoutMethods {
     @Test
     fun testEncodeAndDecode(){
         val account = "email@email.com%username%password"
-        val final = AccountAccessor.decodeAccount(AccountAccessor.encodeAccount(account))
+        val final = AccountFormatter.decodeAccount(AccountFormatter.encodeAccount(account))
         assert(account == final)
     }
     @Test
     fun testExtractAccountfromString(){
-        val accountString = "email@email.com\\username\\password"
+        val accountString = "email@email.com\\username\\PASSWORD123!\\"
         val account = Account()
         account.email = "email@email.com"
-        account.password = "password"
+        account.password = BCrypt.hashpw("password", BCrypt.gensalt())
         account.userName = "username"
-        val accountToCompare = AccountAccessor.stringToAccount(accountString)
+        val accountToCompare = AccountFormatter.stringToAccount(accountString)
 
+        if (accountToCompare == null){
+            fail("invalid entry")
+        }
+        println("email")
+        assert(account.email == accountToCompare.email)
+        // can't compare the two password hashed so will compare length to see if hashed
+        println("passwords")
+        assert(account.password.length > 8 && accountToCompare.password.length > 8)
+        println("username")
+        assert(account.userName == accountToCompare.userName)
+    }
+    @Test
+    fun testAccFromStringBadAccount(){
+        val accountString = "email@email.com\\userName\\invalidpassword\\"
+        val acc = AccountFormatter.stringToAccount(accountString)
+        assert(acc == null)
     }
     @Test
     fun testUserNameValidator(){
         val badUserNames = mutableListOf("lol", "123", "$%%%", "abfhgnsjgurognsjfksp", "a", "&uuuu!!fsdf!")
         for (i in badUserNames){
             println(i)
-            assert(!AccountAccessor.validUserName(i))
+            assert(!AccountFormatter.validUserName(i))
         }
         val goodUserNames = mutableListOf("1234", "2342jkkj", "%%yolo", "LEADER", "!!KJFSKGJND!")
         for (i in goodUserNames){
             println(i)
-            assert(AccountAccessor.validUserName(i))
+            assert(AccountFormatter.validUserName(i))
         }
 
     }
@@ -65,7 +81,7 @@ class TestLoginLogoutMethods {
         val goodPasswords = mutableListOf("Testing123!", "1AKJFDS!!!", "lolmAk5?", "!sodOLf6", "&&&&&&&&&&&&P")
         for (i in goodPasswords.indices){
             println(goodPasswords[i])
-            assert(AccountAccessor.validPassword(goodPasswords[i].toCharArray()))
+            assert(AccountFormatter.validPassword(goodPasswords[i].toCharArray()))
         }
     }
     @Test
@@ -73,7 +89,7 @@ class TestLoginLogoutMethods {
         val badPassowrds = mutableListOf("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "123", "#############################", "pas123", "!!!!!!!aslkfdslkmfldklskdfm")
         for (i in badPassowrds.indices){
             println(badPassowrds[i])
-            assert(!AccountAccessor.validPassword(badPassowrds[i].toCharArray()))
+            assert(!AccountFormatter.validPassword(badPassowrds[i].toCharArray()))
         }
     }
 

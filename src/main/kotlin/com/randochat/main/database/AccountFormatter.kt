@@ -2,8 +2,8 @@ package com.randochat.main.database
 
 import org.apache.commons.validator.routines.EmailValidator
 import java.util.*
-
-class AccountAccessor (val accountRepository: AccountRepository){
+import org.springframework.security.crypto.bcrypt.BCrypt
+class AccountFormatter (val accountRepository: AccountRepository){
     companion object {
         fun encodeAccount(string: String): String{
             return Base64.getEncoder().encodeToString(string.toByteArray())
@@ -12,7 +12,7 @@ class AccountAccessor (val accountRepository: AccountRepository){
             return String(Base64.getDecoder().decode(accountString))
         }
         //this method might be better off outside comapnion object
-        fun stringToAccount(account: String): Account{
+        fun stringToAccount(account: String): Account?{
             val temp = account.toCharArray()
             //staing example email@email.com\username\password\
 
@@ -27,32 +27,28 @@ class AccountAccessor (val accountRepository: AccountRepository){
                     for (j in start until i){
                         sb.append(temp[j])
                     }
-                    //todo, this can be simplified, drys
                     when(extractedValues){
                         0 -> {
                           if (EmailValidator.getInstance().isValid(sb.toString())){
                               extractedAccount.email = sb.toString()
                               extractedValues++
                           }else{
-                              //todo, handle invalid email. maybe return a null object for the caller to handle?
-                              //invalid formats should be handled client side anyway
+                              extractedValues = 5
+                              break
                           }
                         }
                         1 -> {
                             if (validUserName(sb.toString())){
                                 extractedAccount.userName = sb.toString()
-                            }else{
-
+                                extractedValues++
                             }
                         }
                         2 ->{
                             if (validPassword(sb.toString().toCharArray())){
-                                val password = sb.toString().toCharArray()
+                                val password = BCrypt.hashpw(sb.toString(), BCrypt.gensalt())
                                 sb.clear()
-                                //hash password
-
-                            }else{
-
+                                extractedAccount.password = password
+                                extractedValues++
                             }
                             break
                         }
@@ -60,8 +56,7 @@ class AccountAccessor (val accountRepository: AccountRepository){
                     start = i + 1
                 }
             }
-            //todo, validate email adresses username passwords before defining account object varibles
-            return Account()
+            return if (extractedValues == 5 || extractedValues < 3) null else (extractedAccount)
         }
         fun validUserName(user: String): Boolean{
             //min of four characters, , max size of 16, for now, i'll allow three special characters"
@@ -111,7 +106,5 @@ class AccountAccessor (val accountRepository: AccountRepository){
         }
 
     }
-
-    fun correctPassword(): Nothing = TODO()
 
 }
