@@ -4,28 +4,27 @@ import com.randochat.main.database.Account
 import com.randochat.main.database.AccountFormatter
 import com.randochat.main.values.AuthCodes
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.fail
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.security.crypto.bcrypt.BCrypt
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import org.junit.jupiter.api.fail
-import org.springframework.security.crypto.bcrypt.BCrypt
-
 
 @SpringBootTest
 @AutoConfigureMockMvc
 class TestLoginLogoutServer {
-
     @Test
     fun testRegisterEndpoint(@Autowired mockServer: MockMvc) {
         mockServer.perform(get("/accounts/create", )
                 .header("newAccount", AccountFormatter.encodeAccount("email@email.com\\username\\VALIDPASSWORD856!\\"))
-                .header("code", AuthCodes.codeAcsess[0]))
+                .header("code", AuthCodes.codeAccess[0]))
                 .andExpect(status().isOk)
                 .andExpect(content().string("registered"))
+
     }
 
 
@@ -45,11 +44,8 @@ class TestLoginLogoutMethods {
         account.email = "email@email.com"
         account.password = BCrypt.hashpw("password", BCrypt.gensalt())
         account.userName = "username"
-        val accountToCompare = AccountFormatter.stringToAccount(accountString)
+        val accountToCompare = AccountFormatter.stringToAccount(accountString) ?: fail("invalid entry")
 
-        if (accountToCompare == null){
-            fail("invalid entry")
-        }
         println("email")
         assert(account.email == accountToCompare.email)
         // can't compare the two password hashed so will compare length to see if hashed
@@ -57,6 +53,11 @@ class TestLoginLogoutMethods {
         assert(account.password.length > 8 && accountToCompare.password.length > 8)
         println("username")
         assert(account.userName == accountToCompare.userName)
+    }
+    @Test
+    fun testStringToAccount2(){
+        val account = "email@email.com\\username\\VALIDPASSWORD856!\\"
+        if (AccountFormatter.stringToAccount(account) == null) fail("null")
     }
     @Test
     fun testAccFromStringBadAccount(){
