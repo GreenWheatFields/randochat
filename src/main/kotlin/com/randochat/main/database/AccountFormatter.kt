@@ -1,8 +1,12 @@
 package com.randochat.main.database
 
+import com.randochat.main.values.AuthCodes
 import org.apache.commons.validator.routines.EmailValidator
+import org.jetbrains.annotations.NonNls
 import java.util.*
 import org.springframework.security.crypto.bcrypt.BCrypt
+import javax.servlet.http.HttpServletRequest
+
 class AccountFormatter (val accountRepository: AccountRepository){
     companion object {
         fun encodeAccount(string: String): String{
@@ -103,6 +107,14 @@ class AccountFormatter (val accountRepository: AccountRepository){
                 password[i] = 0.toChar()
             }
             return symbol == capital
+        }
+
+        fun validRequestParamsAcc(request: HttpServletRequest, accKey: String, codeKey: String): Boolean{
+            //todo, might break at a null request object
+            //todo, this shuold ideally return an account object. as the current way calls some of these methods twice
+            return(stringToAccount(decodeAccount(request.getHeader(accKey))) != null && AuthCodes.codes.contains(request.getHeader(codeKey)))
+
+
         }
 
     }
