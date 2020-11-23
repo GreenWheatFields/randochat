@@ -95,5 +95,11 @@ class TestLoginLogoutMethods {
             assert(!AccountFormatter.validPassword(badPassowrds[i].toCharArray()))
         }
     }
+//    @Test
+//    fun testCompareingPasswords(){
+//        val pass1 = BCrypt.hashpw("123", BCrypt.gensalt())
+//        println(BCrypt.checkpw("123", pass1))
+//
+//    }
 
 }

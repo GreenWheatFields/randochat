@@ -21,10 +21,20 @@ class LoginAccount @Autowired constructor(final val accountRepo: AccountReposito
         if(!AccountFormatter.validRequestParamsAcc(request, "account", "code")){
             return ResponseEntity(HttpStatus.BAD_REQUEST)
         }
-        val acc = AccountFormatter.stringToAccount(account)
+        val acc = AccountFormatter.stringToAccount(account, false)
+        val i = charArrayOf('a','b','c','d')
         //todo, invalid loing attempts shuold be logged somewhere
         val toCompare = accountRepo.findByEmail(acc!!.email) ?: return ResponseEntity(HttpStatus.OK)
-//        if (B)
+        if (BCrypt.checkpw(acc.password, toCompare.password)){
+            //logged in, do something
+            //should pacakage the profile info text and links to the profiles images here?
+            ;
+        }else{
+            //invalid password, do something;
+            //todo, maybe a loginAttempt entity to store the attempt, and total nunmber of attempets?
+            ;
+            return(ResponseEntity(HttpStatus.UNAUTHORIZED))
+        }
 
 
         return ResponseEntity(HttpStatus.OK)

@@ -12,6 +12,7 @@ import javax.persistence.Table
 @Entity
 @Table(name = "accounts")
 class Account{
+    //todo, account Ids should be random numbers
     //id == hashed account name or account name?
     @Id
     @Column

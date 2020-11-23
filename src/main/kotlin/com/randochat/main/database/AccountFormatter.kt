@@ -16,7 +16,7 @@ class AccountFormatter (val accountRepository: AccountRepository){
             return String(Base64.getDecoder().decode(accountString))
         }
         //this method might be better off outside comapnion object
-        fun stringToAccount(account: String): Account?{
+        fun stringToAccount(account: String, hashPass: Boolean = true): Account?{
             val temp = account.toCharArray()
             //staing example email@email.com\username\password\
 
@@ -49,7 +49,7 @@ class AccountFormatter (val accountRepository: AccountRepository){
                         }
                         2 ->{
                             if (validPassword(sb.toString().toCharArray())){
-                                val password = BCrypt.hashpw(sb.toString(), BCrypt.gensalt())
+                                val password = if (hashPass) BCrypt.hashpw(sb.toString(), BCrypt.gensalt()) else (sb.toString())
                                 sb.clear()
                                 extractedAccount.password = password
                                 extractedValues++
