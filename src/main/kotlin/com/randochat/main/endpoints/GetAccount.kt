@@ -18,7 +18,7 @@ class GetAccount @Autowired constructor(val accountRepository: AccountRepository
     fun findAccount(@RequestParam("account") account: String): ResponseEntity<Any>{
         if (accountRepository.existsById(account)){
             //if isAuthorized
-            //return the account
+            //return the account details
         }else{
             return ResponseEntity(HttpStatus.FORBIDDEN)
         }
