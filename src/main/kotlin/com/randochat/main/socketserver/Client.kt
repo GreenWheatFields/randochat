@@ -4,6 +4,8 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.PrintWriter
 import java.net.Socket
+import java.net.SocketException
+import java.util.*
 
 class Client: Thread(){
      fun connect(){
@@ -11,13 +13,26 @@ class Client: Thread(){
          val output = PrintWriter(conn.getOutputStream(), true)
          val input = BufferedReader(InputStreamReader(conn.getInputStream()))
          var counter = 0
-         while (conn.isConnected){
-             output.println(counter)
-             counter++
-             println(input.readLine())
+         output.println("inital packet")
+         var inputString: String = input.readLine()
+
+         while (true){
+
+//             println(inputString)
              sleep(1000)
+             val temp = UUID.randomUUID()
+             print(temp)
+             println(Thread.currentThread().name)
+             output.println(temp)
+             counter++
              if (counter > 10) conn.close()
+             try {
+                 inputString = input.readLine()
+             }catch (e: SocketException){
+                 break
+             }
          }
+         println("break")
      }
 
     override fun run() {
