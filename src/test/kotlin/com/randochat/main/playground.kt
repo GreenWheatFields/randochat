@@ -1,8 +1,10 @@
 package com.randochat.main
 
+import java.util.concurrent.atomic.AtomicInteger
+
 
 class playground {
-    fun test(){
+    fun test(threadCounter: AtomicInteger){
         val limit = Int.MAX_VALUE
         val random = java.util.Random()
 //        println(random.nextLong())
@@ -25,16 +27,19 @@ class playground {
 
             }
         }
-        println(attempts)
-        println((System.currentTimeMillis() - startTime))
+        println(threadCounter.decrementAndGet())
+//        println(attempts)
+//        println((System.currentTimeMillis() - startTime))
     }
 }
 
 fun main() {
+    val threadCount = AtomicInteger(1000)
     repeat(1000) {
-        Thread {
-            playground().test()
-        }.start()
+        val thread = Thread {
+            playground().test(threadCount)
+        }
+        thread.start()
     }
 
 
