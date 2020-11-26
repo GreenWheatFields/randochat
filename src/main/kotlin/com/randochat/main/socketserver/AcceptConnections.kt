@@ -3,8 +3,9 @@ package com.randochat.main.socketserver
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.PrintWriter
-import java.net.ServerSocket
-import java.net.SocketException
+import java.net.*
+import java.nio.channels.*
+import java.nio.channels.ServerSocketChannel
 import java.util.concurrent.atomic.AtomicInteger
 
 
@@ -12,9 +13,33 @@ import java.util.concurrent.atomic.AtomicInteger
 // starting with a simple text chat
 class AcceptConnections: Thread() {
     fun listen(){
-        val server = ServerSocket(15620)
+//        val server = ServerSocketChannel()
+        val selector = Selector.open()
+        val server = ServerSocketChannel.open()
+        server.configureBlocking(false)
+        server.socket().bind(InetSocketAddress("localhost", 15620))
+        server.register(selector, SelectionKey.OP_ACCEPT)
         while (true){
+            selector.select()
+            val keys = selector.selectedKeys().iterator()
+            while (keys.hasNext()){
+                val key = keys.next() as SelectionKey
+                keys.remove()
+                if (key.isAcceptable){
+                    println("acceptable")
+                    val channel = key.channel() as ServerSocketChannel
+                    val newChan = channel.accept()
+                    newChan.configureBlocking(false)
+                    newChan.register(selector, SelectionKey.OP_READ, SelectionKey.OP_WRITE)
+                }
+                if (key.isReadable){
+                    println("readable")
+                }
+
+
+            }
         }
+
     }
 
     override fun run() {
@@ -25,13 +50,10 @@ class AcceptConnections: Thread() {
 
 fun main() {
     val acceptConns = AcceptConnections()
+    val client = Client()
     acceptConns.start()
-    val client1 = Client()
-    val client2 = Client()
-    client1.start()
-    client2.start()
-    acceptConns.join()
-    client1.join()
-    client2.join()
+    client.start()
+
+
 
 }

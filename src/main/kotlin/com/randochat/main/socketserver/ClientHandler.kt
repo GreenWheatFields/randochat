@@ -7,12 +7,16 @@ import java.net.Socket
 import java.net.SocketException
 import java.util.concurrent.atomic.AtomicInteger
 
-// one thread, new requests added to a q?.
-class ClientHandler (private val client: Socket): Thread(){
+// one thread. maybe a thread pool for write operations?
+class ClientHandler (): Thread(){
+//    private val client: Socket
+//    private val output = PrintWriter(client.getOutputStream(), true)
+//    private val input = BufferedReader(InputStreamReader(client.getInputStream()))
+//    var inputString = input.readLine()
+    //cycle through the
+    init {
 
-    private val output = PrintWriter(client.getOutputStream(), true)
-    private val input = BufferedReader(InputStreamReader(client.getInputStream()))
-    var inputString = input.readLine()
+    }
 
     fun listen(){
 
