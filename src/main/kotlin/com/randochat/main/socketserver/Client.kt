@@ -14,11 +14,11 @@ class Client: Thread(){
      fun connect(){
          val conn = SocketChannel.open(InetSocketAddress("localhost", 15620))
          val i = "test"
-
-         repeat(15){
-             conn.write(ByteBuffer.wrap(i.toByteArray()))
+         for(temp in 0..15){
+             conn.write(ByteBuffer.wrap(temp.toString().toByteArray()))
              sleep(1000)
          }
+
 
 
 

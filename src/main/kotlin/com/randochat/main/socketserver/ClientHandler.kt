@@ -1,50 +1,29 @@
 package com.randochat.main.socketserver
 
+import java.net.SocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels.SelectionKey
 import java.nio.channels.Selector
 import java.nio.channels.SocketChannel
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentLinkedQueue
 
 // one thread. maybe a thread pool for write operations?
-class ClientHandler (val selector: Selector, val directory: ConcurrentHashMap<Any, Any>): Thread(){
-
-    init {
-    }
+class ClientHandler (val directory: ConcurrentHashMap<SocketChannel,
+        String>, val readJobs: ConcurrentLinkedQueue<SocketChannel>): Thread(){
 
 
+    //one queue for each method?
     fun listen(){
-//        while (true){
-//            selector.select()
-//            val keys = selector.selectedKeys().iterator()
-//
-//            while (keys.hasNext()) {
-//                val key = keys.next() as SelectionKey
-//                keys.remove()
-//
-////                if (key.isConnectable){
-////                    //handle dc
-////                    println("connectable")
-////                }
-//                if (key.isReadable) {
-//                    key.hashCode()
-//                    val channel = key.channel() as SocketChannel
-//                    channel.configureBlocking(false)
-//
-//                    val buffer = ByteBuffer.allocate(1024)
-//                    var mesLen = -1
-//                    mesLen = channel.read(buffer)
-//                    if (mesLen > -1) {
-//                        println(String(Arrays.copyOfRange(buffer.array(), 0, mesLen)))
-//                    }
-//
-//                    //read message, check isReadble in here?
-//                } else if (false) {
-//                    ;
-//                }
-//            }
-//        }
+        while (true){
+            if (readJobs.peek() != null){
+                val conn = readJobs.peek()
+                println(directory[conn])
+//                readJobs.
+
+            }
+        }
 
     }
 
