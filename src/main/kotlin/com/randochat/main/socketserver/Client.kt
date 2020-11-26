@@ -14,8 +14,13 @@ class Client: Thread(){
      fun connect(){
          val conn = SocketChannel.open(InetSocketAddress("localhost", 15620))
          val i = "test"
-         conn.write(ByteBuffer.wrap(i.toByteArray()))
-         println("here")
+
+         repeat(15){
+             conn.write(ByteBuffer.wrap(i.toByteArray()))
+             sleep(1000)
+         }
+
+
 
 //         val conn = Socket("localhost", 15620)
 //         val output = PrintWriter(conn.getOutputStream(), true)
