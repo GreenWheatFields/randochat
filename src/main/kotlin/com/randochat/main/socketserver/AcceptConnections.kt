@@ -7,34 +7,14 @@ import java.net.ServerSocket
 import java.net.SocketException
 import java.util.concurrent.atomic.AtomicInteger
 
-//one thread per client for now.
+
 // the directory of connections should be an object that is never replicated and modified by one class.
 // starting with a simple text chat
 class AcceptConnections: Thread() {
     fun listen(){
-        val threadLimit = 1000
-        val threads = AtomicInteger()
         val server = ServerSocket(15620)
-        while (threads.get() < threadLimit){
-            val clientThread = ClientHandler(server.accept(), threads)
-            clientThread.start()
-            threads.getAndIncrement()
-            println(threads.get())
+        while (true){
         }
-
-//        val output = PrintWriter(client.getOutputStream(), true)
-//        val input = BufferedReader(InputStreamReader(client.getInputStream()))
-//        var inputString = input.readLine()
-//        while (inputString != null){
-////            println(inputString)
-//            output.println(System.currentTimeMillis())
-//            try {
-//                inputString = input.readLine()
-//            }catch (e: SocketException) {
-//                break
-//            }
-//        }
-//        println("disconnect detected")
     }
 
     override fun run() {
