@@ -12,6 +12,7 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.collections.HashSet
 import kotlin.reflect.typeOf
 
 
@@ -21,8 +22,8 @@ class AcceptConnections: Thread() {
     fun listen(){
         val selector = Selector.open()
         val server = ServerSocketChannel.open()
-        val directory = ConcurrentHashMap<SocketChannel, String>()
-        val readJobs = ConcurrentLinkedQueue<SocketChannel>()
+        val directory = ConcurrentHashMap<SelectionKey, String>()
+        val readJobs = ConcurrentLinkedQueue<SelectionKey>()
         server.configureBlocking(false)
         server.socket().bind(InetSocketAddress("localhost", 15620))
         server.register(selector, SelectionKey.OP_ACCEPT)
@@ -32,9 +33,14 @@ class AcceptConnections: Thread() {
         while (true){
             selector.select()
             val keys = selector.selectedKeys().iterator()
+
+
+            println(selector.selectedKeys().size)
             while (keys.hasNext()){
                 val key = keys.next() as SelectionKey
                 keys.remove()
+                println(key.hashCode())
+
                 if (key.isAcceptable){
                     println("accepting")
                     //use a pool here to handle db calls
@@ -43,22 +49,12 @@ class AcceptConnections: Thread() {
                     val newChan = channel.accept()
                     newChan.configureBlocking(false)
                     newChan.register(selector, SelectionKey.OP_READ, SelectionKey.OP_WRITE)
-                    println(newChan.hashCode())
-                    directory[newChan] = "connection"
+                    directory[key] = "connection"
 
                 }
                 if (key.isReadable){
-                    println("readable")
-                    println(key.channel().hashCode())
-                    readJobs.add(key.channel() as SocketChannel)
-
-                    val channel = key.channel() as SocketChannel
-                    val buffer = ByteBuffer.allocate(1024)
-                    var mesLen = -1
-                    mesLen = channel.read(buffer)
-                    if (mesLen > -1){
-                        println(String(Arrays.copyOfRange(buffer.array(), 0, mesLen)))
-                }
+                    println(key.hashCode())
+                    readJobs.add(key)
 
                 }
 

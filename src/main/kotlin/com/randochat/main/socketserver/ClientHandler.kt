@@ -10,8 +10,8 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 
 // one thread. maybe a thread pool for write operations?
-class ClientHandler (val directory: ConcurrentHashMap<SocketChannel,
-        String>, val readJobs: ConcurrentLinkedQueue<SocketChannel>): Thread(){
+class ClientHandler (val directory: ConcurrentHashMap<SelectionKey, String>,
+                     val readJobs: ConcurrentLinkedQueue<SelectionKey>): Thread(){
 
 
     //one queue for each method?
@@ -19,8 +19,17 @@ class ClientHandler (val directory: ConcurrentHashMap<SocketChannel,
         while (true){
             if (readJobs.peek() != null){
                 val conn = readJobs.peek()
-                println(directory[conn])
-//                readJobs.
+                val connect = conn.channel()
+                println(connect.isRegistered)
+                println(connect.isBlocking)
+//                val buffer = ByteBuffer.allocate(1024)
+//                var mesLen = conn.channel() //.read(buffer)
+//                if (mesLen > -1){
+//                    //process message
+////                    println(String(Arrays.copyOfRange(buffer.array(), 0, mesLen)))
+//                }
+                readJobs.remove()
+
 
             }
         }
