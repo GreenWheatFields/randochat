@@ -22,7 +22,7 @@ class AcceptConnections: Thread() {
     fun listen(){
         val selector = Selector.open()
         val server = ServerSocketChannel.open()
-        val directory = ConcurrentHashMap<SelectionKey, String>()
+        val directory = ConcurrentHashMap<SocketAddress, SocketChannel>()
         val readJobs = ConcurrentLinkedQueue<SelectionKey>()
         server.configureBlocking(false)
         server.socket().bind(InetSocketAddress("localhost", 15620))
@@ -33,29 +33,25 @@ class AcceptConnections: Thread() {
         while (true){
             selector.select()
             val keys = selector.selectedKeys().iterator()
-
-
-            println(selector.selectedKeys().size)
             while (keys.hasNext()){
                 val key = keys.next() as SelectionKey
                 keys.remove()
-                println(key.hashCode())
-
                 if (key.isAcceptable){
                     println("accepting")
                     //use a pool here to handle db calls
                     //this thread should just determine whether a connection is valid.
                     val channel = key.channel() as ServerSocketChannel
                     val newChan = channel.accept()
+                    println(newChan.remoteAddress)
                     newChan.configureBlocking(false)
                     newChan.register(selector, SelectionKey.OP_READ, SelectionKey.OP_WRITE)
-                    directory[key] = "connection"
+                    //hashset of permissions
+                    println(newChan.hashCode())
+                    directory.put(newChan.remoteAddress, newChan)
 
                 }
                 if (key.isReadable){
-                    println(key.hashCode())
                     readJobs.add(key)
-
                 }
 
 
