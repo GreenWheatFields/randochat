@@ -12,49 +12,83 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
 import kotlin.reflect.typeOf
 
 
-// the directory of connections should be an object that is never replicated and modified by one class.
 // starting with a simple text chat
+/*todo, this server is not a matchmaker. pairs should be created somewhere else.
+ *  maybe have a matchmaker server connected on a local network?*/
+/*
+directory<SocketAddress, Any> (key = client ipAddress):
+    {
+    0 (pairAlive): bool,
+    1 (pair): (approved pair according to matchmaker): ipAddress,
+    2 (SocketChannel): SocketChannel object created when connection accepted
+    3 (room): room object that contains the status of a room (id, timeAlive, next vote, voteResults, initialPrompt, etc)),
+    4 (other)
+    }
+
+ */
 class AcceptConnections: Thread() {
     fun listen(){
         val selector = Selector.open()
         val server = ServerSocketChannel.open()
-        val directory = ConcurrentHashMap<SocketAddress, SocketChannel>()
+        val directory = ConcurrentHashMap<SocketAddress, ConcurrentHashMap<Int, Any>>()
         val readJobs = ConcurrentLinkedQueue<SelectionKey>()
+        val waiting = LinkedList<SocketAddress>()
         server.configureBlocking(false)
         server.socket().bind(InetSocketAddress("localhost", 15620))
         server.register(selector, SelectionKey.OP_ACCEPT)
         //maybe host queues in this thread?
         val clientHandler = ClientHandler(directory, readJobs)
         clientHandler.start()
+
+        var accepted = 0
         while (true){
             selector.select()
             val keys = selector.selectedKeys().iterator()
             while (keys.hasNext()){
+
+
                 val key = keys.next() as SelectionKey
+                var canPass = true
+                canPass = !clientHandler.currJobs.contains(key.hashCode())
                 keys.remove()
-                if (key.isAcceptable){
-                    println("accepting")
-                    //use a pool here to handle db calls
-                    //this thread should just determine whether a connection is valid.
-                    val channel = key.channel() as ServerSocketChannel
-                    val newChan = channel.accept()
-                    println(newChan.remoteAddress)
-                    newChan.configureBlocking(false)
-                    newChan.register(selector, SelectionKey.OP_READ, SelectionKey.OP_WRITE)
-                    //hashset of permissions
-                    println(newChan.hashCode())
-                    directory.put(newChan.remoteAddress, newChan)
+                if (canPass) {
+                    if (key.isAcceptable) {
+//                        println("accepting")
+                        //use a pool here to handle db calls?
+                        //this thread should just determine whether a connection is valid.
+                        val channel = key.channel() as ServerSocketChannel
+                        //might need this towards the end
+                        val newChan = channel.accept() ?: break
+                        newChan.configureBlocking(false)
+                        newChan.register(selector, SelectionKey.OP_READ, SelectionKey.OP_WRITE)
+                        directory.put(newChan.remoteAddress, ConcurrentHashMap<Int, Any>())
+                        directory[newChan.remoteAddress]!![0] = true
+                        directory[newChan.remoteAddress]!![2] = newChan
+                        if (waiting.size == 0){
+                            waiting.add(newChan.remoteAddress)
+                        }else{
+                            directory[newChan.remoteAddress]!![1] = waiting.first
+                            if (directory[waiting.first]!![0] == true){
+                                //both clients connected
+                                println("here")
+                            }else{
+                                //waiting for client
+                            }
+                            waiting.remove()
+                        }
+
+                    }
+                    if (key.isReadable) {
+                        clientHandler.currJobs.add(key.hashCode())
+                        readJobs.add(key)
+                    }
 
                 }
-                if (key.isReadable){
-                    readJobs.add(key)
-                }
-
-
             }
         }
 
@@ -69,7 +103,7 @@ class AcceptConnections: Thread() {
 fun main() {
     val acceptConns = AcceptConnections()
     acceptConns.start()
-    repeat(1){
+    repeat(2){
         val client = Client()
         client.start()
     }

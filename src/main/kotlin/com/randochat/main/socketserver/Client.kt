@@ -3,6 +3,7 @@ package com.randochat.main.socketserver
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.PrintWriter
+import java.net.ConnectException
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.net.SocketException
@@ -11,13 +12,19 @@ import java.nio.channels.SocketChannel
 import java.util.*
 
 class Client: Thread(){
+     lateinit var conn: SocketChannel
      fun connect(){
-         val conn = SocketChannel.open(InetSocketAddress("localhost", 15620))
-         val i = "test"
-         for(temp in 0..1){
-             conn.write(ByteBuffer.wrap("temp.toString()".toByteArray()))
-             sleep(1000)
+         try{
+             conn = SocketChannel.open(InetSocketAddress("localhost", 15620))
+             val i = "test"
+             for(temp in 0..15){
+                 conn.write(ByteBuffer.wrap("temp.toString()".toByteArray()))
+             }
+         }catch (e: ConnectException){
+             sleep(Random().nextInt(3000).toLong())
+             connect()
          }
+
 
 
 
