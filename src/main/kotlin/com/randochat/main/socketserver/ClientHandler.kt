@@ -22,8 +22,22 @@ class ClientHandler(
         while (true){
             if (readJobs.peek() != null){
                 val temp = readJobs.peek().channel() as SocketChannel
-                val conn = directory[temp.remoteAddress]!!
+                val conn = directory[temp.remoteAddress]?.get(2) as SocketChannel
+                var client: SocketChannel? = null
+                //check for pair
+                if (directory[directory[temp.remoteAddress]!![1]] != null){
+                    println("both connected")
+                    client = directory[directory[temp.remoteAddress]!![1]]?.get(2) as SocketChannel
+                }else{
+                    println("client is waiting for connection")
+                }
                 val buffer = ByteBuffer.allocate(1024)
+                conn.read(buffer)
+                if (client != null){
+                    //todo next, allow client to recieve data
+                    client.write(buffer)
+                }
+
 //                var mesLen = conn.read(buffer)
 //                if (mesLen > -1){
 ////                    println(String(Arrays.copyOfRange(buffer.array(), 0, mesLen)))

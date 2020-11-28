@@ -1,5 +1,6 @@
 package com.randochat.main
 
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
 
@@ -30,17 +31,22 @@ class playground {
         println(threadCounter.decrementAndGet())
 //        println(attempts)
 //        println((System.currentTimeMillis() - startTime))
+//        val threadCount = AtomicInteger(1000)
+//        repeat(1000) {
+//            val thread = Thread {
+//                playground().test(threadCount)
+//            }
+//            thread.start()
+//        }
     }
 }
 
 fun main() {
-    val threadCount = AtomicInteger(1000)
-    repeat(1000) {
-        val thread = Thread {
-            playground().test(threadCount)
-        }
-        thread.start()
-    }
 
+//    val temp = ConcurrentHashMap<Int, ConcurrentHashMap<Int, Object>>()
+//    val t = HashMap<Int, Any?>()
+//    val i = null
+//    temp[5]!!.put(5, null)
+//    temp[5]?.put(0, i)
 
 }

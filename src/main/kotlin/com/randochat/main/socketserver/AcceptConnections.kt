@@ -1,6 +1,5 @@
 package com.randochat.main.socketserver
 
-import org.aspectj.apache.bcel.generic.InstructionConstants
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.PrintWriter
@@ -23,13 +22,13 @@ import kotlin.reflect.typeOf
 /*
 directory<SocketAddress, Any> (key = client ipAddress):
     {
-    0 (pairAlive): bool,
+    0 (isConnected): bool, active session
     1 (pair): (approved pair according to matchmaker): ipAddress,
     2 (SocketChannel): SocketChannel object created when connection accepted
     3 (room): room object that contains the status of a room (id, timeAlive, next vote, voteResults, initialPrompt, etc)),
     4 (other)
     }
-
+    concurrentmap doesn't like null, will use "null" instead
  */
 class AcceptConnections: Thread() {
     fun listen(){
@@ -43,6 +42,7 @@ class AcceptConnections: Thread() {
         server.register(selector, SelectionKey.OP_ACCEPT)
         //maybe host queues in this thread?
         val clientHandler = ClientHandler(directory, readJobs)
+        val nullString = "null"
         clientHandler.start()
 
         var accepted = 0
@@ -67,8 +67,13 @@ class AcceptConnections: Thread() {
                         newChan.configureBlocking(false)
                         newChan.register(selector, SelectionKey.OP_READ, SelectionKey.OP_WRITE)
                         directory.put(newChan.remoteAddress, ConcurrentHashMap<Int, Any>())
+                        //todo, can this be simplified
                         directory[newChan.remoteAddress]!![0] = true
+                        directory[newChan.remoteAddress]!![1] = nullString
                         directory[newChan.remoteAddress]!![2] = newChan
+                        directory[newChan.remoteAddress]!![3] = nullString
+                        directory[newChan.remoteAddress]!![4] = nullString
+
                         if (waiting.size == 0){
                             waiting.add(newChan.remoteAddress)
                         }else{
