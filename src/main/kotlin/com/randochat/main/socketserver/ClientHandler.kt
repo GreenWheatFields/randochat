@@ -11,8 +11,8 @@ import java.util.concurrent.ConcurrentLinkedQueue
 
 // one thread. maybe a thread pool for write operations?
 class ClientHandler(
-        val directory: ConcurrentHashMap<SocketAddress, ConcurrentHashMap<Int, Any>>,
-        val readJobs: ConcurrentLinkedQueue<SelectionKey>,
+        val directory: ConcurrentHashMap<SocketAddress, ConcurrentHashMap<String, Any>>,
+        val readJobs: ConcurrentLinkedQueue<SelectionKey>
 ): Thread(){
 
     val currJobs = Collections.newSetFromMap(ConcurrentHashMap<Int, Boolean>())
@@ -22,26 +22,23 @@ class ClientHandler(
         while (true){
             if (readJobs.peek() != null){
                 val temp = readJobs.peek().channel() as SocketChannel
-                val conn = directory[temp.remoteAddress]?.get(2) as SocketChannel
-                var client: SocketChannel? = null
+                val conn = directory[temp.remoteAddress]?.get("socketChannel") as SocketChannel
+                var talkingTo: Any? = null
                 //check for pair
-                if (directory[directory[temp.remoteAddress]!![1]] != null){
+                if (directory[directory[temp.remoteAddress]!!["pair"]] != null){
                     println("both connected")
-                    client = directory[directory[temp.remoteAddress]!![1]]?.get(2) as SocketChannel
+                    talkingTo = directory[directory[temp.remoteAddress]!!["pair"]]?.get("socketChannel")
                 }else{
                     println("client is waiting for connection")
                 }
+                //once everything is established as valid, just relay the message
                 val buffer = ByteBuffer.allocate(1024)
                 conn.read(buffer)
-                if (client != null){
+                if (talkingTo != null){
+                    talkingTo as SocketChannel
                     //todo next, allow client to recieve data
-                    client.write(buffer)
+                    talkingTo.write(buffer)
                 }
-
-//                var mesLen = conn.read(buffer)
-//                if (mesLen > -1){
-////                    println(String(Arrays.copyOfRange(buffer.array(), 0, mesLen)))
-//                }
                 currJobs.remove(readJobs.peek().hashCode())
                 readJobs.remove()
             }

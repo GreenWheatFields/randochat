@@ -15,6 +15,7 @@ class Client: Thread(){
      lateinit var conn: SocketChannel
      fun connect(){
          try{
+             sleep(Random().nextInt(3000).toLong())
              conn = SocketChannel.open(InetSocketAddress("localhost", 15620))
              val i = "test"
              for(temp in 0..15){

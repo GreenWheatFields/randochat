@@ -28,21 +28,21 @@ directory<SocketAddress, Any> (key = client ipAddress):
     3 (room): room object that contains the status of a room (id, timeAlive, next vote, voteResults, initialPrompt, etc)),
     4 (other)
     }
-    concurrentmap doesn't like null, will use "null" instead
+    concurrentmap doesn't like null, will use int 101 instead
  */
 class AcceptConnections: Thread() {
     fun listen(){
         val selector = Selector.open()
         val server = ServerSocketChannel.open()
-        val directory = ConcurrentHashMap<SocketAddress, ConcurrentHashMap<Int, Any>>()
+        val directory = ConcurrentHashMap<SocketAddress, ConcurrentHashMap<String, Any>>()
         val readJobs = ConcurrentLinkedQueue<SelectionKey>()
         val waiting = LinkedList<SocketAddress>()
         server.configureBlocking(false)
         server.socket().bind(InetSocketAddress("localhost", 15620))
         server.register(selector, SelectionKey.OP_ACCEPT)
         //maybe host queues in this thread?
+        val nullCode = 101
         val clientHandler = ClientHandler(directory, readJobs)
-        val nullString = "null"
         clientHandler.start()
 
         var accepted = 0
@@ -66,21 +66,19 @@ class AcceptConnections: Thread() {
                         val newChan = channel.accept() ?: break
                         newChan.configureBlocking(false)
                         newChan.register(selector, SelectionKey.OP_READ, SelectionKey.OP_WRITE)
-                        directory.put(newChan.remoteAddress, ConcurrentHashMap<Int, Any>())
-                        //todo, can this be simplified
-                        directory[newChan.remoteAddress]!![0] = true
-                        directory[newChan.remoteAddress]!![1] = nullString
-                        directory[newChan.remoteAddress]!![2] = newChan
-                        directory[newChan.remoteAddress]!![3] = nullString
-                        directory[newChan.remoteAddress]!![4] = nullString
-
+                        directory.put(newChan.remoteAddress, ConcurrentHashMap<String, Any>())
+                        directory[newChan.remoteAddress]!!["isConnected"] = true
+                        directory[newChan.remoteAddress]!!["pair"] = nullCode
+                        directory[newChan.remoteAddress]!!["socketChannel"] = newChan
+                        directory[newChan.remoteAddress]!!["room"] = nullCode
+                        directory[newChan.remoteAddress]!!["other"] = nullCode
                         if (waiting.size == 0){
                             waiting.add(newChan.remoteAddress)
                         }else{
-                            directory[newChan.remoteAddress]!![1] = waiting.first
-                            if (directory[waiting.first]!![0] == true){
+                            directory[newChan.remoteAddress]!!["pair"] = waiting.first
+                            if (directory[waiting.first]!!["isConnected"] == true){
                                 //both clients connected
-                                println("here")
+                                //todo, generate Room here?
                             }else{
                                 //waiting for client
                             }
