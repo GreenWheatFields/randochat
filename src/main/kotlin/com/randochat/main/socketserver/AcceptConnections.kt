@@ -31,62 +31,36 @@ directory<SocketAddress, Any> (key = client ipAddress):
     concurrentmap doesn't like null, will use int 101 instead
  */
 class AcceptConnections: Thread() {
-    fun listen(){
-        val selector = Selector.open()
-        val server = ServerSocketChannel.open()
-        val directory = ConcurrentHashMap<SocketAddress, ConcurrentHashMap<String, Any>>()
-        val readJobs = ConcurrentLinkedQueue<SelectionKey>()
-        val waiting = LinkedList<SocketAddress>()
+
+    val selector = Selector.open()
+    val server = ServerSocketChannel.open()
+    val readJobs = ConcurrentLinkedQueue<SelectionKey>()
+    val waiting = LinkedList<SocketAddress>()
+    val directory = ConcurrentHashMap<SocketAddress, ConcurrentHashMap<String, Any>>()
+    val nullCode = 101
+    val clientHandler = ClientHandler(directory, readJobs)
+    private val roomCreator: Room = Room()
+
+
+    init {
         server.configureBlocking(false)
         server.socket().bind(InetSocketAddress("localhost", 15620))
         server.register(selector, SelectionKey.OP_ACCEPT)
-        //maybe host queues in this thread?
-        val nullCode = 101
-        val clientHandler = ClientHandler(directory, readJobs)
-        clientHandler.start()
+    }
 
+    fun listen(){
+        clientHandler.start()
         var accepted = 0
         while (true){
             selector.select()
             val keys = selector.selectedKeys().iterator()
             while (keys.hasNext()){
-
-
                 val key = keys.next() as SelectionKey
-                var canPass = true
-                canPass = !clientHandler.currJobs.contains(key.hashCode())
                 keys.remove()
-                if (canPass) {
+                //todo, this gets checked multiple times per key after a key has been assigned to a job
+                if (!clientHandler.currJobs.contains(key.hashCode())) {
                     if (key.isAcceptable) {
-//                        println("accepting")
-                        //use a pool here to handle db calls?
-                        //this thread should just determine whether a connection is valid.
-                        val channel = key.channel() as ServerSocketChannel
-                        //might need this towards the end
-                        val newChan = channel.accept() ?: break
-                        newChan.configureBlocking(false)
-                        newChan.register(selector, SelectionKey.OP_READ, SelectionKey.OP_WRITE)
-                        directory.put(newChan.remoteAddress, ConcurrentHashMap<String, Any>()).also{
-                            directory[newChan.remoteAddress]!!["isConnected"] = true
-                            directory[newChan.remoteAddress]!!["pair"] = nullCode
-                            directory[newChan.remoteAddress]!!["socketChannel"] = newChan
-                            directory[newChan.remoteAddress]!!["room"] = nullCode
-                            directory[newChan.remoteAddress]!!["other"] = nullCode
-                        }
-
-                        if (waiting.size == 0){
-                            waiting.add(newChan.remoteAddress)
-                        }else{
-                            directory[newChan.remoteAddress]!!["pair"] = waiting.first
-                            if (directory[waiting.first]!!["isConnected"] == true){
-                                //both clients connected
-                                //todo, generate Room here?
-                            }else{
-                                //waiting for client
-                            }
-                            waiting.remove()
-                        }
-
+                        acceptConn(key)
                     }
                     if (key.isReadable) {
                         clientHandler.currJobs.add(key.hashCode())
@@ -96,6 +70,38 @@ class AcceptConnections: Thread() {
                 }
             }
         }
+
+    }
+    fun acceptConn(key: SelectionKey){
+        //use a pool here to handle db calls?
+        //this thread should just determine whether a connection is valid.
+        val channel = key.channel() as ServerSocketChannel
+        val newChan = channel.accept()
+        val userKey = newChan.remoteAddress
+        newChan.configureBlocking(false)
+        newChan.register(selector, SelectionKey.OP_READ, SelectionKey.OP_WRITE)
+        directory.put(userKey, ConcurrentHashMap<String, Any>()).also{
+            directory[userKey]!!["isConnected"] = true
+            directory[userKey]!!["pair"] = nullCode
+            directory[userKey]!!["socketChannel"] = newChan
+            directory[userKey]!!["room"] = nullCode
+            directory[userKey]!!["other"] = nullCode
+        }
+
+        if (waiting.size == 0){
+            waiting.add(userKey)
+        }else{
+            directory[userKey]!!["pair"] = waiting.first
+            if (directory[waiting.first]!!["isConnected"] == true){
+                //both clients connected
+                //todo, generate Room here?
+                directory
+            }else{
+                //waiting for client
+            }
+            waiting.remove()
+        }
+
 
     }
 

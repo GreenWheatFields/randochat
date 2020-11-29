@@ -16,34 +16,39 @@ class ClientHandler(
 ): Thread(){
 
     val currJobs = Collections.newSetFromMap(ConcurrentHashMap<Int, Boolean>())
-
     //one queue for each method?
     fun listen(){
         while (true){
             if (readJobs.peek() != null){
-                val temp = readJobs.peek().channel() as SocketChannel
-                val conn = directory[temp.remoteAddress]?.get("socketChannel") as SocketChannel
-                var talkingTo: Any? = null
-                //check for pair
-                if (directory[directory[temp.remoteAddress]!!["pair"]] != null){
-                    println("both connected")
-                    talkingTo = directory[directory[temp.remoteAddress]!!["pair"]]?.get("socketChannel")
-                }else{
-                    println("client is waiting for connection")
-                }
-                //once everything is established as valid, simply relay the message
-                val buffer = ByteBuffer.allocate(1024)
-                conn.read(buffer)
-                if (talkingTo != null){
-                    talkingTo as SocketChannel
-                    //todo next, allow client to recieve data
-                    talkingTo.write(buffer)
-                }
-                currJobs.remove(readJobs.peek().hashCode())
-                readJobs.remove()
+                read()
             }
-        }
 
+        }
+    }
+    fun read(){
+        val temp = readJobs.peek().channel() as SocketChannel
+        val conn = directory[temp.remoteAddress]?.get("socketChannel") as SocketChannel
+        var talkingTo: Any? = null
+        //check for pair
+        if (directory[directory[temp.remoteAddress]!!["pair"]] != null){
+//            println("both connected")
+            // could be simplfied as directory[userKey][room].isAlive or isBothConnected?
+            println(directory[temp.remoteAddress]?.get("isConnected"))
+            talkingTo = directory[directory[temp.remoteAddress]!!["pair"]]?.get("socketChannel") as SocketChannel
+            println(directory[talkingTo.remoteAddress]?.get("isConnected"))
+        }else{
+//            println("client is waiting for connection")
+        }
+        //once everything is established as valid, simply relay the message
+        val buffer = ByteBuffer.allocate(1024)
+        conn.read(buffer)
+        if (talkingTo != null){
+            talkingTo as SocketChannel
+            //todo next, allow client to recieve data
+            talkingTo.write(buffer)
+        }
+        currJobs.remove(readJobs.peek().hashCode())
+        readJobs.remove()
     }
 
     override fun run() {

@@ -17,43 +17,25 @@ class Client: Thread(){
          try{
              sleep(Random().nextInt(3000).toLong())
              conn = SocketChannel.open(InetSocketAddress("localhost", 15620))
-             val i = "test"
-             for(temp in 0..15){
-                 conn.write(ByteBuffer.wrap("temp.toString()".toByteArray()))
+             conn.configureBlocking(false)
+             val i = Random().nextInt(3000).toString()
+             var buff = ByteBuffer.allocate(1024)
+             for(temp in 0..150){
+                 conn.write(ByteBuffer.wrap(i.toByteArray()))
+                 Random().nextInt(3000).toString()
+                 sleep(Random().nextInt(1000).toLong())
+                 val mesLen = conn.read(buff)
+                 println(String(Arrays.copyOfRange(buff.array(), 0 ,5)))
+
+
              }
          }catch (e: ConnectException){
+             println(e.stackTrace)
              sleep(Random().nextInt(3000).toLong())
              connect()
          }
 
 
-
-
-
-//         val conn = Socket("localhost", 15620)
-//         val output = PrintWriter(conn.getOutputStream(), true)
-//         val input = BufferedReader(InputStreamReader(conn.getInputStream()))
-//         var counter = 0
-//         output.println("inital packet")
-//         var inputString: String = input.readLine()
-//
-//         while (true){
-//
-////             println(inputString)
-//             sleep(1000)
-//             val temp = UUID.randomUUID()
-//             print(temp)
-//             println(Thread.currentThread().name)
-//             output.println(temp)
-//             counter++
-//             if (counter > 10) conn.close()
-//             try {
-//                 inputString = input.readLine()
-//             }catch (e: SocketException){
-//                 break
-//             }
-//         }
-//         println("break")
      }
 
     override fun run() {
