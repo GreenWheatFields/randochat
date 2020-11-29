@@ -1,19 +1,14 @@
 package com.randochat.main.socketserver
 
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.io.PrintWriter
-import java.net.*
-import java.nio.ByteBuffer
-import java.nio.channels.*
+import java.net.InetSocketAddress
+import java.net.SocketAddress
+import java.nio.channels.SelectionKey
+import java.nio.channels.Selector
 import java.nio.channels.ServerSocketChannel
+import java.nio.channels.SocketChannel
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.concurrent.atomic.AtomicInteger
-import kotlin.collections.ArrayList
-import kotlin.collections.HashSet
-import kotlin.reflect.typeOf
 
 
 // starting with a simple text chat
@@ -36,10 +31,10 @@ class AcceptConnections: Thread() {
     val server = ServerSocketChannel.open()
     val readJobs = ConcurrentLinkedQueue<SelectionKey>()
     val waiting = LinkedList<SocketAddress>()
+    // declare initial capacity?
     val directory = ConcurrentHashMap<SocketAddress, ConcurrentHashMap<String, Any>>()
     val nullCode = 101
     val clientHandler = ClientHandler(directory, readJobs)
-    private val roomCreator: Room = Room()
 
 
     init {
@@ -49,6 +44,7 @@ class AcceptConnections: Thread() {
     }
 
     fun listen(){
+        //todo, somewhere, blank lines are being printed
         clientHandler.start()
         var accepted = 0
         while (true){
@@ -80,6 +76,7 @@ class AcceptConnections: Thread() {
         val userKey = newChan.remoteAddress
         newChan.configureBlocking(false)
         newChan.register(selector, SelectionKey.OP_READ, SelectionKey.OP_WRITE)
+        //todo, putIfAbsent() here?
         directory.put(userKey, ConcurrentHashMap<String, Any>()).also{
             directory[userKey]!!["isConnected"] = true
             directory[userKey]!!["pair"] = nullCode
@@ -94,8 +91,12 @@ class AcceptConnections: Thread() {
             directory[userKey]!!["pair"] = waiting.first
             if (directory[waiting.first]!!["isConnected"] == true){
                 //both clients connected
-                //todo, generate Room here?
-                directory
+                Room.generateRoom(userKey).also {
+                    it.add((directory[waiting.first]!!["socketChannel"] as SocketChannel).remoteAddress)
+                    directory[userKey]!!["room"] = it
+                    directory[waiting.first]!!["room"] = it
+                }
+
             }else{
                 //waiting for client
             }

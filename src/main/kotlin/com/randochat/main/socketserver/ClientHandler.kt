@@ -1,6 +1,5 @@
 package com.randochat.main.socketserver
 
-import java.net.InetSocketAddress
 import java.net.SocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels.SelectionKey
@@ -27,26 +26,36 @@ class ClientHandler(
     }
     fun read(){
         val temp = readJobs.peek().channel() as SocketChannel
-        val conn = directory[temp.remoteAddress]?.get("socketChannel") as SocketChannel
-        var talkingTo: Any? = null
-        //check for pair
-        if (directory[directory[temp.remoteAddress]!!["pair"]] != null){
-//            println("both connected")
-            // could be simplfied as directory[userKey][room].isAlive or isBothConnected?
-            println(directory[temp.remoteAddress]?.get("isConnected"))
-            talkingTo = directory[directory[temp.remoteAddress]!!["pair"]]?.get("socketChannel") as SocketChannel
-            println(directory[talkingTo.remoteAddress]?.get("isConnected"))
+        val conn = directory[temp.remoteAddress]?.get("socketChannel") as SocketChannel //?: do something that stops execution if null
+        var talkingTo: SocketChannel
+        var room: Room
+        if (directory[temp.remoteAddress]!!["room"] !is Int){
+//            println("here")
+            room = directory[temp.remoteAddress]!!["room"] as Room
+            if (room.isFull){
+//                println("full room")
+//                println(room.twoConnections(directory))
+//                if (room.isBothConnected)
+                room.twoConnections(directory)
+//                talkingTo = directory[room.getOther(conn.remoteAddress)]!!["socketChannel"] as SocketChannel
+
+            }
         }else{
-//            println("client is waiting for connection")
+//            println("unfull room")
+            //still waiting for pair. client sending messages earlier than allowed
         }
+////            println(directory[talkingTo.remoteAddress]?.get("isConnected"))
+//        }else{
+////            println("client is waiting for connection")
+//        }
         //once everything is established as valid, simply relay the message
-        val buffer = ByteBuffer.allocate(1024)
-        conn.read(buffer)
-        if (talkingTo != null){
-            talkingTo as SocketChannel
-            //todo next, allow client to recieve data
-            talkingTo.write(buffer)
-        }
+//        val buffer = ByteBuffer.allocate(1024)
+//        conn.read(buffer)
+//        if (talkingTo != null){
+//            talkingTo as SocketChannel
+//            //todo next, allow client to recieve data
+//            talkingTo.write(buffer)
+//        }
         currJobs.remove(readJobs.peek().hashCode())
         readJobs.remove()
     }

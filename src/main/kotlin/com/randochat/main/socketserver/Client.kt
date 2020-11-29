@@ -25,7 +25,10 @@ class Client: Thread(){
                  Random().nextInt(3000).toString()
                  sleep(Random().nextInt(1000).toLong())
                  val mesLen = conn.read(buff)
-                 println(String(Arrays.copyOfRange(buff.array(), 0 ,5)))
+//                 println(String(Arrays.copyOfRange(buff.array(), 0 ,5)))
+                 if (Random().nextInt(10) == 6){
+//                     conn.close()
+                 }
 
 
              }
