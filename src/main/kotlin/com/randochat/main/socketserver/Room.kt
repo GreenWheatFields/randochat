@@ -31,18 +31,16 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
     var isFull = false
 
     fun add(member: SocketAddress){
-        members[0] = member
+        members[1] = member
         isFull = true
     }
     fun getOther(target: SocketAddress): SocketAddress?{
         return if (members[0] == target) members[1] else members[0]
     }
     fun twoConnections(directory: ConcurrentHashMap<SocketAddress, ConcurrentHashMap<String, Any>>):Boolean{
-        println()
         if (members[0] is SocketAddress && members[1] is SocketAddress){
-            println("called")
             if ((directory[members[0]]!!["socketChannel"] as SocketChannel).isConnected && (directory[members[1]]!!["socketChannel"] as SocketChannel).isConnected)
-                return true
+            return true
         }
         return false
     }

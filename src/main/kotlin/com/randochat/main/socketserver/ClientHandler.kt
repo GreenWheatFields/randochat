@@ -33,10 +33,17 @@ class ClientHandler(
 //            println("here")
             room = directory[temp.remoteAddress]!!["room"] as Room
             if (room.isFull){
-//                println("full room")
-//                println(room.twoConnections(directory))
-//                if (room.isBothConnected)
-                room.twoConnections(directory)
+
+                val conn = directory[room.members[0]]!!["socketChannel"] as SocketChannel
+                println(conn.isOpen)
+                conn.read(ByteBuffer.allocate(1024))
+                conn.write(ByteBuffer.wrap("skjdfgnskdfjndkjn".toByteArray()))
+
+//                if (room.twoConnections(directory)){
+//                    //do something
+//                }else{
+//                    println("dc")
+//                }
 //                talkingTo = directory[room.getOther(conn.remoteAddress)]!!["socketChannel"] as SocketChannel
 
             }

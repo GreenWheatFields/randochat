@@ -15,26 +15,25 @@ class Client: Thread(){
      lateinit var conn: SocketChannel
      fun connect(){
          try{
-             sleep(Random().nextInt(3000).toLong())
+//             sleep(Random().nextInt(3000).toLong())
              conn = SocketChannel.open(InetSocketAddress("localhost", 15620))
              conn.configureBlocking(false)
              val i = Random().nextInt(3000).toString()
              var buff = ByteBuffer.allocate(1024)
-             for(temp in 0..150){
+             for(temp in 0..100){
+                 println(temp)
                  conn.write(ByteBuffer.wrap(i.toByteArray()))
-                 Random().nextInt(3000).toString()
-                 sleep(Random().nextInt(1000).toLong())
+
+//                 sleep(Random().nextInt(50).toLong())
                  val mesLen = conn.read(buff)
 //                 println(String(Arrays.copyOfRange(buff.array(), 0 ,5)))
-                 if (Random().nextInt(10) == 6){
-//                     conn.close()
-                 }
-
-
              }
+             //not working
+             println("disconnecting")
+             conn.close()
          }catch (e: ConnectException){
              println(e.stackTrace)
-             sleep(Random().nextInt(3000).toLong())
+             sleep(Random().nextInt(100).toLong())
              connect()
          }
 
