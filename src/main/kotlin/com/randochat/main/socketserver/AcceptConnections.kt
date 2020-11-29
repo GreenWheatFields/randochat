@@ -66,12 +66,14 @@ class AcceptConnections: Thread() {
                         val newChan = channel.accept() ?: break
                         newChan.configureBlocking(false)
                         newChan.register(selector, SelectionKey.OP_READ, SelectionKey.OP_WRITE)
-                        directory.put(newChan.remoteAddress, ConcurrentHashMap<String, Any>())
-                        directory[newChan.remoteAddress]!!["isConnected"] = true
-                        directory[newChan.remoteAddress]!!["pair"] = nullCode
-                        directory[newChan.remoteAddress]!!["socketChannel"] = newChan
-                        directory[newChan.remoteAddress]!!["room"] = nullCode
-                        directory[newChan.remoteAddress]!!["other"] = nullCode
+                        directory.put(newChan.remoteAddress, ConcurrentHashMap<String, Any>()).also{
+                            directory[newChan.remoteAddress]!!["isConnected"] = true
+                            directory[newChan.remoteAddress]!!["pair"] = nullCode
+                            directory[newChan.remoteAddress]!!["socketChannel"] = newChan
+                            directory[newChan.remoteAddress]!!["room"] = nullCode
+                            directory[newChan.remoteAddress]!!["other"] = nullCode
+                        }
+
                         if (waiting.size == 0){
                             waiting.add(newChan.remoteAddress)
                         }else{

@@ -31,7 +31,7 @@ class ClientHandler(
                 }else{
                     println("client is waiting for connection")
                 }
-                //once everything is established as valid, just relay the message
+                //once everything is established as valid, simply relay the message
                 val buffer = ByteBuffer.allocate(1024)
                 conn.read(buffer)
                 if (talkingTo != null){
