@@ -20,13 +20,12 @@ class Client: Thread(){
              conn.configureBlocking(false)
              val i = Random().nextInt(3000).toString()
              var buff = ByteBuffer.allocate(1024)
-             for(temp in 0..100){
+             for(temp in 0..10){
                  println(temp)
                  conn.write(ByteBuffer.wrap(i.toByteArray()))
 
-//                 sleep(Random().nextInt(50).toLong())
+                 sleep(Random().nextInt(1000).toLong())
                  val mesLen = conn.read(buff)
-//                 println(String(Arrays.copyOfRange(buff.array(), 0 ,5)))
              }
              //not working
              println("disconnecting")

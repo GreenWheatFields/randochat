@@ -1,5 +1,6 @@
 package com.randochat.main.socketserver
 
+import java.io.IOException
 import java.net.SocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels.SelectionKey
@@ -30,39 +31,45 @@ class ClientHandler(
         var talkingTo: SocketChannel
         var room: Room
         if (directory[temp.remoteAddress]!!["room"] !is Int){
-//            println("here")
             room = directory[temp.remoteAddress]!!["room"] as Room
             if (room.isFull){
+                if (room.twoConnections()){
+                    var message = ByteBuffer.allocate(1024)
+                    try {
+                        conn.read(message)
+                    }catch (e: IOException){
+                        println("disconnect detected")
+                        room.connectionStatus[conn.remoteAddress] = false
+                        //keep it open for a reconnect?
+                        //instead of sending nothing, write the status code of the lobby?
+                        return
+                    }
+                    talkingTo = directory[room.getOther(conn.remoteAddress)]!!["socketChannel"] as SocketChannel
 
-                val conn = directory[room.members[0]]!!["socketChannel"] as SocketChannel
-                println(conn.isOpen)
-                conn.read(ByteBuffer.allocate(1024))
-                conn.write(ByteBuffer.wrap("skjdfgnskdfjndkjn".toByteArray()))
+                    try {
+                        talkingTo.write(ByteBuffer.wrap(message.array()))
+                    }catch (e: IOException){
+                        println("send disconnect detected")
+                        room.connectionStatus[conn.remoteAddress] = false
+//                        talkingTo.close()
+                        return
+                    }
 
-//                if (room.twoConnections(directory)){
-//                    //do something
-//                }else{
-//                    println("dc")
-//                }
-//                talkingTo = directory[room.getOther(conn.remoteAddress)]!!["socketChannel"] as SocketChannel
-
+                }else if (room.lobbyStatus == 0){
+                    println("waiting")
+                }else if (room.lobbyStatus == 1){
+                    println("one disconnect detected")
+                    //if one person disconnects and the other is still here, add them back into matchmaking?
+                    // set a timeout for the client to reconnect
+                }else if (room.lobbyStatus == 2){
+                    println("dead lobby")
+                    // remove directory entries, close connections!!, save room object, etc
+                }
             }
         }else{
-//            println("unfull room")
-            //still waiting for pair. client sending messages earlier than allowed
+            println("here")
+            //still waiting for pair or one side disconnected or both sides disconnected?
         }
-////            println(directory[talkingTo.remoteAddress]?.get("isConnected"))
-//        }else{
-////            println("client is waiting for connection")
-//        }
-        //once everything is established as valid, simply relay the message
-//        val buffer = ByteBuffer.allocate(1024)
-//        conn.read(buffer)
-//        if (talkingTo != null){
-//            talkingTo as SocketChannel
-//            //todo next, allow client to recieve data
-//            talkingTo.write(buffer)
-//        }
         currJobs.remove(readJobs.peek().hashCode())
         readJobs.remove()
     }

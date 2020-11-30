@@ -5,6 +5,7 @@ import java.net.SocketAddress
 import java.nio.channels.SocketChannel
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.collections.HashMap
 
 //chat room data
 //        id: String, uuid
@@ -29,21 +30,34 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
         }
 
     var isFull = false
+    var connectionStatus = HashMap<SocketAddress?, Boolean>(2)
+    var lobbyStatus = 0 //0: waiting with one connection, 1: one disconnected, 2: two disconnected/dead lobby
+
 
     fun add(member: SocketAddress){
         members[1] = member
         isFull = true
+        connectionStatus[members[0]] = true
+        connectionStatus[members[1]] = true
     }
     fun getOther(target: SocketAddress): SocketAddress?{
         return if (members[0] == target) members[1] else members[0]
     }
-    fun twoConnections(directory: ConcurrentHashMap<SocketAddress, ConcurrentHashMap<String, Any>>):Boolean{
-        if (members[0] is SocketAddress && members[1] is SocketAddress){
-            if ((directory[members[0]]!!["socketChannel"] as SocketChannel).isConnected && (directory[members[1]]!!["socketChannel"] as SocketChannel).isConnected)
-            return true
+    fun twoConnections():Boolean{ //return true if two connections,
+        if (isFull){
+            if (connectionStatus[members[0]]!!){
+                if (connectionStatus[members[1]]!!){
+                    return true
+                }
+                return false
+            }
         }
         return false
     }
+    fun notifyDisconnect(target: SocketAddress){
+        //remove entry, adjust lobby status
+    }
+
     //called when room is closed, save the room somewhere?
     fun save(): Nothing = TODO()
 
