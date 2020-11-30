@@ -59,6 +59,7 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
     }
     fun notifyDisconnect(target: SocketAddress): Int {
         //remove entry, adjust lobby status
+        //todo, setTimeout to 0 when complete disconnect.
         connectionStatus[target]!![0] = false
         connectionStatus[target]!![1] = false
         val otherConn = getOther(target)
@@ -77,7 +78,9 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
         }else{
             lobbyStatus = 2
         }
-        timeOut = System.currentTimeMillis() + 3000
+        if (timeOut == 0L){
+            timeOut = System.currentTimeMillis() + 3000
+        }
         isHealthy = false
         return lobbyStatus
     }

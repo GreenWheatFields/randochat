@@ -70,7 +70,10 @@ class ClientHandler(
                     }
                     1 -> {
                         //wait for timeout, then kill. 3 seconds for now
-                        println(System.currentTimeMillis() - room.timeOut)
+                        if (System.currentTimeMillis() - room.timeOut > 3000){
+                            // kill room, if any connections send them back to queue, if not save room statistics.
+                            System.exit(5)
+                        }
 
                     }
                     2 -> {
@@ -81,6 +84,8 @@ class ClientHandler(
 
                 //still waiting for pair or one side disconnected or both sides disconnected?
             }
+        }else{
+            // someone with no match or room object
         }
         currJobs.remove(readJobs.peek().hashCode())
         readJobs.remove()
