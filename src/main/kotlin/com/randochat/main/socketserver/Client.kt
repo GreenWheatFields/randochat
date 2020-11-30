@@ -13,15 +13,16 @@ import java.util.*
 
 class Client: Thread(){
      lateinit var conn: SocketChannel
-     fun connect(){
+     fun connect(sleepTime: Long){
          try{
-//             sleep(Random().nextInt(3000).toLong())
+             sleep(sleepTime)
+             println("awake")
              conn = SocketChannel.open(InetSocketAddress("localhost", 15620))
              conn.configureBlocking(false)
              val i = Random().nextInt(3000).toString()
              var buff = ByteBuffer.allocate(1024)
              for(temp in 0..10){
-                 println(temp)
+//                 println(temp)
                  conn.write(ByteBuffer.wrap(i.toByteArray()))
 
                  sleep(Random().nextInt(1000).toLong())
@@ -33,7 +34,7 @@ class Client: Thread(){
          }catch (e: ConnectException){
              println(e.stackTrace)
              sleep(Random().nextInt(100).toLong())
-             connect()
+             connect(Random().nextInt(3000).toLong())
          }
 
 
@@ -41,6 +42,6 @@ class Client: Thread(){
 
     override fun run() {
         super.run()
-        connect()
+        connect(Random().nextInt(3000).toLong())
     }
 }

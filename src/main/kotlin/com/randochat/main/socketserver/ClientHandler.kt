@@ -32,46 +32,66 @@ class ClientHandler(
         var room: Room
         if (directory[temp.remoteAddress]!!["room"] !is Int){
             room = directory[temp.remoteAddress]!!["room"] as Room
-            if (room.isFull){
-                if (room.twoConnections()){
+            if (room.isHealthy){
+                if (room.twoConnections()) {
                     var message = ByteBuffer.allocate(1024)
                     try {
                         conn.read(message)
-                    }catch (e: IOException){
+                    } catch (e: IOException) {
                         println("disconnect detected")
-                        room.connectionStatus[conn.remoteAddress] = false
+                        if (readLobbyStatus(room.notifyDisconnect(conn.remoteAddress))) {
+                            // ok end lobby
+                            return
+
+                        } else {
+                            //continue
+                            println("continuing")
+                        }
                         //keep it open for a reconnect?
-                        //instead of sending nothing, write the status code of the lobby?
-                        return
+
                     }
                     talkingTo = directory[room.getOther(conn.remoteAddress)]!!["socketChannel"] as SocketChannel
-
                     try {
                         talkingTo.write(ByteBuffer.wrap(message.array()))
-                    }catch (e: IOException){
-                        println("send disconnect detected")
-                        room.connectionStatus[conn.remoteAddress] = false
-//                        talkingTo.close()
-                        return
+                    } catch (e: IOException) {
+                        println("disconnected")
+                        if (readLobbyStatus(room.notifyDisconnect(talkingTo.remoteAddress))) {
+                            return
+                        } else {
+                            println("going on")
+                        }
                     }
-
-                }else if (room.lobbyStatus == 0){
-                    println("waiting")
-                }else if (room.lobbyStatus == 1){
-                    println("one disconnect detected")
-                    //if one person disconnects and the other is still here, add them back into matchmaking?
-                    // set a timeout for the client to reconnect
-                }else if (room.lobbyStatus == 2){
-                    println("dead lobby")
-                    // remove directory entries, close connections!!, save room object, etc
                 }
+            }else{
+                when (room.lobbyStatus){
+                    0 -> {
+                        //never getting called
+                     println("waiting")
+                    }
+                    1 -> {
+                        //wait for timeout, then kill. 3 seconds for now
+                        println(System.currentTimeMillis() - room.timeOut)
+
+                    }
+                    2 -> {
+                        println("dead lobby")
+                    }
+                }
+
+
+                //still waiting for pair or one side disconnected or both sides disconnected?
             }
-        }else{
-            println("here")
-            //still waiting for pair or one side disconnected or both sides disconnected?
         }
         currJobs.remove(readJobs.peek().hashCode())
         readJobs.remove()
+    }
+    private fun readLobbyStatus(code: Int): Boolean{
+        when (code){
+            1 -> return false
+            2 -> return true
+
+        }
+        return false
     }
 
     override fun run() {
