@@ -65,30 +65,31 @@ class ClientHandler(
             }else{
                 when (room.lobbyStatus){
                     0 -> {
-                        //never getting called
-                     println("waiting")
+                        //not getting hit as often as it should?
+                     println("waiting for reconnect")
                     }
                     1 -> {
+                        //merge this code with code 0?
                         //check if other connection has disconnected also. if not, wait till timeout before killing room
                         //once a dc is detected, notify the other connected client once?
-                        if (room.isDead && System.currentTimeMillis() < room.timeOut){
+                        if (System.currentTimeMillis() > room.timeOut){
                             // kill room, if any connections send them back to queue, if not save room statistics.
+                            println("lobby timeout")
                             System.exit(1)
                         }else{
                             if (room.connectionStatus[conn.remoteAddress]!![1]){
-                                // it's testing the right channel now. todo, only test it once?
-                                println("testing" + conn.remoteAddress)
+                                // just send an "establishing connection" packet?
                                 room.isConnected(conn)
                             }else{
-                                //check if disconnected person reconnected
+                                //todo, send an empty packet to a known disconnect?
                                 room.isConnected(conn)
                             }
-
                         }
 
                     }
                     2 -> {
                         println("dead lobby")
+                        System.exit(1)
                     }
                 }
 

@@ -37,7 +37,6 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
     var lobbyStatus = 0 //0: waiting with one connection, 1: one disconnected, 2: two disconnected/dead lobby, 3: normal/active
     var isHealthy = true // true if waiting with no disconnects,  or active
     var timeOut = 0L
-    var isDead = false
 
     fun add(member: SocketAddress){
         members[1] = member
@@ -81,7 +80,7 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
             lobbyStatus = 2
         }
         if (timeOut == 0L){
-            timeOut = System.currentTimeMillis() + 10000
+            timeOut = System.currentTimeMillis() + 3000L
         }
         isHealthy = false
         return lobbyStatus
@@ -96,6 +95,8 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
         }
         return true
     }
+//    fun kill(){
+//    }
 
     //called when room is closed, save the room somewhere?
     fun save(): Nothing = TODO()
