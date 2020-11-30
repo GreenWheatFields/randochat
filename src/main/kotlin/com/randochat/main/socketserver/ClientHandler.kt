@@ -38,14 +38,14 @@ class ClientHandler(
                     try {
                         conn.read(message)
                     } catch (e: IOException) {
-                        println("disconnect detected")
                         if (readLobbyStatus(room.notifyDisconnect(conn.remoteAddress))) {
                             // ok end lobby
+                            currJobs.remove(readJobs.peek().hashCode())
+                            readJobs.remove()
                             return
 
                         } else {
                             //continue
-                            println("continuing")
                         }
                         //keep it open for a reconnect?
 
@@ -69,10 +69,21 @@ class ClientHandler(
                      println("waiting")
                     }
                     1 -> {
-                        //wait for timeout, then kill. 3 seconds for now
-                        if (System.currentTimeMillis() - room.timeOut > 3000){
+                        //check if other connection has disconnected also. if not, wait till timeout before killing room
+                        //once a dc is detected, notify the other connected client once?
+                        if (room.isDead && System.currentTimeMillis() < room.timeOut){
                             // kill room, if any connections send them back to queue, if not save room statistics.
-                            System.exit(5)
+                            System.exit(1)
+                        }else{
+                            if (room.connectionStatus[conn.remoteAddress]!![1]){
+                                // it's testing the right channel now. todo, only test it once?
+                                println("testing" + conn.remoteAddress)
+                                room.isConnected(conn)
+                            }else{
+                                //check if disconnected person reconnected
+                                room.isConnected(conn)
+                            }
+
                         }
 
                     }

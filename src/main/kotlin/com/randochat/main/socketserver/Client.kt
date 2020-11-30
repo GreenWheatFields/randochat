@@ -21,18 +21,18 @@ class Client: Thread(){
              conn.configureBlocking(false)
              val i = Random().nextInt(3000).toString()
              var buff = ByteBuffer.allocate(1024)
-             for(temp in 0..10){
-//                 println(temp)
+             for(temp in 0..100){
+//                 println(Thread.currentThread().name + " is sending " + temp.toString())
                  conn.write(ByteBuffer.wrap(i.toByteArray()))
 
-                 sleep(Random().nextInt(1000).toLong())
+                 sleep(Random().nextInt(10).toLong())
                  val mesLen = conn.read(buff)
+
              }
-             //not working
-             println("disconnecting")
-             conn.close()
+             println(Thread.currentThread().name + "is disconencting")
+             conn.socket().close()
          }catch (e: ConnectException){
-             println(e.stackTrace)
+             println(e.printStackTrace())
              sleep(Random().nextInt(100).toLong())
              connect(Random().nextInt(3000).toLong())
          }

@@ -1,11 +1,14 @@
 package com.randochat.main.socketserver
 
+import java.io.IOException
 import java.net.Socket
 import java.net.SocketAddress
+import java.nio.ByteBuffer
 import java.nio.channels.SocketChannel
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.collections.HashMap
+import kotlin.collections.HashSet
 
 //chat room data
 //        id: String, uuid
@@ -34,7 +37,7 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
     var lobbyStatus = 0 //0: waiting with one connection, 1: one disconnected, 2: two disconnected/dead lobby, 3: normal/active
     var isHealthy = true // true if waiting with no disconnects,  or active
     var timeOut = 0L
-    var waiting = true
+    var isDead = false
 
     fun add(member: SocketAddress){
         members[1] = member
@@ -42,7 +45,6 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
         connectionStatus[members[0]] = arrayOf(true, true)
         connectionStatus[members[1]] = arrayOf(true, true)
         isHealthy = true
-
         lobbyStatus = 3
     }
     fun getOther(target: SocketAddress): SocketAddress?{
@@ -79,10 +81,20 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
             lobbyStatus = 2
         }
         if (timeOut == 0L){
-            timeOut = System.currentTimeMillis() + 3000
+            timeOut = System.currentTimeMillis() + 10000
         }
         isHealthy = false
         return lobbyStatus
+    }
+    fun isConnected(target: SocketChannel): Boolean{
+
+        try {
+            target.write(ByteBuffer.wrap("test".toByteArray()))
+        }catch (e: IOException){
+            notifyDisconnect(target.remoteAddress)
+            return false
+        }
+        return true
     }
 
     //called when room is closed, save the room somewhere?
