@@ -74,11 +74,17 @@ class ClientHandler(
                         //once a dc is detected, notify the other connected client once?
                         if (System.currentTimeMillis() > room.timeOut){
                             // kill room, if any connections send them back to queue, if not save room statistics.
+
                             println("lobby timeout")
+                            currJobs.remove(readJobs.peek().hashCode())
+                            readJobs.remove()
+                            room.kill(directory, conn.remoteAddress)
+                            //make sure there are no refrences. maybe reuse the room?
+                            println("roomKilled")
                             System.exit(1)
                         }else{
                             if (room.connectionStatus[conn.remoteAddress]!![1]){
-                                // just send an "establishing connection" packet?
+                                // known connection
                                 room.isConnected(conn)
                             }else{
                                 //todo, send an empty packet to a known disconnect?

@@ -41,6 +41,7 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
     fun add(member: SocketAddress){
         members[1] = member
         isFull = true
+        //todo, no need for an array of booleans no that there is a timeout
         connectionStatus[members[0]] = arrayOf(true, true)
         connectionStatus[members[1]] = arrayOf(true, true)
         isHealthy = true
@@ -64,6 +65,7 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
         connectionStatus[target]!![0] = false
         connectionStatus[target]!![1] = false
         val otherConn = getOther(target)
+        println(target)
         if (isFull){
             if (connectionStatus[otherConn]!![0]){
                 lobbyStatus = 1
@@ -95,9 +97,18 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
         }
         return true
     }
-//    fun kill(){
-//    }
-
+    fun kill(directory: ConcurrentHashMap<SocketAddress, ConcurrentHashMap<String, Any>>, survivor: SocketAddress){
+//        when (lobbyStatus){
+//            1 -> {
+//                //salvage the other connection and add it back to queue
+//            }
+//            2 -> {
+//                //
+//            }
+//        }
+    }
+    //when a room is closed mutually not from any connection issue
+    fun close():Nothing = TODO()
     //called when room is closed, save the room somewhere?
     fun save(): Nothing = TODO()
 
