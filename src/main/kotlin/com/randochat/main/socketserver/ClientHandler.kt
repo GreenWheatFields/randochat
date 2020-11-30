@@ -90,6 +90,9 @@ class ClientHandler(
         currJobs.remove(readJobs.peek().hashCode())
         readJobs.remove()
     }
+    private fun closeAndCleanUp(): Nothing = TODO()
+    //determine remove refrences to dead connections, save room
+
     private fun readLobbyStatus(code: Int): Boolean{
         when (code){
             1 -> return false
