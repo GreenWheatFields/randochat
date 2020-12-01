@@ -31,10 +31,11 @@ class AcceptConnections: Thread() {
     val server = ServerSocketChannel.open()
     val readJobs = ConcurrentLinkedQueue<SelectionKey>()
     val waiting = LinkedList<SocketAddress>()
+    // ^ concurrent/atomic linkedlist?
     // declare initial capacity?
     val directory = ConcurrentHashMap<SocketAddress, ConcurrentHashMap<String, Any>>()
     val nullCode = 101
-    val clientHandler = ClientHandler(directory, readJobs)
+    val clientHandler = ClientHandler(directory, readJobs, waiting)
 
 
     init {
@@ -55,14 +56,22 @@ class AcceptConnections: Thread() {
                 keys.remove()
                 //todo, this gets checked multiple times per key after a key has been assigned to a job
                 if (!clientHandler.currJobs.contains(key.hashCode())) {
-                    if (key.isAcceptable) {
-                        acceptConn(key)
-                    }
-                    if (key.isReadable) {
-                        clientHandler.currJobs.add(key.hashCode())
-                        readJobs.add(key)
+                    if (key.isValid) {
+                        if (key.isAcceptable) {
+                            acceptConn(key)
+                        }
+                        if (key.isReadable) {
+                            clientHandler.currJobs.add(key.hashCode())
+                            readJobs.add(key)
+                        }
+                    }else{
+                        println("invalid key?")
                     }
 
+                }else{
+                    //todo, this cancels normal keys, not disconnected keys that still somehow show up
+//                    println("invalid key")
+//                    key.cancel()
                 }
             }
         }
