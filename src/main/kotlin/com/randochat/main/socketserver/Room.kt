@@ -17,7 +17,7 @@ import kotlin.collections.HashSet
 //        nextVote: when the users are able to vote on to continue the chat or reveal the profiles
 //        prompt: randomly chosen prompt. a list the choose from should not be replicated
 class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long, val startTime: Long, var nextVote: Long, var prompt: String,
-            var isBothConnected: Boolean,) {
+           var isBothConnected: Boolean,) {
     companion object{
         fun generateRoom(member: SocketAddress): Room {
             val id = UUID.randomUUID()
@@ -29,8 +29,8 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
             val members = arrayOfNulls<SocketAddress>(2)
             members[0] = member
             return Room(id, members,initTime, startTime, nextVote, prompt, isBothConnected)
-            }
         }
+    }
 
     var isFull = false
     var connectionStatus = HashMap<SocketAddress?, Array<Boolean>>(2) //2 elements of array, [0] connected, [1] waiting for reconnect
@@ -65,6 +65,7 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
         connectionStatus[target]!![0] = false
         connectionStatus[target]!![1] = false
         val otherConn = getOther(target)
+        println(target)
         if (isFull){
             if (connectionStatus[otherConn]!![0]){
                 lobbyStatus = 1
@@ -81,7 +82,7 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
             lobbyStatus = 2
         }
         if (timeOut == 0L){
-            timeOut = System.currentTimeMillis() + 100L
+            timeOut = System.currentTimeMillis() + 3000L
         }
         isHealthy = false
         return lobbyStatus
@@ -96,21 +97,15 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
         }
         return true
     }
-    fun kill(directory: ConcurrentHashMap<SocketAddress, ConcurrentHashMap<String, Any>>, survivor: SocketChannel, waiting: LinkedList<SocketAddress>, other: Boolean){
-        // for now, just remove references and send the survivor back to the matchmaker. later on, save more of the room object
-        var aliveConn: SocketChannel
-        if (other){
-            //todo , room object should save the socket channel instead of an address so it doesn't have to call the directory?
-            aliveConn = directory[getOther(survivor.remoteAddress)]!!["socketChannel"] as SocketChannel
-        }else{
-            aliveConn = survivor
-        }
-        directory.remove(getOther(aliveConn.remoteAddress))
-        directory[aliveConn.remoteAddress]!!["room"] = 101 // null code
-        waiting.add(aliveConn.remoteAddress)
-
-
-
+    fun kill(directory: ConcurrentHashMap<SocketAddress, ConcurrentHashMap<String, Any>>, survivor: SocketAddress){
+//        when (lobbyStatus){
+//            1 -> {
+//                //salvage the other connection and add it back to queue
+//            }
+//            2 -> {
+//                //
+//            }
+//        }
     }
     //when a room is closed mutually not from any connection issue
     fun close():Nothing = TODO()

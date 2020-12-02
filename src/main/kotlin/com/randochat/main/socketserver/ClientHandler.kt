@@ -12,8 +12,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 // one thread. maybe a thread pool for write operations?
 class ClientHandler(
         val directory: ConcurrentHashMap<SocketAddress, ConcurrentHashMap<String, Any>>,
-        val readJobs: ConcurrentLinkedQueue<SelectionKey>,
-        val waiting: LinkedList<SocketAddress>
+        val readJobs: ConcurrentLinkedQueue<SelectionKey>
 ): Thread(){
 
     val currJobs = Collections.newSetFromMap(ConcurrentHashMap<Int, Boolean>())
@@ -28,12 +27,7 @@ class ClientHandler(
     }
     fun read(){
         val temp = readJobs.peek().channel() as SocketChannel
-        val conn = directory[temp.remoteAddress]?.get("socketChannel")//?: do something that stops execution if null
-        if (conn !is SocketChannel){
-            currJobs.remove(readJobs.peek().hashCode())
-            readJobs.remove()
-            return
-        }
+        val conn = directory[temp.remoteAddress]?.get("socketChannel") as SocketChannel //?: do something that stops execution if null
         var talkingTo: SocketChannel
         var room: Room
         if (directory[temp.remoteAddress]!!["room"] !is Int){
@@ -46,7 +40,6 @@ class ClientHandler(
                     } catch (e: IOException) {
                         if (readLobbyStatus(room.notifyDisconnect(conn.remoteAddress))) {
                             // ok end lobby
-                            println("here")
                             currJobs.remove(readJobs.peek().hashCode())
                             readJobs.remove()
                             return
@@ -63,8 +56,6 @@ class ClientHandler(
                     } catch (e: IOException) {
                         println("disconnected")
                         if (readLobbyStatus(room.notifyDisconnect(talkingTo.remoteAddress))) {
-                            currJobs.remove(readJobs.peek().hashCode())
-                            readJobs.remove()
                             return
                         } else {
                             println("going on")
@@ -75,7 +66,7 @@ class ClientHandler(
                 when (room.lobbyStatus){
                     0 -> {
                         //not getting hit as often as it should?
-                     println("waiting for reconnect")
+                        println("waiting for reconnect")
                     }
                     1 -> {
                         //merge this code with code 0?
@@ -86,17 +77,12 @@ class ClientHandler(
 
                             println("lobby timeout")
                             currJobs.remove(readJobs.peek().hashCode())
-                            readJobs.peek().cancel()
                             readJobs.remove()
-                            //todo, this can be simplified
-                            if (room.connectionStatus[conn.remoteAddress]!![1]){
-                               room.kill(directory, conn, waiting, false)
-                            }else{
-                                room.kill(directory, conn, waiting, true)
-                            }
+                            room.kill(directory, conn.remoteAddress)
+                            //make sure there are no refrences. maybe reuse the room?
                             println("roomKilled")
+                            System.exit(1)
                         }else{
-                            //todo, consider limiting how often this is called. maybe 4 times every second
                             if (room.connectionStatus[conn.remoteAddress]!![1]){
                                 // known connection
                                 room.isConnected(conn)

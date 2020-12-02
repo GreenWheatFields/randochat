@@ -12,33 +12,33 @@ import java.nio.channels.SocketChannel
 import java.util.*
 
 class Client: Thread(){
-     lateinit var conn: SocketChannel
-     fun connect(sleepTime: Long){
-         try{
-             sleep(sleepTime)
-             println("awake")
-             conn = SocketChannel.open(InetSocketAddress("localhost", 15620))
-             conn.configureBlocking(false)
-             val i = Random().nextInt(3000).toString()
-             var buff = ByteBuffer.allocate(1024)
-             for(temp in 0..100){
+    lateinit var conn: SocketChannel
+    fun connect(sleepTime: Long){
+        try{
+            sleep(sleepTime)
+            println("awake")
+            conn = SocketChannel.open(InetSocketAddress("localhost", 15620))
+            conn.configureBlocking(false)
+            val i = Random().nextInt(3000).toString()
+            var buff = ByteBuffer.allocate(1024)
+            for(temp in 0..100){
 //                 println(Thread.currentThread().name + " is sending " + temp.toString())
-                 conn.write(ByteBuffer.wrap(i.toByteArray()))
+                conn.write(ByteBuffer.wrap(i.toByteArray()))
 
-                 sleep(Random().nextInt(100).toLong())
-                 val mesLen = conn.read(buff)
+                sleep(Random().nextInt(10).toLong())
+                val mesLen = conn.read(buff)
 
-             }
-             println(Thread.currentThread().name + "is disconencting")
-             conn.socket().close()
-         }catch (e: ConnectException){
-             println(e.printStackTrace())
-             sleep(Random().nextInt(100).toLong())
-             connect(Random().nextInt(3000).toLong())
-         }
+            }
+            println(Thread.currentThread().name + "is disconencting")
+            conn.socket().close()
+        }catch (e: ConnectException){
+            println(e.printStackTrace())
+            sleep(Random().nextInt(100).toLong())
+            connect(Random().nextInt(3000).toLong())
+        }
 
 
-     }
+    }
 
     override fun run() {
         super.run()
