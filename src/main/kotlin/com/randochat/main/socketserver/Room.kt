@@ -47,9 +47,17 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
         isHealthy = true
         lobbyStatus = 3
     }
-    fun getOther(target: SocketAddress): SocketAddress?{
+    fun getOther(target: SocketAddress): SocketAddress? {
         return if (members[0] == target) members[1] else members[0]
     }
+//    fun getSurvivors(): Array<SocketAddress> {
+//        //this could mess up when a connect is added
+//        for (conn in connectionStatus.keys) {
+//            if (connectionStatus[conn]!![0]) {
+//
+//            }
+//        }
+//    }
     fun twoConnections():Boolean{
         //merge this method with isHealthy?
         for (conn in connectionStatus.keys){
@@ -86,7 +94,7 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
         isHealthy = false
         return lobbyStatus
     }
-    fun isConnected(target: SocketChannel): Boolean{
+    fun checkConnection(target: SocketChannel): Boolean{
 
         try {
             target.write(ByteBuffer.wrap("test".toByteArray()))
@@ -97,14 +105,7 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
         return true
     }
     fun kill(survivor: SocketAddress){
-//        when (lobbyStatus){
-//            1 -> {
-//                //salvage the other connection and add it back to queue
-//            }
-//            2 -> {
-//                //
-//            }
-//        }
+        Directory
     }
     fun notifyReconnect(): Nothing = TODO("isHealthy = True")
     //when a room is closed mutually not from any connection issue

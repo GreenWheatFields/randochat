@@ -17,16 +17,7 @@ object Directory {
     }
 
 
-    fun putNewEntry(key: SocketAddress, channel: SocketChannel){
-        directory[key] = HashMap<String, Any?>(newEntryTemplate).also { it["socketChannel"] = channel }
-    }
-    fun assign(key: SocketAddress, field: String, value: Any?){
-        if (directory[key] != null){
-            //do something
-        }else{
-            directory[key]?.set(field, value)
-        }
-    }
+
     fun getBool(key: SocketAddress, field: String): Boolean {
         return directory[key]!![field] as Boolean
     }
@@ -42,6 +33,18 @@ object Directory {
     fun addRoom(key1: SocketAddress, key2: SocketAddress, room: Room){
         directory[key1]!!["room"] = room
         directory[key2]!!["room"] = room
-        println("room added")
+    }
+    fun putNewEntry(key: SocketAddress, channel: SocketChannel){
+        directory[key] = HashMap<String, Any?>(newEntryTemplate).also { it["socketChannel"] = channel }
+    }
+    fun assign(key: SocketAddress, field: String, value: Any?){
+        if (directory[key] != null){
+            //do something
+        }else{
+            directory[key]?.set(field, value)
+        }
+    }
+    fun clearEntry(key: SocketAddress){
+
     }
 }

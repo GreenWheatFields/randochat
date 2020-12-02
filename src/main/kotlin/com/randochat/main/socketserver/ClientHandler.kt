@@ -4,11 +4,7 @@ import java.io.IOException
 import java.net.SocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels.SelectableChannel
-import java.nio.channels.SelectionKey
 import java.nio.channels.SocketChannel
-import java.util.*
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentLinkedQueue
 
 // methods to talk to clients
 class ClientHandler(): Thread(){
@@ -35,7 +31,6 @@ class ClientHandler(): Thread(){
                         }
                     }
                     talkingTo = Directory.getConn(room.getOther(conn.remoteAddress) as SocketAddress)
-                    println("here")
                     try {
                         talkingTo.write(ByteBuffer.wrap(message.array()))
                     } catch (e: IOException) {
@@ -62,23 +57,24 @@ class ClientHandler(): Thread(){
             1 -> {
                 if (System.currentTimeMillis() > room.timeOut){
                     println("lobby timeout")
-                    room.kill(conn.remoteAddress)
-                    //make sure there are no refrences. maybe reuse the room?
+//                    room.kill()
+                    //reuse the room?
                     println("roomKilled")
                     System.exit(1)
                 }else{
-                    //if (currentTime - room.lastConnectionCheck) > 1000?
-                    if (room.connectionStatus[conn.remoteAddress]!![1]){
-                        // known connection
-                        room.isConnected(conn)
-                    }else{
-                        //todo, send an empty packet to a known disconnect?
-                        room.isConnected(conn)
-                    }
+//                    if (room.connectionStatus[conn.remoteAddress]!![1]){
+//                        // known connection
+//                        room.checkConnection(conn)
+//                    }else{
+//                        //todo, send an empty packet to a known disconnect?
+//                        room.checkConnection(conn)
+//                    }
+                    room.checkConnection(conn)
                 }
 
             }
             2 -> {
+                //two disconnectes
                 println("dead lobby")
                 System.exit(1)
             }
