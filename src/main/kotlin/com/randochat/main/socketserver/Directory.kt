@@ -21,4 +21,17 @@ object Directory {
     fun putNewEntry(key: SocketAddress, channel: SocketChannel){
         directory[key] = HashMap<String, Any?>(newEntryTemplate).also { it["socketChannel"] = channel }
     }
+    fun assign(key: SocketAddress, field: String, value: Any?){
+        if (directory[key] != null){
+            //do something
+        }else{
+            directory[key]?.set(field, value)
+        }
+    }
+    fun getBool(key: SocketAddress, field: String): Boolean {
+        return directory[key]!![field] as Boolean
+    }
+    fun addRoom(key: SocketAddress){
+        //get pair and add room
+    }
 }

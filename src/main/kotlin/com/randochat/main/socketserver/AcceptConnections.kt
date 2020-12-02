@@ -32,12 +32,12 @@ class AcceptConnections: Thread() {
     val readJobs = ConcurrentLinkedQueue<SelectionKey>()
     val waiting = LinkedList<SocketAddress>()
     // declare initial capacity?
-    val directory = ConcurrentHashMap<SocketAddress, ConcurrentHashMap<String, Any>>()
     val nullCode = 101
     val clientHandler = ClientHandler(directory)
 
 
     init {
+        Directory
         server.configureBlocking(false)
         server.socket().bind(InetSocketAddress("localhost", 15620))
         server.register(selector, SelectionKey.OP_ACCEPT)
@@ -74,20 +74,13 @@ class AcceptConnections: Thread() {
         newChan.configureBlocking(false)
         newChan.register(selector, SelectionKey.OP_READ, SelectionKey.OP_WRITE)
         //todo, putIfAbsent() here?
-        directory.put(userKey, ConcurrentHashMap<String, Any>()).also{
-            directory[userKey]!!["isConnected"] = true
-            directory[userKey]!!["pair"] = nullCode
-            directory[userKey]!!["socketChannel"] = newChan
-            directory[userKey]!!["room"] = nullCode
-            directory[userKey]!!["other"] = nullCode
-        }
+        Directory.putNewEntry(userKey, newChan)
 
         if (waiting.size == 0){
             waiting.add(userKey)
         }else{
-            directory[userKey]!!["pair"] = waiting.first
-            if (directory[waiting.first]!!["isConnected"] == true){
-                //both clients connected
+            Directory.assign(userKey, "pair", waiting.first)
+            if (Directory.getBool(userKey, "isConnected")){
                 Room.generateRoom(userKey).also {
                     it.add((directory[waiting.first]!!["socketChannel"] as SocketChannel).remoteAddress)
                     directory[userKey]!!["room"] = it
