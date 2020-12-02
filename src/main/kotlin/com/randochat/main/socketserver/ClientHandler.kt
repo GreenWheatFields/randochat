@@ -11,9 +11,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 
 // methods to talk to clients
-class ClientHandler(
-        val directory: ConcurrentHashMap<SocketAddress, ConcurrentHashMap<String, Any>>,
-): Thread(){
+class ClientHandler(): Thread(){
 
 
     fun read(channel: SelectableChannel){
@@ -21,11 +19,11 @@ class ClientHandler(
             println("not a socket channe;")
             return
         }
-        val conn = directory[channel.remoteAddress]?.get("socketChannel") as SocketChannel //?: do something that stops execution if null
+        val conn = Directory.getConn(channel.remoteAddress) //?: do something that stops execution if null
         var talkingTo: SocketChannel
         var room: Room
-        if (directory[channel.remoteAddress]!!["room"] !is Int){
-            room = directory[channel.remoteAddress]!!["room"] as Room
+        if (Directory.isValidRoom(conn.remoteAddress)){
+            room = Directory.getRoom(conn.remoteAddress)
             if (room.isHealthy){
                 if (room.twoConnections()) {
                     var message = ByteBuffer.allocate(1024)
@@ -36,7 +34,8 @@ class ClientHandler(
                             return
                         }
                     }
-                    talkingTo = directory[room.getOther(conn.remoteAddress)]!!["socketChannel"] as SocketChannel
+                    talkingTo = Directory.getConn(room.getOther(conn.remoteAddress) as SocketAddress)
+                    println("here")
                     try {
                         talkingTo.write(ByteBuffer.wrap(message.array()))
                     } catch (e: IOException) {
@@ -63,7 +62,7 @@ class ClientHandler(
             1 -> {
                 if (System.currentTimeMillis() > room.timeOut){
                     println("lobby timeout")
-                    room.kill(directory, conn.remoteAddress)
+                    room.kill(conn.remoteAddress)
                     //make sure there are no refrences. maybe reuse the room?
                     println("roomKilled")
                     System.exit(1)

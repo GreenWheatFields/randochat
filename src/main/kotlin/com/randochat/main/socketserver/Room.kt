@@ -96,7 +96,7 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
         }
         return true
     }
-    fun kill(directory: ConcurrentHashMap<SocketAddress, ConcurrentHashMap<String, Any>>, survivor: SocketAddress){
+    fun kill(survivor: SocketAddress){
 //        when (lobbyStatus){
 //            1 -> {
 //                //salvage the other connection and add it back to queue

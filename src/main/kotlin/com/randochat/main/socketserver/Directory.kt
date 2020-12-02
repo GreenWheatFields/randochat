@@ -5,6 +5,7 @@ import java.nio.channels.SocketChannel
 import java.util.concurrent.ConcurrentHashMap
 
 //normalize data access
+//raise exceptions on bad requests
 object Directory {
     private val directory = ConcurrentHashMap<SocketAddress, HashMap<String, Any?>>()
     private val newEntryTemplate = HashMap<String, Any?>().also {
@@ -14,9 +15,7 @@ object Directory {
         it["room"] = null
         it["isConnected"] = true
     }
-    init {
 
-    }
 
     fun putNewEntry(key: SocketAddress, channel: SocketChannel){
         directory[key] = HashMap<String, Any?>(newEntryTemplate).also { it["socketChannel"] = channel }
@@ -31,7 +30,18 @@ object Directory {
     fun getBool(key: SocketAddress, field: String): Boolean {
         return directory[key]!![field] as Boolean
     }
-    fun addRoom(key: SocketAddress){
-        //get pair and add room
+    fun getConn(key: SocketAddress): SocketChannel{
+        return directory[key]!!["socketChannel"] as SocketChannel
+    }
+    fun getRoom(key: SocketAddress): Room{
+        return directory[key]!!["room"] as Room
+    }
+    fun isValidRoom(key: SocketAddress): Boolean{
+        return directory[key]!!["room"] != null
+    }
+    fun addRoom(key1: SocketAddress, key2: SocketAddress, room: Room){
+        directory[key1]!!["room"] = room
+        directory[key2]!!["room"] = room
+        println("room added")
     }
 }

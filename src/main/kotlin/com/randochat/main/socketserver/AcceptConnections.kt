@@ -33,7 +33,7 @@ class AcceptConnections: Thread() {
     val waiting = LinkedList<SocketAddress>()
     // declare initial capacity?
     val nullCode = 101
-    val clientHandler = ClientHandler(directory)
+    val clientHandler = ClientHandler()
 
 
     init {
@@ -52,7 +52,6 @@ class AcceptConnections: Thread() {
             while (keys.hasNext()){
                 val key = keys.next() as SelectionKey
                 keys.remove()
-                //todo, this gets checked multiple times per key after a key has been assigned to a job
                 if (key.isValid) {
                     if (key.isAcceptable) {
                         acceptConn(key)
@@ -73,18 +72,15 @@ class AcceptConnections: Thread() {
         val userKey = newChan.remoteAddress
         newChan.configureBlocking(false)
         newChan.register(selector, SelectionKey.OP_READ, SelectionKey.OP_WRITE)
-        //todo, putIfAbsent() here?
         Directory.putNewEntry(userKey, newChan)
-
         if (waiting.size == 0){
             waiting.add(userKey)
         }else{
             Directory.assign(userKey, "pair", waiting.first)
             if (Directory.getBool(userKey, "isConnected")){
                 Room.generateRoom(userKey).also {
-                    it.add((directory[waiting.first]!!["socketChannel"] as SocketChannel).remoteAddress)
-                    directory[userKey]!!["room"] = it
-                    directory[waiting.first]!!["room"] = it
+                    it.add(waiting.first)
+                    Directory.addRoom(userKey, waiting.first, it)
                 }
 
             }else{
@@ -103,7 +99,6 @@ class AcceptConnections: Thread() {
 }
 
 fun main() {
-    println("here")
     val acceptConns = AcceptConnections()
     acceptConns.start()
     repeat(2){

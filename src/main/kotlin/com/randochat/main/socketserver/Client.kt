@@ -25,7 +25,7 @@ class Client: Thread(){
 //                 println(Thread.currentThread().name + " is sending " + temp.toString())
                 conn.write(ByteBuffer.wrap(i.toByteArray()))
 
-                sleep(Random().nextInt(10).toLong())
+                sleep(Random().nextInt(100).toLong())
                 val mesLen = conn.read(buff)
 
             }
@@ -42,6 +42,6 @@ class Client: Thread(){
 
     override fun run() {
         super.run()
-        connect(Random().nextInt(3000).toLong())
+        connect(Random().nextInt(300).toLong())
     }
 }
