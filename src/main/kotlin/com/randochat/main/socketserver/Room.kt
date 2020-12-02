@@ -65,7 +65,6 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
         connectionStatus[target]!![0] = false
         connectionStatus[target]!![1] = false
         val otherConn = getOther(target)
-        println(target)
         if (isFull){
             if (connectionStatus[otherConn]!![0]){
                 lobbyStatus = 1
@@ -107,6 +106,7 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
 //            }
 //        }
     }
+    fun notifyReconnect(): Nothing = TODO("isHealthy = True")
     //when a room is closed mutually not from any connection issue
     fun close():Nothing = TODO()
     //called when room is closed, save the room somewhere?

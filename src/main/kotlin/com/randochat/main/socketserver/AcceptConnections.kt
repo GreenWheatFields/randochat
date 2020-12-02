@@ -34,7 +34,7 @@ class AcceptConnections: Thread() {
     // declare initial capacity?
     val directory = ConcurrentHashMap<SocketAddress, ConcurrentHashMap<String, Any>>()
     val nullCode = 101
-    val clientHandler = ClientHandler(directory, readJobs)
+    val clientHandler = ClientHandler(directory)
 
 
     init {
@@ -45,7 +45,6 @@ class AcceptConnections: Thread() {
 
     fun listen(){
         //todo, somewhere, blank lines are being printed
-        clientHandler.start()
         var accepted = 0
         while (true){
             selector.select()
@@ -54,19 +53,17 @@ class AcceptConnections: Thread() {
                 val key = keys.next() as SelectionKey
                 keys.remove()
                 //todo, this gets checked multiple times per key after a key has been assigned to a job
-                if (!clientHandler.currJobs.contains(key.hashCode())) {
+                if (key.isValid) {
                     if (key.isAcceptable) {
                         acceptConn(key)
                     }
                     if (key.isReadable) {
-                        clientHandler.currJobs.add(key.hashCode())
-                        readJobs.add(key)
+                        clientHandler.read(key.channel())
                     }
 
                 }
             }
         }
-
     }
     fun acceptConn(key: SelectionKey){
         //use a pool here to handle db calls?
