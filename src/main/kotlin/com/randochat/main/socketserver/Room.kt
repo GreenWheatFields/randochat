@@ -33,7 +33,7 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
     }
 
     var isFull = false
-    var connectionStatus = HashMap<SocketAddress?, Array<Boolean>>(2) //2 elements of array, [0] connected, [1] waiting for reconnect
+    var connectionStatus = HashMap<SocketAddress?, Boolean>() //2 elements of array, [0] connected, [1] waiting for reconnect
     var lobbyStatus = 0 //0: waiting with one connection, 1: one disconnected, 2: two disconnected/dead lobby, 3: normal/active
     var isHealthy = true // true if waiting with no disconnects,  or active
     var timeOut = 0L
@@ -42,8 +42,8 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
         members[1] = member
         isFull = true
         //todo, no need for an array of booleans no that there is a timeout
-        connectionStatus[members[0]] = arrayOf(true, true)
-        connectionStatus[members[1]] = arrayOf(true, true)
+        connectionStatus[members[0]] = true
+        connectionStatus[members[1]] = true
         isHealthy = true
         lobbyStatus = 3
     }
@@ -61,22 +61,21 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
     fun twoConnections():Boolean{
         //merge this method with isHealthy?
         for (conn in connectionStatus.keys){
-            if (!connectionStatus[conn]!![0]){
-                return false
-            }
+//            if (!connectionStatus[conn]!![0]){
+//                return false
+//            }
         }
         return true
     }
     fun notifyDisconnect(target: SocketAddress): Int {
         //remove entry, adjust lobby status
         //todo, setTimeout to 0 when complete disconnect.
-        connectionStatus[target]!![0] = false
-        connectionStatus[target]!![1] = false
+        connectionStatus[target] = false
         val otherConn = getOther(target)
         if (isFull){
-            if (connectionStatus[otherConn]!![0]){
+            if (connectionStatus[otherConn]!!){
                 lobbyStatus = 1
-                if (connectionStatus[otherConn]!![1]){
+                if (timeOut == 0L){
                     //waiting for reconnection
                     lobbyStatus = 1
                 }else{

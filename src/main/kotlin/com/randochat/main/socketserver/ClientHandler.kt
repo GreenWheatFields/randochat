@@ -52,7 +52,8 @@ class ClientHandler(): Thread(){
         when (room.lobbyStatus){
             0 -> {
                 //not getting hit as often as it should?
-                println("waiting for reconnect")
+                println(System.currentTimeMillis() > room.timeOut)
+                //todo, room.lobby status never equals 1
             }
             1 -> {
                 if (System.currentTimeMillis() > room.timeOut){
