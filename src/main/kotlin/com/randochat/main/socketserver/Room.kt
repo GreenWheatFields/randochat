@@ -84,7 +84,7 @@ class Room(val id: UUID, val members: MutableList<SocketAddress>, var initTime: 
         //todo, only check the connection that has been reported as
         //todo, get disconnected channel. if both disconnected, asjust next check time?
         val key = if (!connectionStatus[members[0]]!!) members[0] else members[1]
-        println(key)
+//        println(key)
         val target = Directory.getConn(key)
         nextCheck = System.currentTimeMillis() + 500
         if (bothDead){
@@ -96,13 +96,14 @@ class Room(val id: UUID, val members: MutableList<SocketAddress>, var initTime: 
             notifyDisconnect(target.remoteAddress)
             return false
         }
-//        notifyReconnect()
+        notifyReconnect(key)
         return true
     }
-    fun kill(survivor: SocketAddress){
-//        Directory
-    }
+//    fun kill(survivor: SocketAddress){
+////        Directory
+//    }
     fun notifyReconnect(target: SocketAddress){
+    //todo, reopened sockets might not be on the same port, at least when theyre on the local network. figure out how to handle and assign reconnections
         if (connectionStatus[target]!!){
             return
         }

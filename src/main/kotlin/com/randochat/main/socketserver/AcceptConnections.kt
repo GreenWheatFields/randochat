@@ -11,20 +11,8 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 
 
-// starting with a simple text chat
 /*todo, this server is not a matchmaker. pairs should be created somewhere else.
  *  maybe have a matchmaker server connected on a local network?*/
-/*
-directory<SocketAddress, Any> (key = client ipAddress):
-    {
-    0 (isConnected): bool, active session
-    1 (pair): (approved pair according to matchmaker): ipAddress,
-    2 (SocketChannel): SocketChannel object created when connection accepted
-    3 (room): room object that contains the status of a room (id, timeAlive, next vote, voteResults, initialPrompt, etc)),
-    4 (other)
-    }
-    concurrentmap doesn't like null, will use int 101 instead
- */
 class AcceptConnections: Thread() {
 
     val selector = Selector.open()
@@ -65,7 +53,6 @@ class AcceptConnections: Thread() {
     }
     fun acceptConn(key: SelectionKey){
         //use a pool here to handle db calls?
-        //this thread should just determine whether a connection is valid.
         val channel = key.channel() as ServerSocketChannel
         val newChan = channel.accept()
         val userKey = newChan.remoteAddress
