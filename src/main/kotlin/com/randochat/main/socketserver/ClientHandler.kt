@@ -57,37 +57,7 @@ class ClientHandler(): Thread(){
         }
 
         }
-//        when (room.lobbyStatus){
-//            0 -> {
-//                //not getting hit as often as it should?
-//                room.checkConnection(conn)
-//                //todo, room.lobby status never equals 1
-//            }
-//            1 -> {
-//                if (System.currentTimeMillis() > room.timeOut){
-//                    println("lobby timeout")
-////                    room.kill()
-//                    //reuse the room?
-//                    println("roomKilled")
-//                    System.exit(1)
-//                }else{
-////                    if (room.connectionStatus[conn.remoteAddress]!![1]){
-////                        // known connection
-////                        room.checkConnection(conn)
-////                    }else{
-////                        //todo, send an empty packet to a known disconnect?
-////                        room.checkConnection(conn)
-////                    }
-//                    room.checkConnection(conn)
-//                }
-//
-//            }
-//            2 -> {
-//                //two disconnectes
-//                println("dead lobby")
-//                System.exit(1)
-//            }
-//        }
+
     }
 
     private fun closeAndCleanUp(): Nothing = TODO()
