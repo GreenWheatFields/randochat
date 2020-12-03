@@ -51,8 +51,9 @@ class ClientHandler(): Thread(){
             println("timeout")
             System.exit(5)
         }else if (System.currentTimeMillis() > room.nextCheck){
-            room.checkConnection(conn)
+            room.checkConnection()
         }else{
+
         }
 
         }

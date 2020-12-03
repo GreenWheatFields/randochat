@@ -83,11 +83,16 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
         }
         isHealthy = false
     }
-    fun checkConnection(target: SocketChannel): Boolean{
+    fun checkConnection(): Boolean{
         //todo, only check the connection that has been reported as
         //todo, get disconnected channel. if both disconnected, asjust next check time?
-//        val target = if (!connectionStatus[members[0]]!!) members[0] else members[1]
+        val key = if (!connectionStatus[members[0]]!!) members[0] else members[1]
+        println(key)
+        val target = Directory.getConn(key as SocketAddress)
         nextCheck = System.currentTimeMillis() + 500
+        if (bothDead){
+            //check both
+        }
         try {
             target.write(ByteBuffer.wrap("test".toByteArray()))
         }catch (e: IOException){
