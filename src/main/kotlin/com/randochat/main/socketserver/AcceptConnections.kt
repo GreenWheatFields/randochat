@@ -44,7 +44,6 @@ class AcceptConnections: Thread() {
     }
 
     fun listen(){
-        //todo, somewhere, blank lines are being printed
         var accepted = 0
         while (true){
             selector.select()

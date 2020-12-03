@@ -33,10 +33,11 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
     }
 
     var isFull = false
-    var connectionStatus = HashMap<SocketAddress?, Boolean>() //2 elements of array, [0] connected, [1] waiting for reconnect
-    var lobbyStatus = 0 //0: waiting with one connection, 1: one disconnected, 2: two disconnected/dead lobby, 3: normal/active
+    var connectionStatus = HashMap<SocketAddress?, Boolean>()
     var isHealthy = true // true if waiting with no disconnects,  or active
     var timeOut = 0L
+    var nextCheck = 0L
+    var bothDead = false
 
     fun add(member: SocketAddress){
         members[1] = member
@@ -45,7 +46,6 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
         connectionStatus[members[0]] = true
         connectionStatus[members[1]] = true
         isHealthy = true
-        lobbyStatus = 3
     }
     fun getOther(target: SocketAddress): SocketAddress? {
         return if (members[0] == target) members[1] else members[0]
@@ -67,40 +67,30 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
         }
         return true
     }
-    fun notifyDisconnect(target: SocketAddress): Int {
-        //remove entry, adjust lobby status
-        //todo, setTimeout to 0 when complete disconnect.
+    fun notifyDisconnect(target: SocketAddress) {
+        //this might break when a client disconnects before the pair has even joined
+        if (!connectionStatus[target]!!){
+            return
+        }
         connectionStatus[target] = false
-        val otherConn = getOther(target)
-        if (isFull){
-            if (connectionStatus[otherConn]!!){
-                lobbyStatus = 1
-                if (timeOut == 0L){
-                    //waiting for reconnection
-                    lobbyStatus = 1
-                }else{
-                    lobbyStatus = 0
-                }
-            }else{
-                lobbyStatus = 2
-            }
-        }else{
-            lobbyStatus = 2
+        if (members[1] == null){
+            //disconnect before pair has joined
         }
         if (timeOut == 0L){
             timeOut = System.currentTimeMillis() + 3000L
         }
         isHealthy = false
-        return lobbyStatus
     }
     fun checkConnection(target: SocketChannel): Boolean{
-
+        //todo, only check the connection that has been reported as
+        nextCheck = System.currentTimeMillis() + 500
         try {
             target.write(ByteBuffer.wrap("test".toByteArray()))
         }catch (e: IOException){
             notifyDisconnect(target.remoteAddress)
             return false
         }
+//        notifyReconnect()
         return true
     }
     fun kill(survivor: SocketAddress){

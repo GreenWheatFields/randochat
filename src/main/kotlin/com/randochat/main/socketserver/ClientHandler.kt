@@ -26,9 +26,8 @@ class ClientHandler(): Thread(){
                     try {
                         conn.read(message)
                     } catch (e: IOException) {
-                        if (!readLobbyStatus(room.notifyDisconnect(conn.remoteAddress))) {
-                            return
-                        }
+                        room.notifyDisconnect(conn.remoteAddress)
+                        return
                     }
                     talkingTo = Directory.getConn(room.getOther(conn.remoteAddress) as SocketAddress)
                     try {
@@ -36,9 +35,8 @@ class ClientHandler(): Thread(){
                     } catch (e: IOException) {
                         //never caught
                         println("disconnected")
-                        if (readLobbyStatus(room.notifyDisconnect(talkingTo.remoteAddress))) {
-                            return
-                        }
+                        room.notifyDisconnect(talkingTo.remoteAddress)
+                        return
                     }
                 }
             }else{
@@ -49,49 +47,49 @@ class ClientHandler(): Thread(){
         }
     }
     fun salvageRoom(room: Room, conn: SocketChannel){
-        when (room.lobbyStatus){
-            0 -> {
-                //not getting hit as often as it should?
-                println(System.currentTimeMillis() > room.timeOut)
-                //todo, room.lobby status never equals 1
-            }
-            1 -> {
-                if (System.currentTimeMillis() > room.timeOut){
-                    println("lobby timeout")
-//                    room.kill()
-                    //reuse the room?
-                    println("roomKilled")
-                    System.exit(1)
-                }else{
-//                    if (room.connectionStatus[conn.remoteAddress]!![1]){
-//                        // known connection
-//                        room.checkConnection(conn)
-//                    }else{
-//                        //todo, send an empty packet to a known disconnect?
-//                        room.checkConnection(conn)
-//                    }
-                    room.checkConnection(conn)
-                }
-
-            }
-            2 -> {
-                //two disconnectes
-                println("dead lobby")
-                System.exit(1)
-            }
+        if (System.currentTimeMillis() > room.timeOut){
+            println("timeout")
+            System.exit(5)
+        }else if (System.currentTimeMillis() > room.nextCheck){
+            room.checkConnection(conn)
+        }else{
         }
+
+        }
+//        when (room.lobbyStatus){
+//            0 -> {
+//                //not getting hit as often as it should?
+//                room.checkConnection(conn)
+//                //todo, room.lobby status never equals 1
+//            }
+//            1 -> {
+//                if (System.currentTimeMillis() > room.timeOut){
+//                    println("lobby timeout")
+////                    room.kill()
+//                    //reuse the room?
+//                    println("roomKilled")
+//                    System.exit(1)
+//                }else{
+////                    if (room.connectionStatus[conn.remoteAddress]!![1]){
+////                        // known connection
+////                        room.checkConnection(conn)
+////                    }else{
+////                        //todo, send an empty packet to a known disconnect?
+////                        room.checkConnection(conn)
+////                    }
+//                    room.checkConnection(conn)
+//                }
+//
+//            }
+//            2 -> {
+//                //two disconnectes
+//                println("dead lobby")
+//                System.exit(1)
+//            }
+//        }
     }
 
     private fun closeAndCleanUp(): Nothing = TODO()
     //determine remove refrences to dead connections, save room
 
-    private fun readLobbyStatus(code: Int): Boolean{
-        when (code){
-            1 -> return false
-            2 -> return true
 
-        }
-        return false
-    }
-
-}
