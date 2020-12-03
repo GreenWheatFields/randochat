@@ -75,6 +75,8 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
         connectionStatus[target] = false
         if (members[1] == null){
             //disconnect before pair has joined
+        }else if (!connectionStatus[members[1]]!!){
+            bothDead = true
         }
         if (timeOut == 0L){
             timeOut = System.currentTimeMillis() + 3000L
@@ -83,6 +85,8 @@ class Room(val id: UUID, val members: Array<SocketAddress?>, var initTime: Long,
     }
     fun checkConnection(target: SocketChannel): Boolean{
         //todo, only check the connection that has been reported as
+        //todo, get disconnected channel. if both disconnected, asjust next check time?
+//        val target = if (!connectionStatus[members[0]]!!) members[0] else members[1]
         nextCheck = System.currentTimeMillis() + 500
         try {
             target.write(ByteBuffer.wrap("test".toByteArray()))
