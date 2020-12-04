@@ -46,9 +46,12 @@ class DirectConnections: Thread() {
 //                        acceptConn(key)
                     }
                     if (key.isReadable) {
-//                        if (Directory.isSuspect((key.channel() as SocketChannel).remoteAddress)){
-//                            authorizor/attemptValidate(key.channel() as SocketChannel)
-//                        }
+
+                        if (authorizer.isSuspect((key.channel() as SocketChannel).remoteAddress)){
+                           if(authorizer.attemptValidate(key.channel() as SocketChannel)){
+                               acceptConn(key)
+                           }
+                        }
                         //if key.remoteAddress. isAutorized
 //                        clientHandler.read(key.channel())
                     }
@@ -65,28 +68,29 @@ class DirectConnections: Thread() {
 //    }
     fun acceptConn(key: SelectionKey){
         //use a pool here to handle db calls?
-        val channel = key.channel() as ServerSocketChannel
-        val newChan = channel.accept()
-        val userKey = newChan.remoteAddress
-        newChan.configureBlocking(false)
-        newChan.register(selector, SelectionKey.OP_READ, SelectionKey.OP_WRITE)
-        // give each conn 5 seconds to return a valid key?
-        Directory.putNewEntry(userKey, newChan)
-        if (waiting.size == 0){
-            waiting.add(userKey)
-        }else{
-            Directory.assign(userKey, "pair", waiting.first)
-            if (Directory.getBool(userKey, "isConnected")){
-                Room.generateRoom(userKey).also {
-                    it.add(waiting.first)
-                    Directory.addRoom(userKey, waiting.first, it)
-                }
+    //todo. this is a weird place for this method now. maybe authorize should convert it's suspects into directory entries directly?
 
-            }else{
-                //waiting for client
-            }
-            waiting.remove()
-        }
+//        val channel = key.channel() as SocketChannel
+//        val newChan = channel.accept()
+//        val userKey = newChan.remoteAddress
+//        newChan.configureBlocking(false)
+//        newChan.register(selector, SelectionKey.OP_READ, SelectionKey.OP_WRITE)
+//        Directory.putNewEntry(userKey, newChan)
+//        if (waiting.size == 0){
+//            waiting.add(userKey)
+//        }else{
+//            Directory.assign(userKey, "pair", waiting.first)
+//            if (Directory.getBool(userKey, "isConnected")){
+//                Room.generateRoom(userKey).also {
+//                    it.add(waiting.first)
+//                    Directory.addRoom(userKey, waiting.first, it)
+//                }
+//
+//            }else{
+//                //waiting for client
+//            }
+//            waiting.remove()
+//        }
 
 
     }
