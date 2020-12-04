@@ -44,7 +44,6 @@ class Client: Thread(){
         while (len == -1){
             len = conn.read(message)
         }
-        println(len)
         for (i in 0 until len){
             response += message[i].toString()
         }
@@ -52,7 +51,7 @@ class Client: Thread(){
     }
 
     fun introduce(){
-        conn.write(ByteBuffer.wrap("ACCOUNTID/TOKEN".toByteArray()))
+        conn.write(ByteBuffer.wrap("HELLO".toByteArray()))
     }
     fun send(){
         val i = Random().nextInt(3000).toString()

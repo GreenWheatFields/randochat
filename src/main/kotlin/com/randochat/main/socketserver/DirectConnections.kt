@@ -1,6 +1,5 @@
 package com.randochat.main.socketserver
 
-import java.io.InputStreamReader
 import java.net.InetSocketAddress
 import java.net.SocketAddress
 import java.nio.ByteBuffer
@@ -9,14 +8,12 @@ import java.nio.channels.Selector
 import java.nio.channels.ServerSocketChannel
 import java.nio.channels.SocketChannel
 import java.util.*
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
-import kotlin.system.exitProcess
 
 
 /*todo, this server is not a matchmaker. pairs should be created somewhere else.
  *  maybe have a matchmaker server connected on a local network?*/
-class AcceptConnections: Thread() {
+class DirectConnections: Thread() {
 
     val selector = Selector.open()
     val server = ServerSocketChannel.open()
@@ -25,6 +22,7 @@ class AcceptConnections: Thread() {
     // declare initial capacity?
     val nullCode = 101
     val clientHandler = ClientHandler()
+    val authorizer = Authorizer(selector)
 
 
     init {
@@ -44,13 +42,13 @@ class AcceptConnections: Thread() {
                 keys.remove()
                 if (key.isValid) {
                     if (key.isAcceptable) {
-                        investigateConn(key)
+                        authorizer.investigateConn(key)
 //                        acceptConn(key)
                     }
                     if (key.isReadable) {
-                        if (Directory.isSuspect((key.channel() as SocketChannel).remoteAddress)){
-                            attemptValidate(key.channel() as SocketChannel)
-                        }
+//                        if (Directory.isSuspect((key.channel() as SocketChannel).remoteAddress)){
+//                            authorizor/attemptValidate(key.channel() as SocketChannel)
+//                        }
                         //if key.remoteAddress. isAutorized
 //                        clientHandler.read(key.channel())
                     }
@@ -59,27 +57,12 @@ class AcceptConnections: Thread() {
             }
         }
     }
-    fun investigateConn(key: SelectionKey){
-        val channel = key.channel() as ServerSocketChannel
-        val newChan = channel.accept()
-        newChan.configureBlocking(false)
-        newChan.register(selector, SelectionKey.OP_READ, SelectionKey.OP_WRITE)
-        Directory.addNewSuspect(newChan.remoteAddress)
 
-    }
-    fun attemptValidate(conn: SocketChannel){
-        //check if a message exist. if it does, check if it is valid. if it is valid welcom the connection
-        var message = ByteBuffer.allocate(1024)
-        var length = conn.read(message)
-        for (i in 0 until length){
-            print(message[i].toChar())
-        }
-        conn.write(ByteBuffer.wrap("OK!".toByteArray()))
-        println("wrote")
-        sleep(500)
-        exitProcess(1)
 
-    }
+//    fun removeConn(conn: SocketChannel){
+//        conn.close()
+//        Directory.removeSuspect(conn.remoteAddress)
+//    }
     fun acceptConn(key: SelectionKey){
         //use a pool here to handle db calls?
         val channel = key.channel() as ServerSocketChannel
@@ -115,7 +98,7 @@ class AcceptConnections: Thread() {
 }
 
 fun main() {
-    val acceptConns = AcceptConnections()
+    val acceptConns = DirectConnections()
     acceptConns.start()
     repeat(2){
         val client = Client()

@@ -14,7 +14,9 @@ object Directory {
         it["socketChannel"] = null
         it["room"] = null
         it["isConnected"] = true
+
     }
+
 
 
 
@@ -30,6 +32,7 @@ object Directory {
     fun isValidRoom(key: SocketAddress): Boolean{
         return directory[key]!!["room"] != null
     }
+
     fun addRoom(key1: SocketAddress, key2: SocketAddress, room: Room){
         directory[key1]!!["room"] = room
         directory[key2]!!["room"] = room
@@ -47,4 +50,5 @@ object Directory {
     fun clearEntry(key: SocketAddress){
 
     }
+
 }
