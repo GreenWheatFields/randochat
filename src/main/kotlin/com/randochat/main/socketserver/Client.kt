@@ -17,27 +17,54 @@ class Client: Thread(){
         try{
             sleep(sleepTime)
             println("awake")
-            conn = SocketChannel.open(InetSocketAddress("localhost", 15620))
+            conn = SocketChannel.open(InetSocketAddress("127.0.0.1", 15620))
             conn.configureBlocking(false)
-            val i = Random().nextInt(3000).toString()
-            var buff = ByteBuffer.allocate(1024)
-            for(temp in 0..100){
-//                 println(Thread.currentThread().name + " is sending " + temp.toString())
-                conn.write(ByteBuffer.wrap(i.toByteArray()))
 
-                sleep(Random().nextInt(100).toLong())
-                val mesLen = conn.read(buff)
 
-            }
-            println(Thread.currentThread().name + "is disconencting")
-            conn.socket().close()
         }catch (e: ConnectException){
             println(e.printStackTrace())
             sleep(Random().nextInt(100).toLong())
             connect(Random().nextInt(3000).toLong())
         }
+        sleep(100)
+        introduce()
+        println(waitForResponse())
+        sleep(100)
+
+        send()
+        println(Thread.currentThread().name + "is disconencting")
+        conn.socket().close()
 
 
+    }
+    fun waitForResponse(): String {
+        var len = -1
+        var message = ByteBuffer.allocate(1024)
+        var response = ""
+        while (len == -1){
+            len = conn.read(message)
+        }
+        println(len)
+        for (i in 0 until len){
+            response += message[i].toString()
+        }
+        return response
+    }
+
+    fun introduce(){
+        conn.write(ByteBuffer.wrap("ACCOUNTID/TOKEN".toByteArray()))
+    }
+    fun send(){
+        val i = Random().nextInt(3000).toString()
+        var buff = ByteBuffer.allocate(1024)
+        for(temp in 0..100){
+//                 println(Thread.currentThread().name + " is sending " + temp.toString())
+            conn.write(ByteBuffer.wrap(i.toByteArray()))
+
+            sleep(Random().nextInt(100).toLong())
+            val mesLen = conn.read(buff)
+
+        }
     }
 
     override fun run() {
