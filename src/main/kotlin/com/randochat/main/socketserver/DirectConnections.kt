@@ -49,10 +49,14 @@ class DirectConnections: Thread() {
 
                         if (authorizer.isSuspect((key.channel() as SocketChannel).remoteAddress)){
                            if(authorizer.attemptValidate(key.channel() as SocketChannel)){
-                               acceptConn(key)
+                               //done with authorizer after this
+                               //todo, basic matchmaker class. for now itll just be within this class
+                               addToMatchMaking(authorizer.authorize((key.channel() as SocketChannel).remoteAddress))
+
+
                            }
                         }else{
-                            println("communicate here")
+                            clientHandler.read(key.channel())
                         }
                         //if key.remoteAddress. isAutorized
 //                        clientHandler.read(key.channel())
@@ -62,24 +66,9 @@ class DirectConnections: Thread() {
             }
         }
     }
-
-
-//    fun removeConn(conn: SocketChannel){
-//        conn.close()
-//        Directory.removeSuspect(conn.remoteAddress)
-//    }
-    fun acceptConn(key: SelectionKey){
-        //use a pool here to handle db calls?
-    //todo. this is a weird place for this method now. maybe authorize should convert it's suspects into directory entries directly?
-
-//        val channel = key.channel() as SocketChannel
-//        val newChan = channel.accept()
-//        val userKey = newChan.remoteAddress
-//        newChan.configureBlocking(false)
-//        newChan.register(selector, SelectionKey.OP_READ, SelectionKey.OP_WRITE)
-//        Directory.putNewEntry(userKey, newChan)
-//        if (waiting.size == 0){
-//            waiting.add(userKey)
+fun addToMatchMaking(user: User){
+//    if (waiting.size == 0){
+//            waiting.add(user.id)
 //        }else{
 //            Directory.assign(userKey, "pair", waiting.first)
 //            if (Directory.getBool(userKey, "isConnected")){
@@ -93,9 +82,9 @@ class DirectConnections: Thread() {
 //            }
 //            waiting.remove()
 //        }
+}
 
 
-    }
 
     override fun run() {
         super.run()

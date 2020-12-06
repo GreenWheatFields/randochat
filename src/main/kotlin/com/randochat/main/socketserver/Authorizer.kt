@@ -31,12 +31,13 @@ class Authorizer(val selector: Selector) {
             }
             if (token == "HELLO"){
                 println("valid token")
-                return authorize(conn.remoteAddress)
+                authorize(conn.remoteAddress)
+                return true
             }else{
                 println("invalid token")
                 return killSuspect(conn)
             }
-        }else if (suspects[conn.remoteAddress]!!.timeOut > System.currentTimeMillis()){
+        }else if (suspects[conn.remoteAddress]!!.authTimeOut > System.currentTimeMillis()){
             println("timeout")
             return true
         }else{
@@ -45,6 +46,7 @@ class Authorizer(val selector: Selector) {
         return true
     }
     fun killSuspect(conn: SocketChannel): Boolean{
+        //todo, deregister with selector
         println("killing " + conn.remoteAddress)
         //maybe keep a count of all failed attempt, and eventually blacklist them?
         conn.close()
@@ -52,11 +54,13 @@ class Authorizer(val selector: Selector) {
         suspects.remove(conn.remoteAddress)
         return false
     }
-    fun authorize(key: SocketAddress): Boolean {
+    fun authorize(key: SocketAddress): User {
         println("Accetped")
+        Directory.testDirectory[suspects[key]!!.address] = suspects[key]!!
+        val user = suspects[key]!!
         suspects.remove(key)
 
-        return true
+        return user
     }
     fun isSuspect(key: SocketAddress): Boolean {
         return suspects[key] != null

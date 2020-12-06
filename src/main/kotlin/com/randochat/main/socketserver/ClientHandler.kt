@@ -15,11 +15,11 @@ class ClientHandler(): Thread(){
             println("not a socket channe;")
             return
         }
-        val conn = Directory.getConn(channel.remoteAddress) //?: do something that stops execution if null
+        val user = Directory.getUser(channel.remoteAddress) //?: do something that stops execution if null
         var talkingTo: SocketChannel
         var room: Room
-        if (Directory.isValidRoom(conn.remoteAddress)){
-            room = Directory.getRoom(conn.remoteAddress)
+        if (user.room != null){
+            room = user.room as Room
             if (room.isHealthy){
                 if (room.twoConnections()) {
                     var message = ByteBuffer.allocate(1024)
