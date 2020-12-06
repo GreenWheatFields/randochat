@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 //handles intial authorization
 class Authorizer(val selector: Selector) {
-    private val suspects = HashMap<SocketAddress, Long>()
+    private val suspects = HashMap<SocketAddress, User>()
 
 
     fun investigateConn(key: SelectionKey){
@@ -18,11 +18,11 @@ class Authorizer(val selector: Selector) {
         val newChan = channel.accept()
         newChan.configureBlocking(false)
         newChan.register(selector, SelectionKey.OP_READ, SelectionKey.OP_WRITE)
-        suspects[newChan.remoteAddress] = System.currentTimeMillis() + 1000
+        suspects[newChan.remoteAddress] = User(newChan)
     }
     fun attemptValidate(conn: SocketChannel): Boolean{
-        //check if a message exist. if it does, check if it is valid. if it is valid welcom the connection
-        var message = ByteBuffer.allocate(1024)
+        //todo, if valid token then assign the user object the accountID?
+        val message = ByteBuffer.allocate(1024)
         var length = conn.read(message)
         var token = ""
         if (length >= 0){
@@ -31,11 +31,13 @@ class Authorizer(val selector: Selector) {
             }
             if (token == "HELLO"){
                 println("valid token")
-                return clearSuspect(conn.remoteAddress)
+                return authorize(conn.remoteAddress)
             }else{
+                println("invalid token")
                 return killSuspect(conn)
             }
-        }else if (suspects[conn.remoteAddress]!! > System.currentTimeMillis()){
+        }else if (suspects[conn.remoteAddress]!!.timeOut > System.currentTimeMillis()){
+            println("timeout")
             return true
         }else{
             return killSuspect(conn)
@@ -50,9 +52,10 @@ class Authorizer(val selector: Selector) {
         suspects.remove(conn.remoteAddress)
         return false
     }
-    fun clearSuspect(key: SocketAddress): Boolean {
+    fun authorize(key: SocketAddress): Boolean {
         println("Accetped")
         suspects.remove(key)
+
         return true
     }
     fun isSuspect(key: SocketAddress): Boolean {

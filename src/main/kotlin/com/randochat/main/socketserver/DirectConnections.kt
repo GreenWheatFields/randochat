@@ -51,6 +51,8 @@ class DirectConnections: Thread() {
                            if(authorizer.attemptValidate(key.channel() as SocketChannel)){
                                acceptConn(key)
                            }
+                        }else{
+                            println("communicate here")
                         }
                         //if key.remoteAddress. isAutorized
 //                        clientHandler.read(key.channel())
