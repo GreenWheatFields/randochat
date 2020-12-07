@@ -24,9 +24,9 @@ class ClientHandler(): Thread(){
                 if (room.twoConnections()) {
                     var message = ByteBuffer.allocate(1024)
                     try {
-                        conn.read(message)
+                        user.socketChannel.read(message)
                     } catch (e: IOException) {
-                        room.notifyDisconnect(conn.remoteAddress)
+                        room.notifyDisconnect(user)
                         return
                     }
                     talkingTo = Directory.getConn(room.getOther(conn.remoteAddress) as SocketAddress)

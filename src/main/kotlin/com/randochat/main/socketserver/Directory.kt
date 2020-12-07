@@ -24,9 +24,16 @@ object Directory {
 
 
     fun getUser(key: SocketAddress): User{
+        //todo, handle bad key
         return directory[key]!!
     }
-
+    fun addUser(user: User){
+        directory[user.address] = user
+    }
+    fun initPair(user1: User, user2: User){
+        val room = Room.generateRoom(user1.address)
+        room.add(user2)
+    }
 //    fun getBool(key: SocketAddress, field: String): Boolean {
 //        return directory[key]!![field] as Boolean
 //    }

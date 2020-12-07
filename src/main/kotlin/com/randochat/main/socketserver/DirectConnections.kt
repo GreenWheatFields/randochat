@@ -9,6 +9,7 @@ import java.nio.channels.ServerSocketChannel
 import java.nio.channels.SocketChannel
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
+import kotlin.collections.HashSet
 
 
 /*todo, this server is not a matchmaker. pairs should be created somewhere else.
@@ -19,6 +20,7 @@ class DirectConnections: Thread() {
     val server = ServerSocketChannel.open()
     val readJobs = ConcurrentLinkedQueue<SelectionKey>()
     val waiting = LinkedList<SocketAddress>()
+    val waitList = HashSet<SocketAddress>()
     // declare initial capacity?
     val nullCode = 101
     val clientHandler = ClientHandler()
@@ -52,10 +54,9 @@ class DirectConnections: Thread() {
                                //done with authorizer after this
                                //todo, basic matchmaker class. for now itll just be within this class
                                addToMatchMaking(authorizer.authorize((key.channel() as SocketChannel).remoteAddress))
-
-
                            }
                         }else{
+                            //catch reconnects attempt here?
                             clientHandler.read(key.channel())
                         }
                         //if key.remoteAddress. isAutorized
@@ -67,21 +68,17 @@ class DirectConnections: Thread() {
         }
     }
 fun addToMatchMaking(user: User){
-//    if (waiting.size == 0){
-//            waiting.add(user.id)
-//        }else{
-//            Directory.assign(userKey, "pair", waiting.first)
-//            if (Directory.getBool(userKey, "isConnected")){
-//                Room.generateRoom(userKey).also {
-//                    it.add(waiting.first)
-//                    Directory.addRoom(userKey, waiting.first, it)
-//                }
-//
-//            }else{
-//                //waiting for client
-//            }
-//            waiting.remove()
-//        }
+    if (waiting.size == 0){
+            waiting.add(user.address)
+        }else{
+
+        }
+
+            }else{
+                //waiting for client
+            }
+            waiting.remove()
+        }
 }
 
 

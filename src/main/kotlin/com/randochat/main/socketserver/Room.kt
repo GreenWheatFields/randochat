@@ -12,18 +12,17 @@ import kotlin.collections.HashMap
 //        startTime: timestamp. either Room generation or first transported message
 //        nextVote: when the users are able to vote on to continue the chat or reveal the profiles
 //        prompt: randomly chosen prompt. a list the choose from should not be replicated
-class Room(val id: UUID, val members: MutableList<SocketAddress>, var initTime: Long, val startTime: Long, var nextVote: Long, var prompt: String,
+class Room(val id: UUID, val members: MutableList<User>, var initTime: Long, val startTime: Long, var nextVote: Long, var prompt: String,
            var isBothConnected: Boolean) {
     companion object{
-        fun generateRoom(member: SocketAddress): Room {
+        fun generateRoom(member: User): Room {
             val id = UUID.randomUUID()
             val initTime = System.currentTimeMillis()
             val startTime = 0L
             val nextVote = 0L // startTime + 60,000?
             val prompt = "" //rand_choice(prompts)
             val isBothConnected = false
-            val members = mutableListOf<SocketAddress>()
-            members.add(member)
+            val members = mutableListOf<User>().also { it.add(member) }
             return Room(id, members, initTime, startTime, nextVote, prompt, isBothConnected)
         }
     }
@@ -36,16 +35,16 @@ class Room(val id: UUID, val members: MutableList<SocketAddress>, var initTime: 
     var nextCheck = 0L
     var bothDead = false
 
-    fun add(member: SocketAddress){
+    fun add(member: User){
         members.add(member)
         isFull = true
         //todo, no need for an array of booleans no that there is a timeout
-        connectionStatus[members[0]] = true
-        connectionStatus[members[1]] = true
+        connectionStatus[members[0].address] = true
+        connectionStatus[members[1].address] = true
         isHealthy = true
     }
-    fun getOther(target: SocketAddress): SocketAddress {
-        return if (members[0] == target) members[1] else members[0]
+    fun getOther(target: SocketAddress): User {
+        return if (members[0].address == target) members[1] else members[0]
     }
 //    fun getSurvivors(): Array<SocketAddress> {
 //        //this could mess up when a connect is added
@@ -64,15 +63,15 @@ class Room(val id: UUID, val members: MutableList<SocketAddress>, var initTime: 
         }
         return true
     }
-    fun notifyDisconnect(target: SocketAddress) {
+    fun notifyDisconnect(user: User) {
         //this might break when a client disconnects before the pair has even joined
-        if (!connectionStatus[target]!!){
+        if (!connectionStatus[user.address]!!){
             return
         }
-        connectionStatus[target] = false
+        connectionStatus[user.address] = false
         if (members.size == 1){
             //disconnect before pair has joined
-        }else if (!connectionStatus[getOther(target)]!!){
+        }else if (!connectionStatus[getOther(user.address)]!!){
             bothDead = true
         }
         if (timeOut == 0L){
@@ -83,17 +82,17 @@ class Room(val id: UUID, val members: MutableList<SocketAddress>, var initTime: 
     fun checkConnection(): Boolean{
         //todo, only check the connection that has been reported as
         //todo, get disconnected channel. if both disconnected, asjust next check time?
-        val key = if (!connectionStatus[members[0]]!!) members[0] else members[1]
+        val key = if (!connectionStatus[members[0].address]!!) members[0] else members[1]
 //        println(key)
-        val target = Directory.getConn(key)
+        val target = Directory.getUser(key)
         nextCheck = System.currentTimeMillis() + 500
         if (bothDead){
             //check both
         }
         try {
-            target.write(ByteBuffer.wrap("test".toByteArray()))
+            target.socketChannel.write(ByteBuffer.wrap("test".toByteArray()))
         }catch (e: IOException){
-            notifyDisconnect(target.remoteAddress)
+            notifyDisconnect(target)
             return false
         }
         notifyReconnect(key)
@@ -102,12 +101,13 @@ class Room(val id: UUID, val members: MutableList<SocketAddress>, var initTime: 
 //    fun kill(survivor: SocketAddress){
 ////        Directory
 //    }
-    fun notifyReconnect(target: SocketAddress){
+    fun notifyReconnect(target: User){
     //todo, reopened sockets might not be on the same port, at least when theyre on the local network. figure out how to handle and assign reconnections
         if (connectionStatus[target]!!){
             return
         }
-        connectionStatus[target] = true
+    //in here just reassign the users address to the new address and continue one
+        connectionStatus[target.address] = true
         isHealthy = twoConnections()
         timeOut = 0L
     }
