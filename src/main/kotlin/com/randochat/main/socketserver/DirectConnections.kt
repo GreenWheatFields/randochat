@@ -56,7 +56,6 @@ class DirectConnections: Thread() {
                            }
                         }else if (waitList.contains(keyAdd)){
                             //catch reconnects attempt here. also people waiting for a pair
-                            println("here")
                             checkStatus(keyAdd)
                         }else{
                             clientHandler.read(key.channel())

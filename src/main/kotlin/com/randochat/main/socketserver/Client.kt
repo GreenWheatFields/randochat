@@ -41,11 +41,11 @@ class Client: Thread(){
         var len = -1
         var message = ByteBuffer.allocate(1024)
         var response = ""
-        while (len == -1){
+        while (len <= 0){
             len = conn.read(message)
         }
         for (i in 0 until len){
-            response += message[i]
+            response += message[i].toChar()
         }
         //reads nothing
         println("read response")
