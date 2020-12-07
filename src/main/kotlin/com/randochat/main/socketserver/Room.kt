@@ -34,7 +34,7 @@ class Room(val id: UUID, val members: MutableList<User>, var initTime: Long, val
     var timeOut = 0L
     var nextCheck = 0L
     var bothDead = false
-    var roomID = UUID.randomUUID()
+    var roomID: UUID = UUID.randomUUID()
 
     fun add(member: User){
         members.add(member)
@@ -76,7 +76,7 @@ class Room(val id: UUID, val members: MutableList<User>, var initTime: Long, val
             bothDead = true
         }
         if (timeOut == 0L){
-            timeOut = System.currentTimeMillis() + 3000L
+            timeOut = System.currentTimeMillis() + 10000L
         }
         isHealthy = false
     }

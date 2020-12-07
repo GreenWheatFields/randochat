@@ -13,7 +13,7 @@ import java.util.*
 
 class Client: Thread(){
     lateinit var conn: SocketChannel
-    fun connect(sleepTime: Long){
+    fun connect(sleepTime: Long, message: String){
         try{
             sleep(sleepTime)
             println("awake")
@@ -24,16 +24,18 @@ class Client: Thread(){
         }catch (e: ConnectException){
             println(e.printStackTrace())
             sleep(Random().nextInt(100).toLong())
-            connect(Random().nextInt(3000).toLong())
+            connect(Random().nextInt(3000).toLong(), message)
         }
         sleep(100)
-        introduce()
+        introduce(message)
         println(waitForResponse())
         sleep(100)
-
         send()
         println(Thread.currentThread().name + "is disconencting")
         conn.socket().close()
+
+
+
 
 
     }
@@ -50,8 +52,8 @@ class Client: Thread(){
         return response
     }
 
-    fun introduce(){
-        conn.write(ByteBuffer.wrap("HELLO".toByteArray()))
+    fun introduce(message: String){
+        conn.write(ByteBuffer.wrap(message.toByteArray()))
     }
     fun send(){
         val i = Random().nextInt(3000).toString()
@@ -68,6 +70,8 @@ class Client: Thread(){
 
     override fun run() {
         super.run()
-        connect(Random().nextInt(300).toLong())
+        connect(Random().nextInt(300).toLong(), "HELLO")
+        connect(Random().nextInt(300).toLong(), "RECONNECT")
+
     }
 }

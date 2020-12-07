@@ -29,10 +29,15 @@ class Authorizer(val selector: Selector) {
             for (i in 0 until length){
                 token += message[i].toChar()
             }
+            println(token)
             if (token == "HELLO"){
 //                println("valid token")
                 return true
-            }else{
+            }else if (token == "RECONNECT"){
+                println("reconnect request")
+                return true
+            }
+            else{
                 println("invalid token")
                 return killSuspect(conn)
             }

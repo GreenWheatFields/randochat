@@ -53,7 +53,7 @@ class ClientHandler(): Thread(){
         }else if (System.currentTimeMillis() > room.nextCheck){
             room.checkConnection()
         }else{
-
+            return
         }
 
         }

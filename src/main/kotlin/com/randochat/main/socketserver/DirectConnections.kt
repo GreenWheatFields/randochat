@@ -2,7 +2,6 @@ package com.randochat.main.socketserver
 
 import java.net.InetSocketAddress
 import java.net.SocketAddress
-import java.nio.ByteBuffer
 import java.nio.channels.SelectionKey
 import java.nio.channels.Selector
 import java.nio.channels.ServerSocketChannel
@@ -34,7 +33,7 @@ class DirectConnections: Thread() {
         server.register(selector, SelectionKey.OP_ACCEPT)
     }
 
-    fun listen(){
+    fun routeConnections(){
         var accepted = 0
         while (true){
             selector.select()
@@ -73,7 +72,7 @@ fun addToMatchMaking(user: User){
             waiting.add(user.address)
         waitList.add(user.address)
         }else{
-        println("match found")
+//        println("match found")
         Directory.initPair(user, Directory.getUser(waiting.peek()))
         waitList.remove(waiting.remove())
         waitList.remove(user.address)
@@ -85,7 +84,7 @@ fun checkStatus(key: SocketAddress){
 }
     override fun run() {
         super.run()
-        listen()
+        routeConnections()
     }
 }
 
