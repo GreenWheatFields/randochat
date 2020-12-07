@@ -57,8 +57,14 @@ class ClientHandler(): Thread(){
         }
 
         }
-
+    fun welcome(user: User){
+        user.socketChannel.write(ByteBuffer.wrap("TEST".toByteArray()))
+        println("wrote to socket")
     }
+
+
+}
+
 
     private fun closeAndCleanUp(): Nothing = TODO()
     //determine remove refrences to dead connections, save room

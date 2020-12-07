@@ -19,7 +19,7 @@ class DirectConnections: Thread() {
     val selector = Selector.open()
     val server = ServerSocketChannel.open()
     val readJobs = ConcurrentLinkedQueue<SelectionKey>()
-    val waiting = LinkedList<User>()
+    val waiting = LinkedList<SocketAddress>()
     val waitList = HashSet<SocketAddress>()
     // declare initial capacity?
     val nullCode = 101
@@ -48,16 +48,16 @@ class DirectConnections: Thread() {
 //                        acceptConn(key)
                     }
                     if (key.isReadable) {
-
-                        if (authorizer.isSuspect((key.channel() as SocketChannel).remoteAddress)){
+                        val keyAdd = (key.channel() as SocketChannel).remoteAddress
+                        if (authorizer.isSuspect(keyAdd)){
                            if(authorizer.attemptValidate(key.channel() as SocketChannel)){
                                //done with authorizer after this
-                               //todo, basic matchmaker class. for now itll just be within this class
-                               addToMatchMaking(authorizer.authorize((key.channel() as SocketChannel).remoteAddress))
+                               addToMatchMaking(authorizer.authorize(keyAdd))
                            }
-                        }else if (waitList.contains((key.channel() as SocketChannel).remoteAddress)){
-                            //catch reconnects attempt here?
-                            println("waiting")
+                        }else if (waitList.contains(keyAdd)){
+                            //catch reconnects attempt here. also people waiting for a pair
+                            println("here")
+                            checkStatus(keyAdd)
                         }else{
                             clientHandler.read(key.channel())
 
@@ -71,15 +71,19 @@ class DirectConnections: Thread() {
     }
 fun addToMatchMaking(user: User){
     if (waiting.size == 0){
-            waiting.add(user)
+            waiting.add(user.address)
         waitList.add(user.address)
         }else{
         println("match found")
-            Directory.initPair(user, waiting.remove())
-        //  clientHandler.welcome()
+        Directory.initPair(user, Directory.getUser(waiting.peek()))
+        waitList.remove(waiting.remove())
+        waitList.remove(user.address)
+        clientHandler.welcome(user)
         }
-        }
-
+}
+fun checkStatus(key: SocketAddress){
+//    println(waiting.size)
+}
     override fun run() {
         super.run()
         listen()

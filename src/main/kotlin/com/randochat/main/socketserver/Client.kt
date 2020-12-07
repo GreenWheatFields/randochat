@@ -45,8 +45,10 @@ class Client: Thread(){
             len = conn.read(message)
         }
         for (i in 0 until len){
-            response += message[i].toString()
+            response += message[i]
         }
+        //reads nothing
+        println("read response")
         return response
     }
 
