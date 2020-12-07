@@ -34,6 +34,7 @@ class Room(val id: UUID, val members: MutableList<User>, var initTime: Long, val
     var timeOut = 0L
     var nextCheck = 0L
     var bothDead = false
+    var roomID = UUID.randomUUID()
 
     fun add(member: User){
         members.add(member)
@@ -83,16 +84,16 @@ class Room(val id: UUID, val members: MutableList<User>, var initTime: Long, val
         //todo, only check the connection that has been reported as
         //todo, get disconnected channel. if both disconnected, asjust next check time?
         val key = if (!connectionStatus[members[0].address]!!) members[0] else members[1]
-//        println(key)
-        val target = Directory.getUser(key)
+
+//        val target = Directory.getUser(key)
         nextCheck = System.currentTimeMillis() + 500
         if (bothDead){
             //check both
         }
         try {
-            target.socketChannel.write(ByteBuffer.wrap("test".toByteArray()))
+            key.socketChannel.write(ByteBuffer.wrap("test".toByteArray()))
         }catch (e: IOException){
-            notifyDisconnect(target)
+            notifyDisconnect(key)
             return false
         }
         notifyReconnect(key)

@@ -12,6 +12,7 @@ import kotlin.collections.HashMap
 //rooms: roomID to toom Object, room is passed to client so that they can reconnect?
 object Directory {
     private val directory = ConcurrentHashMap<SocketAddress, User>()
+    private val rooms = HashMap<UUID, Room>()
     private val newEntryTemplate = HashMap<String, Any?>().also {
         it["room"] = null
         it["pair"] = null
@@ -31,8 +32,14 @@ object Directory {
         directory[user.address] = user
     }
     fun initPair(user1: User, user2: User){
-        val room = Room.generateRoom(user1.address)
+        val room = Room.generateRoom(user1)
         room.add(user2)
+        rooms[room.roomID] = room
+        //this needs to be sent to both clients ^^
+        user1.room = room
+        user1.pair = user2
+        user2.room = room
+        user2.pair = user1
     }
 //    fun getBool(key: SocketAddress, field: String): Boolean {
 //        return directory[key]!![field] as Boolean

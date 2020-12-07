@@ -7,8 +7,8 @@ import java.util.*
 //all connections are assignned to a user object.
 //Rooms contain multiple users.
 class User (val socketChannel: SocketChannel){
-    var room = null
-    var pair = null
+    var room: Room? = null
+    var pair: User? = null
     var address: SocketAddress = socketChannel.remoteAddress
     var isAuthorized: Boolean = false
     var authTimeOut: Long = System.currentTimeMillis() + 1000

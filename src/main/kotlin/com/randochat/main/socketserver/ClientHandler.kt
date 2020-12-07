@@ -16,7 +16,7 @@ class ClientHandler(): Thread(){
             return
         }
         val user = Directory.getUser(channel.remoteAddress) //?: do something that stops execution if null
-        var talkingTo: SocketChannel
+        var talkingTo: User
         var room: Room
         if (user.room != null){
             room = user.room as Room
@@ -29,24 +29,24 @@ class ClientHandler(): Thread(){
                         room.notifyDisconnect(user)
                         return
                     }
-                    talkingTo = Directory.getConn(room.getOther(conn.remoteAddress) as SocketAddress)
+                    talkingTo = Directory.getUser(room.getOther(user.address).address)
                     try {
-                        talkingTo.write(ByteBuffer.wrap(message.array()))
+                        talkingTo.socketChannel.write(ByteBuffer.wrap(message.array()))
                     } catch (e: IOException) {
                         //never caught
                         println("disconnected")
-                        room.notifyDisconnect(talkingTo.remoteAddress)
+                        room.notifyDisconnect(talkingTo)
                         return
                     }
                 }
             }else{
-                salvageRoom(room, conn)
+                salvageRoom(room)
             }
         }else{
             // someone with no match or room object
         }
     }
-    fun salvageRoom(room: Room, conn: SocketChannel){
+    fun salvageRoom(room: Room){
         if (System.currentTimeMillis() > room.timeOut){
             println("timeout")
             System.exit(5)

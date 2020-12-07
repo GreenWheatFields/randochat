@@ -19,7 +19,7 @@ class DirectConnections: Thread() {
     val selector = Selector.open()
     val server = ServerSocketChannel.open()
     val readJobs = ConcurrentLinkedQueue<SelectionKey>()
-    val waiting = LinkedList<SocketAddress>()
+    val waiting = LinkedList<User>()
     val waitList = HashSet<SocketAddress>()
     // declare initial capacity?
     val nullCode = 101
@@ -55,12 +55,14 @@ class DirectConnections: Thread() {
                                //todo, basic matchmaker class. for now itll just be within this class
                                addToMatchMaking(authorizer.authorize((key.channel() as SocketChannel).remoteAddress))
                            }
-                        }else{
+                        }else if (waitList.contains((key.channel() as SocketChannel).remoteAddress)){
                             //catch reconnects attempt here?
+                            println("waiting")
+                        }else{
                             clientHandler.read(key.channel())
+
                         }
-                        //if key.remoteAddress. isAutorized
-//                        clientHandler.read(key.channel())
+
                     }
 
                 }
@@ -69,25 +71,21 @@ class DirectConnections: Thread() {
     }
 fun addToMatchMaking(user: User){
     if (waiting.size == 0){
-            waiting.add(user.address)
+            waiting.add(user)
+        waitList.add(user.address)
         }else{
-
+        println("match found")
+            Directory.initPair(user, waiting.remove())
+        //  clientHandler.welcome()
         }
-
-            }else{
-                //waiting for client
-            }
-            waiting.remove()
         }
-}
-
-
 
     override fun run() {
         super.run()
         listen()
     }
 }
+
 
 fun main() {
     val acceptConns = DirectConnections()

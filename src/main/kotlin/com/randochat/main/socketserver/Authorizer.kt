@@ -56,6 +56,7 @@ class Authorizer(val selector: Selector) {
     }
     fun authorize(key: SocketAddress): User {
         println("Accetped")
+        println(key)
         Directory.addUser(suspects[key]!!)
         val user = suspects[key]!!
         suspects.remove(key)
