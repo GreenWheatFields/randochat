@@ -72,7 +72,7 @@ class Room(val id: UUID, val members: MutableList<User>, var initTime: Long, val
         connectionStatus[user.address] = false
         if (members.size == 1){
             //disconnect before pair has joined
-        }else if (!connectionStatus[getOther(user.address)]!!){
+        }else if (!connectionStatus[getOther(user.address).address]!!){
             bothDead = true
         }
         if (timeOut == 0L){

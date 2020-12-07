@@ -58,8 +58,9 @@ class ClientHandler(): Thread(){
 
         }
     fun welcome(user: User){
-        user.socketChannel.write(ByteBuffer.wrap("TEST".toByteArray()))
-        println("wrote to socket")
+        //check null here
+        user.socketChannel.write(Messages.welcomeMessage(user.room!!))
+        user.pair?.socketChannel?.write(Messages.welcomeMessage(user.room!!))
     }
 
 

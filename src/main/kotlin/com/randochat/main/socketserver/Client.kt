@@ -47,8 +47,6 @@ class Client: Thread(){
         for (i in 0 until len){
             response += message[i].toChar()
         }
-        //reads nothing
-        println("read response")
         return response
     }
 

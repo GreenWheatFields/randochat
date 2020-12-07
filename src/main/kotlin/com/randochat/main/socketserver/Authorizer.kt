@@ -30,7 +30,7 @@ class Authorizer(val selector: Selector) {
                 token += message[i].toChar()
             }
             if (token == "HELLO"){
-                println("valid token")
+//                println("valid token")
                 return true
             }else{
                 println("invalid token")
@@ -54,7 +54,7 @@ class Authorizer(val selector: Selector) {
         return false
     }
     fun authorize(key: SocketAddress): User {
-        println("Accetped")
+//        println("Accetped")
         Directory.addUser(suspects[key]!!)
         val user = suspects[key]!!
         suspects.remove(key)
