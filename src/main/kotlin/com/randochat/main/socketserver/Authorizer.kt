@@ -34,6 +34,7 @@ class Authorizer(val selector: Selector) {
 //                println("valid token")
                 return true
             }else if (token == "RECONNECT"){
+                // roomId, check if room is awaiting a reconnect, take over that user object and assign it to this connection
                 println("reconnect request")
                 return true
             }
