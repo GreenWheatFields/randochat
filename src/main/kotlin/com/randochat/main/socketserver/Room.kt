@@ -12,7 +12,7 @@ import kotlin.collections.HashMap
 //        startTime: timestamp. either Room generation or first transported message
 //        nextVote: when the users are able to vote on to continue the chat or reveal the profiles
 //        prompt: randomly chosen prompt. a list the choose from should not be replicated
-class Room(val id: UUID, val members: MutableList<User>, var initTime: Long, val startTime: Long, var nextVote: Long, var prompt: String,
+class Room(val id: String, val members: MutableList<User>, var initTime: Long, val startTime: Long, var nextVote: Long, var prompt: String,
            var isBothConnected: Boolean) {
     companion object{
         fun generateRoom(member: User): Room {
@@ -23,7 +23,7 @@ class Room(val id: UUID, val members: MutableList<User>, var initTime: Long, val
             val prompt = "" //rand_choice(prompts)
             val isBothConnected = false
             val members = mutableListOf<User>().also { it.add(member) }
-            return Room(id, members, initTime, startTime, nextVote, prompt, isBothConnected)
+            return Room(id.toString(), members, initTime, startTime, nextVote, prompt, isBothConnected)
         }
     }
 
@@ -34,7 +34,6 @@ class Room(val id: UUID, val members: MutableList<User>, var initTime: Long, val
     var timeOut = 0L
     var nextCheck = 0L
     var bothDead = false
-    var roomID: UUID = UUID.randomUUID()
 
     fun add(member: User){
         members.add(member)
