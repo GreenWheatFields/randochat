@@ -3,6 +3,8 @@ package com.randochat.main.socketserver.serverBehavior
 import com.randochat.main.socketserver.dataAccsess.Directory
 import com.randochat.main.socketserver.dataAccsess.Room
 import com.randochat.main.socketserver.dataAccsess.User
+import com.randochat.main.socketserver.messages.Messages
+import com.randochat.main.socketserver.messages.ServerMessages
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.channels.SelectableChannel
@@ -59,11 +61,11 @@ class ClientHandler(): Thread(){
         }
 
         }
-    fun welcome(user: User){
+    fun sendWelcomeMessage(user: User){
         //check null here
-//        val message = Messages.serverMessages.welcomeMessage()
-//        user.socketChannel.write(Messages.welcomeMessage(user.room!!))
-//        user.pair?.socketChannel?.write(Messages.welcomeMessage(user.room!!))
+        val message = ServerMessages.welcomeMessage(user.room!!)
+        user.socketChannel.write(message)
+        user.pair?.socketChannel?.write(message)
     }
 
 

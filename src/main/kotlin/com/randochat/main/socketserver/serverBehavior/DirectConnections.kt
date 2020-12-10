@@ -79,7 +79,7 @@ fun addToMatchMaking(user: User){
         Directory.initPair(user, Directory.getUser(waiting.peek()))
         waitList.remove(waiting.remove())
         waitList.remove(user.address)
-        clientHandler.welcome(user)
+        clientHandler.sendWelcomeMessage(user)
         }
 }
 fun checkStatus(key: SocketAddress){

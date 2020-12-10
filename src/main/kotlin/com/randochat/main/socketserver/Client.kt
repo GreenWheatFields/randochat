@@ -29,6 +29,7 @@ class Client: Thread(){
         sleep(100)
         introduce(message)
         println(waitForResponse())
+        //todo, only one thread is printing the json response. probably because the safe calls in clienthandler failed
         sleep(100)
         send()
         println(Thread.currentThread().name + "is disconencting")
@@ -71,7 +72,7 @@ class Client: Thread(){
     override fun run() {
         super.run()
         connect(Random().nextInt(300).toLong(), "HELLO")
-        connect(Random().nextInt(300).toLong(), "RECONNECT")
+//        connect(Random().nextInt(300).toLong(), "RECONNECT")
 
     }
 }
