@@ -65,6 +65,8 @@ class ClientHandler(): Thread(){
         //check null here
         val message = ServerMessages.welcomeMessage(user.room!!)
         user.socketChannel.write(message)
+        println(user.pair!!.address)
+        println(user.address)
         user.pair?.socketChannel?.write(message)
     }
 
