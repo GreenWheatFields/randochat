@@ -1,5 +1,8 @@
-package com.randochat.main.socketserver
+package com.randochat.main.socketserver.serverBehavior
 
+import com.randochat.main.socketserver.Client
+import com.randochat.main.socketserver.dataAccsess.Directory
+import com.randochat.main.socketserver.dataAccsess.User
 import java.net.InetSocketAddress
 import java.net.SocketAddress
 import java.nio.channels.SelectionKey

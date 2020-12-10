@@ -1,4 +1,4 @@
-package com.randochat.main.socketserver
+package com.randochat.main.socketserver.dataAccsess
 
 import java.io.IOException
 import java.net.SocketAddress

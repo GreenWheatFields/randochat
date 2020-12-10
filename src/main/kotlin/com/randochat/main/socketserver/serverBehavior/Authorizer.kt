@@ -1,12 +1,13 @@
-package com.randochat.main.socketserver
+package com.randochat.main.socketserver.serverBehavior
 
+import com.randochat.main.socketserver.dataAccsess.Directory
+import com.randochat.main.socketserver.dataAccsess.User
 import java.net.SocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels.SelectionKey
 import java.nio.channels.Selector
 import java.nio.channels.ServerSocketChannel
 import java.nio.channels.SocketChannel
-import java.util.concurrent.ConcurrentHashMap
 
 //handles intial authorization
 class Authorizer(val selector: Selector) {

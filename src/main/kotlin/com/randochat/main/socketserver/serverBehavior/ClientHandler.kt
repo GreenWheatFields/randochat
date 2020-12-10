@@ -1,7 +1,9 @@
-package com.randochat.main.socketserver
+package com.randochat.main.socketserver.serverBehavior
 
+import com.randochat.main.socketserver.dataAccsess.Directory
+import com.randochat.main.socketserver.dataAccsess.Room
+import com.randochat.main.socketserver.dataAccsess.User
 import java.io.IOException
-import java.net.SocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels.SelectableChannel
 import java.nio.channels.SocketChannel

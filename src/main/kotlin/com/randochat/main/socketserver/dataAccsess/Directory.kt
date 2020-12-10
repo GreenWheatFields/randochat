@@ -1,8 +1,6 @@
-package com.randochat.main.socketserver
+package com.randochat.main.socketserver.dataAccsess
 
 import java.net.SocketAddress
-import java.nio.channels.SocketChannel
-import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.collections.HashMap
 
@@ -24,7 +22,7 @@ object Directory {
     val testDirectory = HashMap<SocketAddress, User>()
 
 
-    fun getUser(key: SocketAddress): User{
+    fun getUser(key: SocketAddress): User {
         //todo, handle bad key
         return directory[key]!!
     }

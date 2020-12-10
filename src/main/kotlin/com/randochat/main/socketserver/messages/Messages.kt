@@ -1,18 +1,16 @@
-package com.randochat.main.socketserver
+package com.randochat.main.socketserver.messages
 
 import java.io.StringReader
-import java.lang.NullPointerException
 import java.nio.ByteBuffer
 import javax.json.*
 import javax.json.stream.JsonParsingException
 
-class Messages {
+open class Messages {
     //intent: what the server wants the client to do/ what the client wants the server to do
     // depending on the intent the rest of the json is different
     //content: content of a message a string for now
     //status: status of a room? wheter or not there is a disconnect/ user left the app but still connected/ room id
-
-    companion object{
+        companion object{
         fun messageToBuffer(string: String): ByteBuffer{
             return ByteBuffer.wrap(string.toByteArray())
         }
@@ -29,19 +27,6 @@ class Messages {
 
         }
     }
-            class serverMessages {
-                companion object{
-                    fun welcomeMessage(room: Room): ByteBuffer {
-                        var message = "WELCOME "
-                        message += room.id
-                        val status =  Json.createObjectBuilder().add("roomID", room.id).add("roomStatus", room.isHealthy)
-                                .add("otherStatus", room.isHealthy).build()
-                        val temp = Json.createObjectBuilder().add("intent", "WELCOME").add("status", status)
-                                .add("content", "null").build()
-                        return messageToBuffer(temp.toString())
-                    }
-                }
-            }
-            class clientMessages() {
-            }
+
+
         }
