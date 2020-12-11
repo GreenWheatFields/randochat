@@ -24,7 +24,6 @@ open class Messages {
             }catch (e: JsonParsingException){
                 JsonObject.EMPTY_JSON_OBJECT
             }
-
         }
     }
 

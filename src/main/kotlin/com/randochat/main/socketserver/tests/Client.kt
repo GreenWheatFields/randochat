@@ -8,9 +8,9 @@ import java.nio.channels.SocketChannel
 import java.util.*
 import javax.json.JsonObject
 
-class Client: Thread(){
+open class Client: Thread(){
     lateinit var conn: SocketChannel
-    fun connect(sleepTime: Long, message: String): String{
+    fun connect(sleepTime: Long, recursive: Boolean){
         try{
             sleep(sleepTime)
 //            println("awake")
@@ -20,26 +20,28 @@ class Client: Thread(){
 
         }catch (e: ConnectException){
             println(e.printStackTrace())
-            sleep(Random().nextInt(100).toLong())
-            connect(Random().nextInt(3000).toLong(), message)
+            if (recursive){
+                sleep(Random().nextInt(100).toLong())
+                connect(Random().nextInt(3000).toLong(),recursive)
+            }
+
         }
-        sleep(100)
-        introduce(message)
-        val response = waitForResponse()
-        val json = Messages.messageFromBuffer(ByteBuffer.wrap(response.toByteArray()))
-        val roomId = (json["status"] as JsonObject).get("roomID")
-        sleep(100)
-        send()
-//        println(Thread.currentThread().name + "is disconencting")
-        conn.socket().close()
-        return roomId.toString()
+//        sleep(100)
+//        introduce(message)
+//        val response = waitForResponse()
+//        val json = Messages.messageFromBuffer(ByteBuffer.wrap(response.toByteArray()))
+//        val roomId = (json["status"] as JsonObject).get("roomID")
+//        sleep(100)
+//        send()
+////        println(Thread.currentThread().name + "is disconencting")
+//        conn.socket().close()
 
 
 
 
 
     }
-    fun waitForResponse(): String {
+    fun waitForResponse(): JsonObject {
         var len = -1
         var message = ByteBuffer.allocate(1024)
         var response = ""
@@ -49,7 +51,7 @@ class Client: Thread(){
         for (i in 0 until len){
             response += message[i].toChar()
         }
-        return response
+        return Messages.messageFromBuffer(ByteBuffer.wrap(response.toByteArray())) //redundant
     }
 
     fun introduce(message: String){
@@ -67,10 +69,14 @@ class Client: Thread(){
 
         }
     }
+    fun closeConnection(){
+        conn.socket().close()
+
+    }
 
     override fun run() {
         super.run()
-        println(connect(Random().nextInt(300).toLong(), "HELLO"))
+        println(connect(Random().nextInt(300).toLong(),true))
 //        connect(Random().nextInt(300).toLong(), "RECONNECT")
 
     }

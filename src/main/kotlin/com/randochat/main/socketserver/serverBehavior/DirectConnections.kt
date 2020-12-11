@@ -1,6 +1,6 @@
 package com.randochat.main.socketserver.serverBehavior
 
-import com.randochat.main.socketserver.Client
+import com.randochat.main.socketserver.tests.Client
 import com.randochat.main.socketserver.dataAccsess.Directory
 import com.randochat.main.socketserver.dataAccsess.User
 import java.net.InetSocketAddress
@@ -27,10 +27,11 @@ class DirectConnections: Thread() {
     val nullCode = 101
     val clientHandler = ClientHandler()
     val authorizer = Authorizer(selector)
+    val directory = Directory
 
 
     init {
-        Directory
+//        Directory
         server.configureBlocking(false)
         server.socket().bind(InetSocketAddress("127.0.0.1", 15620))
         server.register(selector, SelectionKey.OP_ACCEPT)
