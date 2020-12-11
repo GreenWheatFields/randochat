@@ -32,12 +32,18 @@ object Directory {
     fun initPair(user1: User, user2: User){
         val room = Room.generateRoom(user1)
         room.add(user2)
-        rooms[room.id] = room
-        //this needs to be sent to both clients ^^
+        rooms["\"${room.id.toString()}\""] = room
+        //wrap with quotes because JsonObject.get(roomID) is wrapped in quotes
         user1.room = room
         user1.pair = user2
         user2.room = room
         user2.pair = user1
+    }
+    fun validRoom(id: String): Boolean{
+        return rooms.contains(id)
+    }
+    fun getRoom(id: String): Room{
+        return rooms[id]!!
     }
 //    fun getBool(key: SocketAddress, field: String): Boolean {
 //        return directory[key]!![field] as Boolean
