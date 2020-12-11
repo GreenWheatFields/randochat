@@ -34,11 +34,13 @@ class Authorizer(val selector: Selector) {
                 token += message[i].toChar()
             }
             val json = Messages.messageFromJsonStringr(token)
+            println("here")
             if (json.equals(JsonObject.EMPTY_JSON_OBJECT)){
                 println("handle bad json")
                 exitProcess(4)
             }
             //todo lots of this stuff shuold be handled by a validator class. maybe a switch
+            //json.toString may be wrapped around qoutes and might break this
             if (json.containsKey("intent") && json.containsKey("token")){
                 if (json.get("intent").toString() == "OPENNEW") {
                     //todo, assuming all tokens are valid for now

@@ -7,5 +7,8 @@ class ClientMessages {
         //todo token
         val initMessage = Json.createObjectBuilder().add("intent", "OPENNEW")
                 .add("token", "VALIDTOKEN").build().toString()
+        fun getReconnectMessage(roomId: String){
+
+        }
     }
 }

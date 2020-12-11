@@ -15,7 +15,9 @@ class TestConnectionEvents{
         clients.forEach { it.introduce(ClientMessages.initMessage) }
         val json = clients[0].waitForResponse()
         val roomId = (json.get("status") as JsonObject).get("roomID").toString()
+
         clients[0].closeConnection()
+        println(roomId)
     }
 }
 
