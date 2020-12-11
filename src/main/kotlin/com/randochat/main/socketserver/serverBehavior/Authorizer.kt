@@ -30,7 +30,6 @@ class Authorizer(val selector: Selector) {
             for (i in 0 until length){
                 token += message[i].toChar()
             }
-            println(token)
             if (token == "HELLO"){
 //                println("valid token")
                 return true

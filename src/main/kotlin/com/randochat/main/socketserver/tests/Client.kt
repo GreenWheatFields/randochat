@@ -1,22 +1,19 @@
-package com.randochat.main.socketserver
+package com.randochat.main.socketserver.tests
 
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.io.PrintWriter
+import com.randochat.main.socketserver.messages.Messages
 import java.net.ConnectException
 import java.net.InetSocketAddress
-import java.net.Socket
-import java.net.SocketException
 import java.nio.ByteBuffer
 import java.nio.channels.SocketChannel
 import java.util.*
+import javax.json.JsonObject
 
 class Client: Thread(){
     lateinit var conn: SocketChannel
-    fun connect(sleepTime: Long, message: String){
+    fun connect(sleepTime: Long, message: String): String{
         try{
             sleep(sleepTime)
-            println("awake")
+//            println("awake")
             conn = SocketChannel.open(InetSocketAddress("127.0.0.1", 15620))
             conn.configureBlocking(false)
 
@@ -28,12 +25,14 @@ class Client: Thread(){
         }
         sleep(100)
         introduce(message)
-        println(waitForResponse())
-        //todo, only one thread is printing the json response. probably because the safe calls in clienthandler failed
+        val response = waitForResponse()
+        val json = Messages.messageFromBuffer(ByteBuffer.wrap(response.toByteArray()))
+        val roomId = (json["status"] as JsonObject).get("roomID")
         sleep(100)
         send()
-        println(Thread.currentThread().name + "is disconencting")
+//        println(Thread.currentThread().name + "is disconencting")
         conn.socket().close()
+        return roomId.toString()
 
 
 
@@ -71,7 +70,7 @@ class Client: Thread(){
 
     override fun run() {
         super.run()
-        connect(Random().nextInt(300).toLong(), "HELLO")
+        println(connect(Random().nextInt(300).toLong(), "HELLO"))
 //        connect(Random().nextInt(300).toLong(), "RECONNECT")
 
     }
