@@ -14,13 +14,9 @@ open class Messages {
         fun messageToBuffer(string: String): ByteBuffer{
             return ByteBuffer.wrap(string.toByteArray())
         }
-        fun messageFromBuffer(buf: ByteBuffer): JsonObject {
-            val sb = StringBuilder()
-            for (byte in buf.array()) {
-                sb.append(byte.toChar())
-            }
+        fun messageFromBuffer(string: String): JsonObject {
             return try {
-                Json.createReader(StringReader(sb.toString())).readObject()
+                Json.createReader(StringReader(string)).readObject()
             }catch (e: JsonParsingException){
                 JsonObject.EMPTY_JSON_OBJECT
             }
