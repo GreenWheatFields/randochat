@@ -13,7 +13,7 @@ class ServerMessages {
                     .add("otherStatus", room.isHealthy).build()
             val temp = Json.createObjectBuilder().add("intent", "WELCOME").add("status", status)
                     .add("content", "null").build()
-            return Messages.messageToBuffer(temp.toString())
+            return Messages.messageToBuffer(temp)
         }
     }
 }

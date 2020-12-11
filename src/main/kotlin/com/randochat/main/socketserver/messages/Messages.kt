@@ -11,10 +11,10 @@ open class Messages {
     //content: content of a message a string for now
     //status: status of a room? wheter or not there is a disconnect/ user left the app but still connected/ room id
         companion object{
-        fun messageToBuffer(string: String): ByteBuffer{
-            return ByteBuffer.wrap(string.toByteArray())
+        fun messageToBuffer(string: JsonObject): ByteBuffer{
+            return ByteBuffer.wrap(string.toString().toByteArray())
         }
-        fun messageFromBuffer(string: String): JsonObject {
+        fun messageFromJsonStringr(string: String): JsonObject {
             return try {
                 Json.createReader(StringReader(string)).readObject()
             }catch (e: JsonParsingException){

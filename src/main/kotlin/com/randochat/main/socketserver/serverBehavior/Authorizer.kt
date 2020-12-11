@@ -2,12 +2,15 @@ package com.randochat.main.socketserver.serverBehavior
 
 import com.randochat.main.socketserver.dataAccsess.Directory
 import com.randochat.main.socketserver.dataAccsess.User
+import com.randochat.main.socketserver.messages.Messages
 import java.net.SocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels.SelectionKey
 import java.nio.channels.Selector
 import java.nio.channels.ServerSocketChannel
 import java.nio.channels.SocketChannel
+import javax.json.JsonObject
+import kotlin.system.exitProcess
 
 //handles intial authorization
 class Authorizer(val selector: Selector) {
@@ -30,12 +33,24 @@ class Authorizer(val selector: Selector) {
             for (i in 0 until length){
                 token += message[i].toChar()
             }
-            if (token == "HELLO"){
-//                println("valid token")
-                return true
-            }else if (token == "RECONNECT"){
+            val json = Messages.messageFromJsonStringr(token)
+            if (json.equals(JsonObject.EMPTY_JSON_OBJECT)){
+                println("handle bad json")
+                exitProcess(4)
+            }
+            //todo lots of this stuff shuold be handled by a validator class. maybe a switch
+            if (json.containsKey("intent") && json.containsKey("token")){
+                if (json.get("intent").toString() == "OPENNEW") {
+                    //todo, assuming all tokens are valid for now
+                println("valid token")
+                    return true
+                }
+            }else if (json.get("intent").toString() == "RECONNECT"){
+                // check room id
+                //token == VALIDTOKEN
                 // roomId, check if room is awaiting a reconnect, take over that user object and assign it to this connection
                 println("reconnect request")
+//                println(json.getB)
                 return true
             }
             else{

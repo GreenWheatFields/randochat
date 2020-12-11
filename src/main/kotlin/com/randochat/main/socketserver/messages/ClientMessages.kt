@@ -5,6 +5,7 @@ import javax.json.Json
 class ClientMessages {
     companion object{
         //todo token
-        val welcomeMessage = Json.createObjectBuilder().add("intent", "OPENNEW").build()
+        val initMessage = Json.createObjectBuilder().add("intent", "OPENNEW")
+                .add("token", "VALIDTOKEN").build().toString()
     }
 }

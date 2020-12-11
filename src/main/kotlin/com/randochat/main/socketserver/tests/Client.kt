@@ -51,7 +51,7 @@ open class Client: Thread(){
         for (i in 0 until len){
             response += message[i].toChar()
         }
-        return Messages.messageFromBuffer(response) //redundant
+        return Messages.messageFromJsonStringr(response) //redundant
     }
 
     fun introduce(message: String){
