@@ -66,7 +66,6 @@ class Room(val id: String, val members: MutableList<User>, var initTime: Long, v
         return true
     }
     fun checkConnection(): Boolean{
-        //todo, only check the connection that has been reported as
         //todo, get disconnected channel. if both disconnected, asjust next check time?
         val key = if (!connectionStatus[members[0].address]!!) members[0] else members[1]
 
@@ -81,8 +80,7 @@ class Room(val id: String, val members: MutableList<User>, var initTime: Long, v
             notifyDisconnect(key)
             return false
         }
-//        notifyReconnect(key)
-        //todo ^^
+        notifyReconnect(key.userId, key.socketChannel)
         return true
     }
     fun notifyDisconnect(user: User) {

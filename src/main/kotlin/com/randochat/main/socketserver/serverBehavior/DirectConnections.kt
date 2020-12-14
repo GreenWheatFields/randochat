@@ -48,7 +48,6 @@ class DirectConnections: Thread() {
                 if (key.isValid) {
                     if (key.isAcceptable) {
                         authorizer.investigateConn(key)
-//                        acceptConn(key)
                     }
                     if (key.isReadable) {
                         val keyAdd = (key.channel() as SocketChannel).remoteAddress
@@ -74,7 +73,7 @@ class DirectConnections: Thread() {
 fun addToMatchMaking(user: User){
     if (waiting.size == 0){
             waiting.add(user.address)
-        waitList.add(user.address)
+//        waitList.add(user.address)
         }else{
 //        println("match found")
         Directory.initPair(user, Directory.getUser(waiting.peek()))
