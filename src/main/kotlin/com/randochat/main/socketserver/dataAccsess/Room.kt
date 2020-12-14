@@ -27,7 +27,7 @@ class Room(val id: String, val members: MutableList<User>, var initTime: Long, v
             return Room(id.toString(), members, initTime, startTime, nextVote, prompt, isBothConnected)
         }
     }
-
+    //todo,. either remove isHealyj
 
     var isFull = false
     var connectionStatus = HashMap<SocketAddress, Boolean>()
@@ -62,23 +62,8 @@ class Room(val id: String, val members: MutableList<User>, var initTime: Long, v
                 return false
             }
         }
+
         return true
-    }
-    fun notifyDisconnect(user: User) {
-        //this might break when a client disconnects before the pair has even joined
-        if (!connectionStatus[user.address]!!){
-            return
-        }
-        connectionStatus[user.address] = false
-        if (members.size == 1){
-            //disconnect before pair has joined
-        }else if (!connectionStatus[getOther(user.address).address]!!){
-            bothDead = true
-        }
-        if (timeOut == 0L){
-            timeOut = System.currentTimeMillis() + 10000L
-        }
-        isHealthy = false
     }
     fun checkConnection(): Boolean{
         //todo, only check the connection that has been reported as
@@ -100,15 +85,36 @@ class Room(val id: String, val members: MutableList<User>, var initTime: Long, v
         //todo ^^
         return true
     }
+    fun notifyDisconnect(user: User) {
+        //this might break when a client disconnects before the pair has even joined
+        if (!connectionStatus[user.address]!!){
+            return
+        }
+        connectionStatus[user.address] = false
+        if (members.size == 1){
+            //disconnect before pair has joined
+        }else if (!connectionStatus[getOther(user.address).address]!!){
+            bothDead = true
+        }
+        if (timeOut == 0L){
+            timeOut = System.currentTimeMillis() + 10000L
+        }
+        isHealthy = false
+    }
+
 //    fun kill(survivor: SocketAddress){
 ////        Directory
 //    }
-    fun notifyReconnect(userID: String, roomID: String, conn: SocketChannel): Boolean {
+    fun notifyReconnect(userID: String, conn: SocketChannel): Boolean {
     //todo, reopened sockets might not be on the same port, at least when theyre on the local network. figure out how to handle and assign reconnections
         for (user in members){
             if (userID == user.userId){
-                user.userId = userID
-
+                connectionStatus.remove(user.address)
+                user.reassign(conn)
+                connectionStatus[user.address] = true
+                println(twoConnections())
+                println(isBothConnected)
+                println(isHealthy)
                 return true
             }
         }

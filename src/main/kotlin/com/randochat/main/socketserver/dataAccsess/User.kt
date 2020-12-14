@@ -6,7 +6,7 @@ import java.util.*
 
 //all connections are assignned to a user object.
 //Rooms contain multiple users.
-class User (val socketChannel: SocketChannel){
+class User (var socketChannel: SocketChannel){
     var room: Room? = null
     var pair: User? = null
     var address: SocketAddress = socketChannel.remoteAddress
@@ -14,5 +14,9 @@ class User (val socketChannel: SocketChannel){
     var authTimeOut: Long = System.currentTimeMillis() + 1000
     var userId: String = UUID.randomUUID().toString()
 
+    fun reassign(channel: SocketChannel){
+        socketChannel = channel
+        address = socketChannel.remoteAddress
+    }
 
 }

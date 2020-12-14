@@ -62,10 +62,10 @@ class ClientHandler(): Thread(){
 
         }
     fun sendWelcomeMessage(user: User){
-        //check null here
+        //todo check null here
         val message = ServerMessages.welcomeMessage(user.room!!, user).mark()
-        user.socketChannel.write(message)
-        user.pair?.socketChannel?.write(message.reset())
+        user.socketChannel.write(ServerMessages.welcomeMessage(user.room!!, user))
+        user.pair?.socketChannel?.write(ServerMessages.welcomeMessage(user.pair!!.room!!, user.pair!!))
     }
 
 
