@@ -23,10 +23,13 @@ class TestConnectionEvents{
 //        println(userID)
 //        println(userID2)
 //        clients.forEach { it.send() }
-        clients[0].closeConnection()
         clients[1].send()
+        clients[0].closeConnection()
         clients[0].connect(100, true)
         clients[0].introduce(ClientMessages.getReconnectMessage(roomId, userID))
+        clients[0].send()
+        clients[0].closeConnection()
+        clients[1].send()
         //todo weird behavior when dc is before messages are being sent??
         //this could lead to two idle connections never having their room checked for timeout??
     }

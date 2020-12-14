@@ -52,6 +52,7 @@ class Authorizer(val selector: Selector) {
                     var userID = json.get("userID").toString()
                     if(Directory.validRoom(roomID)){
                         Directory.getRoom(roomID).notifyReconnect(JsonValues.strip(userID), conn)
+                        //validated, assigned
                     }else{
                         //reconnect after room has been killed, treat as a new user?
                     }

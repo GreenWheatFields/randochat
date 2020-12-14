@@ -27,7 +27,8 @@ class Room(val id: String, val members: MutableList<User>, var initTime: Long, v
             return Room(id.toString(), members, initTime, startTime, nextVote, prompt, isBothConnected)
         }
     }
-    //todo,. either remove isHealyj
+    //todo, either remove isHealthy or isBothConnected
+    //todo, timeout on two conenctions but no activity?
 
     var isFull = false
     var connectionStatus = HashMap<SocketAddress, Boolean>()
@@ -35,11 +36,11 @@ class Room(val id: String, val members: MutableList<User>, var initTime: Long, v
     var timeOut = 0L
     var nextCheck = 0L
     var bothDead = false
+    var waitTime = 3000L
 
     fun add(member: User){
         members.add(member)
         isFull = true
-        //todo, no need for an array of booleans no that there is a timeout
         connectionStatus[members[0].address] = true
         connectionStatus[members[1].address] = true
         isHealthy = true
@@ -62,7 +63,6 @@ class Room(val id: String, val members: MutableList<User>, var initTime: Long, v
                 return false
             }
         }
-
         return true
     }
     fun checkConnection(): Boolean{
@@ -97,7 +97,7 @@ class Room(val id: String, val members: MutableList<User>, var initTime: Long, v
             bothDead = true
         }
         if (timeOut == 0L){
-            timeOut = System.currentTimeMillis() + 10000L
+            timeOut = System.currentTimeMillis() + waitTime
         }
         isHealthy = false
     }
@@ -112,9 +112,10 @@ class Room(val id: String, val members: MutableList<User>, var initTime: Long, v
                 connectionStatus.remove(user.address)
                 user.reassign(conn)
                 connectionStatus[user.address] = true
-                println(twoConnections())
-                println(isBothConnected)
-                println(isHealthy)
+                if (twoConnections()){
+                    isHealthy = true
+                    println("saved lobby")
+                }
                 return true
             }
         }
