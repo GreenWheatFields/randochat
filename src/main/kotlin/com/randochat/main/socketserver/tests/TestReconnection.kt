@@ -15,12 +15,12 @@ class TestConnectionEvents{
         clients.forEach { it.introduce(ClientMessages.initMessage) }
         val json = clients[0].waitForResponse()
         val roomId = (json.get("status") as JsonObject).get("roomID").toString()
+        val userID = (json.get("status") as JsonObject).get("userID").toString()
 //        clients.forEach { it.send() }
         clients[0].closeConnection()
         clients[1].send()
-        println(roomId)
         clients[0].connect(100, true)
-        clients[0].introduce(ClientMessages.getReconnectMessage(roomId))
+        clients[0].introduce(ClientMessages.getReconnectMessage(roomId, userID))
         //todo weird behavior when dc is before messages are being sent??
         //this could lead to two idle connections never having their room checked for timeout??
     }

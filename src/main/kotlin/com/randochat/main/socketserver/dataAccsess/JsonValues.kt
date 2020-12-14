@@ -7,6 +7,7 @@ class JsonValues {
     companion object{
         val OPENNEW = Json.createValue("OPENNEW")
         val RECONNECT = Json.createValue("RECONNECT")
+        val strip = { x: String -> x.substring(1, x.length - 1)}
     }
 
 

@@ -3,6 +3,7 @@ package com.randochat.main.socketserver.dataAccsess
 import java.io.IOException
 import java.net.SocketAddress
 import java.nio.ByteBuffer
+import java.nio.channels.SocketChannel
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -95,21 +96,23 @@ class Room(val id: String, val members: MutableList<User>, var initTime: Long, v
             notifyDisconnect(key)
             return false
         }
-        notifyReconnect(key)
+//        notifyReconnect(key)
+        //todo ^^
         return true
     }
 //    fun kill(survivor: SocketAddress){
 ////        Directory
 //    }
-    fun notifyReconnect(target: User){
+    fun notifyReconnect(userID: String, roomID: String, conn: SocketChannel): Boolean {
     //todo, reopened sockets might not be on the same port, at least when theyre on the local network. figure out how to handle and assign reconnections
-        if (connectionStatus[target]!!){
-            return
+        for (user in members){
+            if (userID == user.userId){
+                user.userId = userID
+
+                return true
+            }
         }
-    //in here just reassign the users address to the new address and continue one
-        connectionStatus[target.address] = true
-        isHealthy = twoConnections()
-        timeOut = 0L
+        return false
     }
     //when a room is closed mutually not from any connection issue
     fun close():Nothing = TODO()

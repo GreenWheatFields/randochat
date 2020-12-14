@@ -12,7 +12,7 @@ class User (val socketChannel: SocketChannel){
     var address: SocketAddress = socketChannel.remoteAddress
     var isAuthorized: Boolean = false
     var authTimeOut: Long = System.currentTimeMillis() + 1000
-    val userId: UUID = UUID.randomUUID()
+    var userId: String = UUID.randomUUID().toString()
 
 
 }
