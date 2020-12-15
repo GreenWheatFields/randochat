@@ -28,6 +28,7 @@ class DirectConnections: Thread() {
     val clientHandler = ClientHandler()
     val authorizer = Authorizer(selector)
     val directory = Directory
+    private val matchmaker = Matchmaker(clientHandler)
 
 
     init {
@@ -54,11 +55,11 @@ class DirectConnections: Thread() {
                         if (authorizer.isSuspect(keyAdd)){
                            if(authorizer.attemptValidate(key.channel() as SocketChannel)){
                                //done with authorizer after this
-                               addToMatchMaking(authorizer.authorize(keyAdd))
+                               matchmaker.addToMatchMaking(authorizer.authorize(keyAdd))
                            }
                         }else if (waitList.contains(keyAdd)){
                             //catch reconnects attempt here. also people waiting for a pair
-                            checkStatus(keyAdd)
+                            matchmaker.checkStatus(keyAdd)
                         }else{
                             clientHandler.read(key.channel())
 
@@ -70,21 +71,7 @@ class DirectConnections: Thread() {
             }
         }
     }
-fun addToMatchMaking(user: User){
-    if (waiting.size == 0){
-            waiting.add(user.address)
-//        waitList.add(user.address)
-        }else{
-//        println("match found")
-        Directory.initPair(user, Directory.getUser(waiting.peek()))
-        waitList.remove(waiting.remove())
-        waitList.remove(user.address)
-        clientHandler.sendWelcomeMessage(user)
-        }
-}
-fun checkStatus(key: SocketAddress){
-//    println(waiting.size)
-}
+
     override fun run() {
         super.run()
         routeConnections()

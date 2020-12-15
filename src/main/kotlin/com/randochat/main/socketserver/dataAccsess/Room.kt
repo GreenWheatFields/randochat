@@ -1,10 +1,12 @@
 package com.randochat.main.socketserver.dataAccsess
 
+import com.randochat.main.socketserver.serverBehavior.Matchmaker
 import java.io.IOException
 import java.net.SocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels.SocketChannel
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 //chat room data
@@ -14,9 +16,9 @@ import kotlin.collections.HashMap
 //        nextVote: when the users are able to vote on to continue the chat or reveal the profiles
 //        prompt: randomly chosen prompt. a list the choose from should not be replicated
 class Room(val id: String, val members: MutableList<User>, var initTime: Long, val startTime: Long, var nextVote: Long, var prompt: String,
-           var isBothConnected: Boolean) {
+           var isBothConnected: Boolean, val matchmaker: Matchmaker) {
     companion object{
-        fun generateRoom(member: User): Room {
+        fun generateRoom(member: User, matchmaker: Matchmaker): Room {
             val id = UUID.randomUUID()
             val initTime = System.currentTimeMillis()
             val startTime = 0L
@@ -24,7 +26,7 @@ class Room(val id: String, val members: MutableList<User>, var initTime: Long, v
             val prompt = "" //rand_choice(prompts)
             val isBothConnected = false
             val members = mutableListOf<User>().also { it.add(member) }
-            return Room(id.toString(), members, initTime, startTime, nextVote, prompt, isBothConnected)
+            return Room(id.toString(), members, initTime, startTime, nextVote, prompt, isBothConnected, matchmaker)
         }
     }
     //todo, either remove isHealthy or isBothConnected
@@ -48,14 +50,15 @@ class Room(val id: String, val members: MutableList<User>, var initTime: Long, v
     fun getOther(target: SocketAddress): User {
         return if (members[0].address == target) members[1] else members[0]
     }
-//    fun getSurvivors(): Array<SocketAddress> {
-//        //this could mess up when a connect is added
-//        for (conn in connectionStatus.keys) {
-//            if (connectionStatus[conn]!![0]) {
-//
-//            }
-//        }
-//    }
+    fun getSurvivors(): ArrayList<User> {
+        val survivors = ArrayList<User>()
+        for (conn in connectionStatus.keys){
+            if (connectionStatus[conn]!!){
+                survivors.add(Directory.getUser(conn))
+            }
+        }
+        return survivors
+    }
     fun twoConnections():Boolean{
         //merge this method with isHealthy?
         for (conn in connectionStatus.keys){
@@ -100,9 +103,6 @@ class Room(val id: String, val members: MutableList<User>, var initTime: Long, v
         isHealthy = false
     }
 
-//    fun kill(survivor: SocketAddress){
-////        Directory
-//    }
     fun notifyReconnect(userID: String, conn: SocketChannel): Boolean {
     //todo, reopened sockets might not be on the same port, at least when theyre on the local network. figure out how to handle and assign reconnections
         for (user in members){
@@ -119,11 +119,29 @@ class Room(val id: String, val members: MutableList<User>, var initTime: Long, v
         }
         return false
     }
+
+    fun kill(){
+        fun removeAndClose(user: User){
+            user.socketChannel.close()
+            Directory.removeUser(user)
+        }
+        //get surviving connections,
+        // remove room from directory,
+        // remove dead users from directory
+        // pass surviing connections to matchmaker
+        val survivors = getSurvivors()
+        if (survivors.size == 0){
+          members.forEach { removeAndClose(it) }
+        }else if (survivors.size == 1){
+            removeAndClose(getOther(survivors[0].address))
+        }
+        survivors.forEach { matchmaker.addToMatchMaking(it) }
+//        Directory.removeRoom()
+        println("lobby closed")
+    }
     //when a room is closed mutually not from any connection issue
     fun close():Nothing = TODO()
     //called when room is closed, save the room somewhere?
     fun save(): Nothing = TODO()
-
-
 
 }

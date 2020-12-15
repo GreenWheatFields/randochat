@@ -53,6 +53,7 @@ class ClientHandler(): Thread(){
     fun salvageRoom(room: Room){
         if (System.currentTimeMillis() > room.timeOut){
             println("timeout")
+            room.kill()
             System.exit(5)
         }else if (System.currentTimeMillis() > room.nextCheck){
             room.checkConnection()

@@ -29,10 +29,12 @@ object Directory {
     fun addUser(user: User){
         directory[user.address] = user
     }
-    fun initPair(user1: User, user2: User){
-        val room = Room.generateRoom(user1)
-        room.add(user2)
-        rooms["\"${room.id.toString()}\""] = room
+    fun removeUser(user: User){
+        directory.remove(user)
+    }
+    fun savePair(user1: User, user2: User, room: Room){
+
+        rooms["\"${room.id}\""] = room
         //wrap with quotes because JsonObject.get(roomID) is wrapped in quotes
         user1.room = room
         user1.pair = user2
@@ -45,35 +47,9 @@ object Directory {
     fun getRoom(id: String): Room{
         return rooms[id]!!
     }
-//    fun getBool(key: SocketAddress, field: String): Boolean {
-//        return directory[key]!![field] as Boolean
-//    }
-//    fun getConn(key: SocketAddress): SocketChannel{
-//        return directory[key]!!["socketChannel"] as SocketChannel
-//    }
-//    fun getRoom(key: SocketAddress): Room{
-//        return directory[key]!!["room"] as Room
-//    }
-//    fun isValidRoom(key: SocketAddress): Boolean{
-//        return directory[key]!!["room"] != null
-//    }
-//
-//    fun addRoom(key1: SocketAddress, key2: SocketAddress, room: Room){
-//        directory[key1]!!["room"] = room
-//        directory[key2]!!["room"] = room
-//    }
-//    fun putNewEntry(key: SocketAddress, channel: SocketChannel){
-//        directory[key] = HashMap<String, Any?>(newEntryTemplate).also { it["socketChannel"] = channel }
-//    }
-//    fun assign(key: SocketAddress, field: String, value: Any?){
-//        if (directory[key] != null){
-//            //do something
-//        }else{
-//            directory[key]?.set(field, value)
-//        }
-//    }
-//    fun clearEntry(key: SocketAddress){
-//
-//    }
+    fun removeRoom(room: Room){
+        directory.remove("\"${room.id}\"")
+    }
+
 
 }
