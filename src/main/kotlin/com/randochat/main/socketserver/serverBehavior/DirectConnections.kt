@@ -14,8 +14,6 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.collections.HashSet
 
 
-/*todo, this server is not a matchmaker. pairs should be created somewhere else.
- *  maybe have a matchmaker server connected on a local network?*/
 class DirectConnections: Thread() {
 
     val selector = Selector.open()
@@ -37,7 +35,7 @@ class DirectConnections: Thread() {
         server.socket().bind(InetSocketAddress("127.0.0.1", 15620))
         server.register(selector, SelectionKey.OP_ACCEPT)
     }
-
+    //todo, this should be the only class that can call the clientHandler?
     fun routeConnections(){
         var accepted = 0
         while (true){
@@ -56,6 +54,10 @@ class DirectConnections: Thread() {
                            if(authorizer.attemptValidate(key.channel() as SocketChannel)){
                                //done with authorizer after this
                                matchmaker.addToMatchMaking(authorizer.authorize(keyAdd))
+                               //if matchmaker.addToAMathcmaking(){
+                           //   clientHandler.sendWelcomeMessage
+                               //etc
+                           //   }
                            }
                         }else if (waitList.contains(keyAdd)){
                             //catch reconnects attempt here. also people waiting for a pair

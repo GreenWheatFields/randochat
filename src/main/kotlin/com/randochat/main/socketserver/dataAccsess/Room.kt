@@ -135,9 +135,12 @@ class Room(val id: String, val members: MutableList<User>, var initTime: Long, v
         }else if (survivors.size == 1){
             removeAndClose(getOther(survivors[0].address))
         }
+        //todo breaks somewhere around here
         survivors.forEach { matchmaker.addToMatchMaking(it) }
 //        Directory.removeRoom()
-        println("lobby closed")
+        println("room cloesd")
+        println(System.currentTimeMillis() - initTime)
+        Directory.removeRoom(this)
     }
     //when a room is closed mutually not from any connection issue
     fun close():Nothing = TODO()
