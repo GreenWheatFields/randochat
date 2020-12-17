@@ -36,7 +36,7 @@ class Authorizer(val selector: Selector) {
             val json = Messages.messageFromJsonStringr(token)
             if (json.equals(JsonObject.EMPTY_JSON_OBJECT)){
                 println("handle bad json")
-                exitProcess(4)
+                return false
             }
 //            println(json.toString())
             //todo lots of this stuff shuold be handled by a validator class. maybe a switch
@@ -61,15 +61,17 @@ class Authorizer(val selector: Selector) {
             }
             else{
                 println("invalid token")
-                return killSuspect(conn)
+//                return killSuspect(conn)
+                return false
+
             }
-        }else if (suspects[conn.remoteAddress]!!.authTimeOut > System.currentTimeMillis()){
+        }else if (suspects[conn.remoteAddress]!!.authTimeOut < System.currentTimeMillis()){
             println("timeout")
-            return true
+            return false
         }else{
-            return killSuspect(conn)
+            return false
         }
-        return true
+        return false
     }
     fun killSuspect(conn: SocketChannel): Boolean{
         //todo, deregister with selector

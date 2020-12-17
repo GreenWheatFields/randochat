@@ -35,7 +35,6 @@ class DirectConnections: Thread() {
         server.socket().bind(InetSocketAddress("127.0.0.1", 15620))
         server.register(selector, SelectionKey.OP_ACCEPT)
     }
-    //todo, this should be the only class that can call the clientHandler?
     fun routeConnections(){
         var accepted = 0
         while (true){
@@ -52,12 +51,10 @@ class DirectConnections: Thread() {
                         val keyAdd = (key.channel() as SocketChannel).remoteAddress
                         if (authorizer.isSuspect(keyAdd)){
                            if(authorizer.attemptValidate(key.channel() as SocketChannel)){
-                               //done with authorizer after this
                                matchmaker.addToMatchMaking(authorizer.authorize(keyAdd))
-                               //if matchmaker.addToAMathcmaking(){
-                           //   clientHandler.sendWelcomeMessage
-                               //etc
-                           //   }
+                           }else{
+                               println("unsuccesful validation")
+                               authorizer.killSuspect(key.channel() as SocketChannel)
                            }
                         }else if (waitList.contains(keyAdd)){
                             //catch reconnects attempt here. also people waiting for a pair
