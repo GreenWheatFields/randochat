@@ -1,13 +1,12 @@
-package com.randochat.main.endpoints
+package com.randochat.main.springapp.endpoints
 
-import com.randochat.main.database.AccountFormatter
-import com.randochat.main.database.AccountRepository
-import com.randochat.main.values.AuthCodes
+import com.randochat.main.springapp.database.AccountFormatter
+import com.randochat.main.springapp.database.AccountRepository
+import com.randochat.main.springapp.values.AuthCodes
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import javax.servlet.http.HttpServletRequest
 
 
 @RestController

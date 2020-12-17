@@ -1,4 +1,4 @@
-package com.randochat.main.socketserver.tests
+package test_socket_server
 
 import com.randochat.main.socketserver.messages.Messages
 import java.net.ConnectException

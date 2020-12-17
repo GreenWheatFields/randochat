@@ -1,6 +1,5 @@
 package com.randochat.main.socketserver.serverBehavior
 
-import com.randochat.main.socketserver.tests.Client
 import com.randochat.main.socketserver.dataAccsess.Directory
 import com.randochat.main.socketserver.dataAccsess.User
 import java.net.InetSocketAddress
@@ -81,13 +80,5 @@ class DirectConnections: Thread() {
 fun main() {
     val acceptConns = DirectConnections()
     acceptConns.start()
-    repeat(2){
-        val client = Client()
-        client.start()
-    }
-
-
-
-
 
 }

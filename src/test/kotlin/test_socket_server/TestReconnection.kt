@@ -1,10 +1,11 @@
-package com.randochat.main.socketserver.tests
+package test_socket_server
 
 import com.randochat.main.socketserver.messages.ClientMessages
 import com.randochat.main.socketserver.serverBehavior.DirectConnections
 import java.lang.Thread.sleep
 import javax.json.JsonObject
 
+//todo, junit
 class TestConnectionEvents{
     val server = DirectConnections()
     val clients = listOf<Client>(Client(), Client())
@@ -32,6 +33,11 @@ class TestConnectionEvents{
         clients[1].send()
         //todo weird behavior when dc is before messages are being sent??
         //this could lead to two idle connections never having their room checked for timeout??
+    }
+    fun testBadAuth(){
+        //bad json gets rejected
+        //timeout gets rejected
+        //good json but bad token gets rejected
     }
 }
 

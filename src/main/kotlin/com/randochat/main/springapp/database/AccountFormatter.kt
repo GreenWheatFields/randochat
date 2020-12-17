@@ -1,8 +1,7 @@
-package com.randochat.main.database
+package com.randochat.main.springapp.database
 
-import com.randochat.main.values.AuthCodes
+import com.randochat.main.springapp.values.AuthCodes
 import org.apache.commons.validator.routines.EmailValidator
-import org.jetbrains.annotations.NonNls
 import java.util.*
 import org.springframework.security.crypto.bcrypt.BCrypt
 import javax.servlet.http.HttpServletRequest

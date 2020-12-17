@@ -1,4 +1,4 @@
-package com.randochat.main
+package com.randochat.main.springapp
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
