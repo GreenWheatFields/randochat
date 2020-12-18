@@ -7,17 +7,22 @@ import java.lang.Thread.sleep
 import javax.json.JsonObject
 
 //todo, junit
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TestConnectionEvents{
     lateinit var server: DirectConnections
     lateinit var clients: List<Client>
 
-
-
-    @BeforeEach
+    @BeforeAll
     fun setup(){
         server = DirectConnections()
         server.start()
     }
+    @BeforeEach
+    fun resetServer(){
+        server.softReset()
+        server.routeConnections()
+    }
+
 
     @Test
     fun testReconnect(){
@@ -32,33 +37,27 @@ class TestConnectionEvents{
 
         val roomId2 = (json2.get("status") as JsonObject).get("roomID").toString()
         val userID2= (json2.get("status") as JsonObject).get("userID").toString()
-//        println(userID)
-//        println(userID2)
-//        clients.forEach { it.send() }
-//        clients[1].send()
-//        clients[0].closeConnection()
-//        clients[0].connect(100, true)
-//        clients[0].introduce(ClientMessages.getReconnectMessage(roomId, userID))
-//        clients[0].send()
-//        clients[0].closeConnection()
-//        clients[1].send()
+        println(userID)
+        println(userID2)
+        clients.forEach { it.send() }
+        clients[1].send()
+        clients[0].closeConnection()
+        clients[0].connect(100, true)
+        clients[0].introduce(ClientMessages.getReconnectMessage(roomId, userID))
+        clients[0].send()
+        clients[0].closeConnection()
+        clients[1].send()
         //todo weird behavior when dc is before messages are being sent??
         //this could lead to two idle connections never having their room checked for timeout??
     }
-    @Test
+//    @Test
     fun testBadAuth(){
         //bad json gets rejected
         //timeout gets rejected
         //good json but bad token gets rejected
         clients = listOf(Client())
     }
-    @AfterEach
-    fun tearDown(){
-        server.testFlag = false
-        server.interrupt()
-        println("here")
 
-    }
 }
 
 //fun main() {
