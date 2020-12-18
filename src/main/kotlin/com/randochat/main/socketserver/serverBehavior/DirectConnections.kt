@@ -25,6 +25,7 @@ class DirectConnections: Thread() {
     val clientHandler = ClientHandler()
     val authorizer = Authorizer(selector)
     val directory = Directory
+    var testFlag = true
     private val matchmaker = Matchmaker(clientHandler)
 
 
@@ -36,7 +37,7 @@ class DirectConnections: Thread() {
     }
     fun routeConnections(){
         var accepted = 0
-        while (true){
+        while (testFlag){
             selector.select()
             val keys = selector.selectedKeys().iterator()
             while (keys.hasNext()){
@@ -68,6 +69,7 @@ class DirectConnections: Thread() {
                 }
             }
         }
+        println("flag")
     }
 
     override fun run() {
