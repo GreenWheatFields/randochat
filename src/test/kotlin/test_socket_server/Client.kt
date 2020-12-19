@@ -64,7 +64,6 @@ class Client (val port: Int): Thread(){
         for(temp in 0..until){
 //                 println(Thread.currentThread().name + " is sending " + temp.toString())
             conn.write(ByteBuffer.wrap(i.toByteArray()))
-
             sleep(Random().nextInt(100).toLong())
             val mesLen = conn.read(buff)
 

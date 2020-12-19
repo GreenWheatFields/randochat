@@ -13,7 +13,8 @@ import javax.json.JsonObject
 class TestConnectionEvents{
     var port = 15620
     var server = DirectConnections(port)
-    lateinit var clients: List<Client>
+    lateinit var client: Client
+    lateinit var clients: ArrayList<Client>
 
     @BeforeEach
     fun resetServer(){
@@ -26,51 +27,69 @@ class TestConnectionEvents{
             port++
             resetServer()
         }
+        client = Client(port)
+        clients = ArrayList<Client>()
         server.start()
     }
 
 
     @Test
-    fun testReconnect(){
-        clients = listOf<Client>(Client(port), Client(port))
+    fun testOneReconnect(){
+        clients.add(Client(port))
+        clients.add(Client(port))
         clients.forEach { it.connect(0, true) }
         sleep(100)
         clients.forEach { it.introduce(ClientMessages.initMessage) }
-//        val json = clients[0].waitForResponse()
-//        val json2 = clients[1].waitForResponse()
-//        println("conn")
-//        val roomId = (json.get("status") as JsonObject).get("roomID").toString()
-//        val userID = (json.get("status") as JsonObject).get("userID").toString()
-//
-//        val roomId2 = (json2.get("status") as JsonObject).get("roomID").toString()
-//        val userID2= (json2.get("status") as JsonObject).get("userID").toString()
-//        println(userID)
-//        println(userID2)
-//        clients.forEach { it.send() }
-//        clients[1].send()
-//        clients[0].closeConnection()
-//        clients[0].connect(100, true)
-//        clients[0].introduce(ClientMessages.getReconnectMessage(roomId, userID))
-//        clients[0].send()
-//        clients[0].closeConnection()
-//        clients[1].send()
-        //todo weird behavior when dc is before messages are being sent??
-        //this could lead to two idle connections never having their room checked for timeout??
+        val json = clients[0].waitForResponse()
+        val json2 = clients[1].waitForResponse()
+        val roomId = (json.get("status") as JsonObject).get("roomID").toString()
+        val userID = (json.get("status") as JsonObject).get("userID").toString()
+        val room = server.directory.getRoom(roomId)
+
+        clients.forEach { it.send(20) }
+        clients[0].closeConnection()
+        clients[1].send(5)
+        if (room.isHealthy) fail("disconnect not detected")
+        clients[0].connect(0, true)
+        clients[0].introduce(ClientMessages.getReconnectMessage(roomId, userID))
+        clients[0].send(20)
+        assert(room.isHealthy)
+    }
+    fun testConnectedButNoData(): Nothing = TODO()
+    //todo weird behavior when dc is before messages are being sent??
+    //this could lead to two idle connections never having their room checked for timeout??
+    @Test
+    fun testIdleConnections(){
+        for (i in 0..1000){
+            clients.add(Client(port))
+        }
+        clients.forEach { it.connect(0, true) }
+        sleep(11_000)
+        clients[0].introduce(ClientMessages.initMessage)
+        sleep(500L)
+        clients.forEach { assertThrows<IOException>{ it.send(1) } }
     }
     @Test
     fun testBadJson(){
-        //bad json gets rejected
         //timeout gets rejected
-        //good json but bad token gets rejected
-        clients = listOf(Client(port))
-        clients[0].connect(0, true)
-        clients[0].introduce(Json.createObjectBuilder().add("badKey", "badValue").build().toString())
-        assertThrows<IOException> { clients[0].send(1) }
+        client.connect(0, true)
+        client.introduce(Json.createObjectBuilder().add("badKey", "badValue").build().toString())
+        assertThrows<IOException> { client.send(1) }
+    }
+    @Test
+    fun testNoJson(){
+        //only fails if client.send(2)
+        client.connect(0 , true)
+        client.introduce("noJson")
+        assertThrows<IOException> {client.send(2)}
 
+    }
+    @Test
+    fun testTimeout(){
+        client.connect(0 , true)
+        sleep(1100L)
+        client.introduce(ClientMessages.initMessage)
+        assertThrows<IOException> {client.send(2)  }
     }
 
 }
-
-//fun main() {
-//    TestConnectionEvents().testReconnect()
-//}

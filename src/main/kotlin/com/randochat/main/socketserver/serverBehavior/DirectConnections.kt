@@ -31,7 +31,6 @@ class DirectConnections(val port: Int): Thread() {
 
 
     init {
-//        Directory
         server.configureBlocking(false)
 //        server.socket().bind(InetSocketAddress("127.0.0.1", port))
         server.register(selector, SelectionKey.OP_ACCEPT)
@@ -53,8 +52,8 @@ class DirectConnections(val port: Int): Thread() {
                         if (authorizer.isSuspect(keyAdd)){
                            if(authorizer.attemptValidate(key.channel() as SocketChannel)){
                                matchmaker.addToMatchMaking(authorizer.authorize(keyAdd))
+                               println()
                            }else{
-                               println("unsuccesful validation")
                                authorizer.killSuspect(key.channel() as SocketChannel)
                            }
                         }else if (waitList.contains(keyAdd)){
@@ -66,6 +65,11 @@ class DirectConnections(val port: Int): Thread() {
                         }
 
                     }
+
+                }
+                if (authorizer.lastSweep < System.currentTimeMillis()){
+                    //probably should be checked on another thread
+                    authorizer.sweep()
 
                 }
             }
