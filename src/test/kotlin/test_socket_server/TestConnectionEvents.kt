@@ -3,7 +3,9 @@ package test_socket_server
 import com.randochat.main.socketserver.messages.ClientMessages
 import com.randochat.main.socketserver.serverBehavior.DirectConnections
 import org.junit.jupiter.api.*
+import java.io.IOException
 import java.lang.Thread.sleep
+import javax.json.Json
 import javax.json.JsonObject
 
 //todo, junit
@@ -56,13 +58,15 @@ class TestConnectionEvents{
         //this could lead to two idle connections never having their room checked for timeout??
     }
     @Test
-    fun testBadAuth(){
+    fun testBadJson(){
         //bad json gets rejected
         //timeout gets rejected
         //good json but bad token gets rejected
         clients = listOf(Client(port))
-        clients.forEach { it.connect(0, true) }
-        clients.forEach { it.introduce(ClientMessages.initMessage) }
+        clients[0].connect(0, true)
+        clients[0].introduce(Json.createObjectBuilder().add("badKey", "badValue").build().toString())
+        assertThrows<IOException> { clients[0].send(1) }
+
     }
 
 }

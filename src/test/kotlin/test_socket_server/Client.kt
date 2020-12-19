@@ -58,10 +58,10 @@ class Client (val port: Int): Thread(){
     fun introduce(message: String){
         conn.write(ByteBuffer.wrap(message.toByteArray()))
     }
-    fun send(){
+    fun send(until: Int){
         val i = Random().nextInt(3000).toString()
         var buff = ByteBuffer.allocate(1024)
-        for(temp in 0..100){
+        for(temp in 0..until){
 //                 println(Thread.currentThread().name + " is sending " + temp.toString())
             conn.write(ByteBuffer.wrap(i.toByteArray()))
 

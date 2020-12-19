@@ -77,9 +77,9 @@ class Authorizer(val selector: Selector) {
         //todo, deregister with selector
         println("killing " + conn.remoteAddress)
         //maybe keep a count of all failed attempt, and eventually blacklist them?
+        suspects.remove(conn.remoteAddress)
         conn.close()
         conn.socket().close()
-        suspects.remove(conn.remoteAddress)
         return false
     }
     fun authorize(key: SocketAddress): User {

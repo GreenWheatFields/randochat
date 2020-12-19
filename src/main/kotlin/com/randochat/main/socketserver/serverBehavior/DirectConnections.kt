@@ -42,7 +42,6 @@ class DirectConnections(val port: Int): Thread() {
             selector.select()
             val keys = selector.selectedKeys().iterator()
             while (keys.hasNext()){
-                println("here")
                 val key = keys.next() as SelectionKey
                 keys.remove()
                 if (key.isValid) {
