@@ -8,13 +8,14 @@ import java.nio.channels.SocketChannel
 import java.util.*
 import javax.json.JsonObject
 
-open class Client: Thread(){
+class Client (val port: Int): Thread(){
     lateinit var conn: SocketChannel
     fun connect(sleepTime: Long, recursive: Boolean){
         try{
             sleep(sleepTime)
 //            println("awake")
-            conn = SocketChannel.open(InetSocketAddress("127.0.0.1", 15620))
+            port
+            conn = SocketChannel.open(InetSocketAddress("127.0.0.1", port))
             conn.configureBlocking(false)
 
 

@@ -2,6 +2,7 @@ package com.randochat.main.socketserver.serverBehavior
 
 import com.randochat.main.socketserver.dataAccsess.Directory
 import com.randochat.main.socketserver.dataAccsess.User
+import java.net.BindException
 import java.net.InetSocketAddress
 import java.net.SocketAddress
 import java.nio.channels.SelectionKey
@@ -13,9 +14,9 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.collections.HashSet
 
 
-class DirectConnections: Thread() {
+class DirectConnections(val port: Int): Thread() {
 
-    val selector = Selector.open()
+    var selector = Selector.open()
     val server = ServerSocketChannel.open()
     val readJobs = ConcurrentLinkedQueue<SelectionKey>()
     val waiting = LinkedList<SocketAddress>()
@@ -23,8 +24,8 @@ class DirectConnections: Thread() {
     // declare initial capacity?
     val nullCode = 101
     val clientHandler = ClientHandler()
-    val authorizer = Authorizer(selector)
-    val directory = Directory
+    var authorizer = Authorizer(selector)
+    var directory = Directory
     var flag = true
     private val matchmaker = Matchmaker(clientHandler)
 
@@ -32,7 +33,7 @@ class DirectConnections: Thread() {
     init {
 //        Directory
         server.configureBlocking(false)
-        server.socket().bind(InetSocketAddress("127.0.0.1", 15620))
+//        server.socket().bind(InetSocketAddress("127.0.0.1", port))
         server.register(selector, SelectionKey.OP_ACCEPT)
     }
     fun routeConnections(){
@@ -41,6 +42,7 @@ class DirectConnections: Thread() {
             selector.select()
             val keys = selector.selectedKeys().iterator()
             while (keys.hasNext()){
+                println("here")
                 val key = keys.next() as SelectionKey
                 keys.remove()
                 if (key.isValid) {
@@ -70,10 +72,13 @@ class DirectConnections: Thread() {
             }
         }
     }
-    fun softReset(){
-        //refresh everything between tests
-        flag = false
-        println("reset flag")
+    fun bind(): Boolean{
+        try {
+            server.socket().bind(InetSocketAddress("127.0.0.1", port))
+        }catch (e: BindException){
+            return false
+        }
+        return true
     }
 
     override fun run() {
@@ -84,7 +89,7 @@ class DirectConnections: Thread() {
 
 
 fun main() {
-    val acceptConns = DirectConnections()
-    acceptConns.start()
+//    val acceptConns = DirectConnections()
+//    acceptConns.start()
 
 }
