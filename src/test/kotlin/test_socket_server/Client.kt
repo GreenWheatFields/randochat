@@ -14,7 +14,6 @@ open class Client (val port: Int): Thread(){
         try{
             sleep(sleepTime)
 //            println("awake")
-            port
             conn = SocketChannel.open(InetSocketAddress("127.0.0.1", port))
             conn.configureBlocking(false)
 
