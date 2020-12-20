@@ -23,17 +23,19 @@ class ClientHandler(): Thread(){
         val user = Directory.getUser(channel.remoteAddress) //?: do something that stops execution if null
         var talkingTo: User
         var room: Room
+        var len = 0
         if (user.room != null){
             room = user.room as Room
             if (room.isHealthy){
                 if (room.twoConnections()) {
                     var message = ByteBuffer.allocate(1024)
                     try {
-                        user.socketChannel.read(message)
+                       len = user.socketChannel.read(message)
                     } catch (e: IOException) {
                         room.notifyDisconnect(user)
                         return
                     }
+                    Messages.stripBufferToByteArray(message, len)
                     talkingTo = Directory.getUser(room.getOther(user.address).address)
                     try {
                         talkingTo.socketChannel.write(ByteBuffer.wrap(message.array()))

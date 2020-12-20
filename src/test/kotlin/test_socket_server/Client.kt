@@ -52,7 +52,7 @@ open class Client (val port: Int): Thread(){
         for (i in 0 until len){
             response += message[i].toChar()
         }
-        return Messages.messageFromJsonStringr(response) //redundant
+        return Messages.messageFromJsonString(response) //redundant
     }
 
     fun introduce(message: String){

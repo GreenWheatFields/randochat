@@ -1,7 +1,10 @@
 package com.randochat.main.socketserver.messages
 
 import com.randochat.main.socketserver.dataAccsess.JsonValues
-import javax.json.Json
+import java.io.ByteArrayOutputStream
+import java.nio.ByteBuffer
+import java.util.*
+import javax.json.*
 
 class ClientMessages {
     companion object{
@@ -14,5 +17,11 @@ class ClientMessages {
                     .add("userID", JsonValues.strip(userID))
                     .build().toString()
         }
+        //todo will worry about structuring content messages later. this might not be needed.
+//        fun getContentMessage(content: ByteBuffer): ByteBuffer {
+//            return Messages.messageToBuffer(Json.createObjectBuilder()
+//                    .add("content", String(Base64.getEncoder().encode(content.array()))).build())
+//        }
+
     }
 }

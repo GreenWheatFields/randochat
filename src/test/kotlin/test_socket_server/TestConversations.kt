@@ -1,6 +1,7 @@
 package test_socket_server
 
 import com.randochat.main.socketserver.messages.ClientMessages
+import com.randochat.main.socketserver.serverBehavior.DirectConnections
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
@@ -8,13 +9,11 @@ import org.junit.jupiter.api.TestInstance
 class TestConversations {
 
     @Test
-    fun testConversation(){
+    fun testConversation() {
 //        //if another test like this is written, make a new class. not really a connection event
-
-//        clients.add(Client(port))
-//        clients.add(Client(port))
-//        clients.forEach { it.connect(0 , true) }
-//        clients.forEach { it.introduce(ClientMessages.initMessage) }
+//        val server = DirectConnections(15620)
+//        val client = MultiThreadedClient(Client(15620))
+//        val client2 = MultiThreadedClient(Client(15620))
 
     }
 }

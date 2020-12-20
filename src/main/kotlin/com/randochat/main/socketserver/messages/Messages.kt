@@ -2,6 +2,7 @@ package com.randochat.main.socketserver.messages
 
 import java.io.StringReader
 import java.nio.ByteBuffer
+import java.util.*
 import javax.json.*
 import javax.json.stream.JsonParsingException
 
@@ -14,12 +15,15 @@ open class Messages {
         fun messageToBuffer(string: JsonObject): ByteBuffer{
             return ByteBuffer.wrap(string.toString().toByteArray())
         }
-        fun messageFromJsonStringr(string: String): JsonObject {
+        fun messageFromJsonString(string: String): JsonObject {
             return try {
                 Json.createReader(StringReader(string)).readObject()
             }catch (e: JsonParsingException){
                 JsonObject.EMPTY_JSON_OBJECT
             }
+        }
+        fun stripBufferToByteArray(buf: ByteBuffer, len: Int): ByteArray{
+            return Arrays.copyOfRange(buf.array(), 0 , len)
         }
     }
 

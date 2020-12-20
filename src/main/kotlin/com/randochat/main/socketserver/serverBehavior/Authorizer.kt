@@ -32,7 +32,7 @@ class Authorizer(val selector: Selector) {
             for (i in 0 until length){
                 incommingString += message[i].toChar()
             }
-            val json = Messages.messageFromJsonStringr(incommingString)
+            val json = Messages.messageFromJsonString(incommingString)
             if (json.equals(JsonObject.EMPTY_JSON_OBJECT)){
                 return false
             }
