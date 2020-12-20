@@ -13,10 +13,11 @@ class User (var socketChannel: SocketChannel){
     var isAuthorized: Boolean = false
     var authTimeOut: Long = System.currentTimeMillis() + 1000
     var userId: String = UUID.randomUUID().toString()
+    var internalId: UUID = UUID.randomUUID()
 
-    fun reassign(channel: SocketChannel){
-        socketChannel = channel
-        address = socketChannel.remoteAddress
+    fun reassign(user: User){
+        socketChannel = user.socketChannel
+        address = user.socketChannel.remoteAddress
     }
 
 }

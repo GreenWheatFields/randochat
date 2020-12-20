@@ -29,7 +29,6 @@ class Room(val id: String, val members: MutableList<User>, var initTime: Long, v
             return Room(id.toString(), members, initTime, startTime, nextVote, prompt, isHealthy, matchmaker)
         }
     }
-    //todo, either remove isHealthy or isBothConnected
     //todo, timeout on two conenctions but no activity?
 
     var isFull = false
@@ -84,7 +83,7 @@ class Room(val id: String, val members: MutableList<User>, var initTime: Long, v
             notifyDisconnect(key)
             return false
         }
-        notifyReconnect(key.userId, key.socketChannel)
+        notifyReconnect(key)
         return true
     }
     fun notifyDisconnect(user: User) {
@@ -104,21 +103,21 @@ class Room(val id: String, val members: MutableList<User>, var initTime: Long, v
         isHealthy = false
     }
 
-    fun notifyReconnect(userID: String, conn: SocketChannel): Boolean {
-    //todo, reopened sockets might not be on the same port, at least when theyre on the local network. figure out how to handle and assign reconnections
+    fun notifyReconnect(newUser: User): User {
         for (user in members){
-            if (userID == user.userId){
+            if (newUser.userId == user.userId){
                 connectionStatus.remove(user.address)
-                user.reassign(conn)
+                user.reassign(newUser)
                 connectionStatus[user.address] = true
                 if (twoConnections()){
                     isHealthy = true
                     println("saved lobby")
                 }
-                return true
+                return user
             }
         }
-        return false
+        //for now
+        return newUser
     }
 
     fun kill(){

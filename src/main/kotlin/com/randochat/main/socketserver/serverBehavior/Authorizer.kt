@@ -11,7 +11,6 @@ import java.nio.channels.Selector
 import java.nio.channels.ServerSocketChannel
 import java.nio.channels.SocketChannel
 import javax.json.JsonObject
-import kotlin.system.exitProcess
 
 //handles intial authorization
 class Authorizer(val selector: Selector) {
@@ -28,33 +27,31 @@ class Authorizer(val selector: Selector) {
     fun attemptValidate(conn: SocketChannel): Boolean{
         val message = ByteBuffer.allocate(1024)
         var length = conn.read(message)
-        var token = ""
+        var incommingString = ""
         if (length >= 0){
             for (i in 0 until length){
-                token += message[i].toChar()
+                incommingString += message[i].toChar()
             }
-            val json = Messages.messageFromJsonStringr(token)
+            val json = Messages.messageFromJsonStringr(incommingString)
             if (json.equals(JsonObject.EMPTY_JSON_OBJECT)){
                 return false
             }
-//            println(json.toString())
-            //todo lots of this stuff shuold be handled by a validator class. maybe a switch
-            if (suspects[conn.remoteAddress]!!.authTimeOut > System.currentTimeMillis()) {
+
+            if (suspects.contains(conn.remoteAddress) && suspects[conn.remoteAddress]!!.authTimeOut > System.currentTimeMillis()) {
                 if (json.containsKey("intent") && json.containsKey("token")) {
                     if (json.get("intent")!! == JsonValues.OPENNEW) {
                         //todo, assuming all tokens are valid for now
-//                    println("valid token")
                         return true
                     } else if (json.get("intent")!! == JsonValues.RECONNECT) {
-                        // check room id
-                        // roomId, check if room is awaiting a reconnect, take over that user object and assign it to this connection
                         var roomID = json.get("roomID").toString()
                         var userID = json.get("userID").toString()
+                        if (roomID == "null" || userID == "null") return false
                         if (Directory.validRoom(roomID)) {
-                            Directory.getRoom(roomID).notifyReconnect(JsonValues.strip(userID), conn)
-                            //validated, assigned
+                            suspects[conn.remoteAddress]!!.userId = JsonValues.strip(userID)
+                            Directory.getRoom(roomID).notifyReconnect(suspects[conn.remoteAddress]!!)
+                            //todo, returns connection to matchmaking and to new room.
                         } else {
-                            //reconnect after room has been killed, treat as a new user?
+                            return true
                         }
                         return true
                     }
@@ -82,7 +79,8 @@ class Authorizer(val selector: Selector) {
         return false
     }
     fun authorize(key: SocketAddress): User {
-//        println("Accetped")
+        println("Accetped")
+
         Directory.addUser(suspects[key]!!)
         val user = suspects[key]!!
         suspects.remove(key)

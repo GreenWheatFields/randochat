@@ -15,6 +15,7 @@ class Matchmaker (private val clientHandler: ClientHandler) {
 
     fun addToMatchMaking(user: User): Boolean {
         //adds to waitlist if empty of pairs the two.
+        println(user.pair == null)
         if (waiting.size == 0) {
             waiting.add(user.address)
             return false

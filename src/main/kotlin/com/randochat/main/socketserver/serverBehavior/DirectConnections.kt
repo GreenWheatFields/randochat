@@ -52,7 +52,6 @@ class DirectConnections(val port: Int): Thread() {
                         if (authorizer.isSuspect(keyAdd)){
                            if(authorizer.attemptValidate(key.channel() as SocketChannel)){
                                matchmaker.addToMatchMaking(authorizer.authorize(keyAdd))
-                               println()
                            }else{
                                authorizer.killSuspect(key.channel() as SocketChannel)
                            }

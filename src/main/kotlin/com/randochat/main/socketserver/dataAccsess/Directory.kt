@@ -9,7 +9,7 @@ import kotlin.collections.HashMap
 //directory: map of addresses to users and their permissions
 //rooms: roomID to toom Object, room is passed to client so that they can reconnect?
 object Directory {
-    private val directory = ConcurrentHashMap<SocketAddress, User>()
+    val directory = ConcurrentHashMap<SocketAddress, User>()
     private val rooms = HashMap<String, Room>()
     private val newEntryTemplate = HashMap<String, Any?>().also {
         it["room"] = null
@@ -23,6 +23,7 @@ object Directory {
 
 
     fun getUser(key: SocketAddress): User {
+        //todo, getting user by socketAddress is stupid
         //todo, handle bad key
         return directory[key]!!
     }
@@ -30,7 +31,7 @@ object Directory {
         directory[user.address] = user
     }
     fun removeUser(user: User){
-        directory.remove(user)
+        directory.remove(user.address)
     }
     fun savePair(user1: User, user2: User, room: Room){
 
