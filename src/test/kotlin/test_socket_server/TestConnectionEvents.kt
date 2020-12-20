@@ -55,7 +55,7 @@ class TestConnectionEvents{
         clients[0].send(20)
         assert(room.isHealthy)
     }
-    fun testConnectedButNoData(): Nothing = TODO()
+    fun testIdleConnInRoom(): Nothing = TODO()
     //todo weird behavior when dc is before messages are being sent??
     //this could lead to two idle connections never having their room checked for timeout??
     @Test
@@ -67,7 +67,8 @@ class TestConnectionEvents{
         sleep(11_000)
         clients[0].introduce(ClientMessages.initMessage)
         sleep(500L)
-        clients.forEach { assertThrows<IOException>{ it.send(1) } }
+        //todo, optionally remove sleep from client.sleep methos
+        clients.forEach { assertThrows<IOException>{ it.send(1, false) } }
     }
     @Test
     fun testBadJson(){

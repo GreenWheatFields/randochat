@@ -51,11 +51,12 @@ class ClientHandler(): Thread(){
         }
     }
     fun salvageRoom(room: Room){
+        //check if room is still waiting for peeps
         if (System.currentTimeMillis() > room.timeOut){
             println("timeout")
             room.kill()
             System.exit(5)
-        }else if (System.currentTimeMillis() > room.nextCheck){
+        }else if (room.connectionStatus.size > 1 && System.currentTimeMillis() > room.nextCheck){
             room.checkConnection()
         }else{
             return

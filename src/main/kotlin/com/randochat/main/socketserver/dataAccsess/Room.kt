@@ -16,7 +16,7 @@ import kotlin.collections.HashMap
 //        nextVote: when the users are able to vote on to continue the chat or reveal the profiles
 //        prompt: randomly chosen prompt. a list the choose from should not be replicated
 class Room(val id: String, val members: MutableList<User>, var initTime: Long, val startTime: Long, var nextVote: Long, var prompt: String,
-           var isBothConnected: Boolean, val matchmaker: Matchmaker) {
+           var isHealthy: Boolean, val matchmaker: Matchmaker) {
     companion object{
         fun generateRoom(member: User, matchmaker: Matchmaker): Room {
             val id = UUID.randomUUID()
@@ -24,18 +24,18 @@ class Room(val id: String, val members: MutableList<User>, var initTime: Long, v
             val startTime = 0L
             val nextVote = 0L // startTime + 60,000?
             val prompt = "" //rand_choice(prompts)
-            val isBothConnected = false
+            val isHealthy = false
             val members = mutableListOf<User>().also { it.add(member) }
-            return Room(id.toString(), members, initTime, startTime, nextVote, prompt, isBothConnected, matchmaker)
+            return Room(id.toString(), members, initTime, startTime, nextVote, prompt, isHealthy, matchmaker)
         }
     }
     //todo, either remove isHealthy or isBothConnected
     //todo, timeout on two conenctions but no activity?
 
     var isFull = false
-    var connectionStatus = HashMap<SocketAddress, Boolean>()
-    var isHealthy = true // true if waiting with no disconnects,  or active
-    var timeOut = 0L
+    var connectionStatus = HashMap<SocketAddress, Boolean>(1)
+//    var isHealthy = true // true if waiting with no disconnects,  or active
+    var timeOut = System.currentTimeMillis() + 1000L
     var nextCheck = 0L
     var bothDead = false
     var waitTime = 3000L
@@ -46,6 +46,7 @@ class Room(val id: String, val members: MutableList<User>, var initTime: Long, v
         connectionStatus[members[0].address] = true
         connectionStatus[members[1].address] = true
         isHealthy = true
+        timeOut = 0L
     }
     fun getOther(target: SocketAddress): User {
         return if (members[0].address == target) members[1] else members[0]

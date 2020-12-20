@@ -58,13 +58,18 @@ class Client (val port: Int): Thread(){
     fun introduce(message: String){
         conn.write(ByteBuffer.wrap(message.toByteArray()))
     }
-    fun send(until: Int){
+    fun send(until: Int, sleep: Boolean = true){
         val i = Random().nextInt(3000).toString()
         var buff = ByteBuffer.allocate(1024)
         for(temp in 0..until){
 //                 println(Thread.currentThread().name + " is sending " + temp.toString())
             conn.write(ByteBuffer.wrap(i.toByteArray()))
-            sleep(Random().nextInt(100).toLong())
+            if (sleep){
+
+            }
+            if (sleep){
+                sleep(Random().nextInt(100).toLong())
+            }
             val mesLen = conn.read(buff)
 
         }
