@@ -1,6 +1,6 @@
-package com.randochat.main.endpoints
+package com.randochat.main.springapp.endpoints
 
-import com.randochat.main.database.AccountRepository
+import com.randochat.main.springapp.database.AccountRepository
 import org.apache.catalina.connector.Response
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus

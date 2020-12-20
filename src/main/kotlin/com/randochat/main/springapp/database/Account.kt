@@ -1,4 +1,4 @@
-package com.randochat.main.database
+package com.randochat.main.springapp.database
 
 import java.lang.reflect.GenericDeclaration
 import java.lang.reflect.TypeVariable

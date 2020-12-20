@@ -1,4 +1,4 @@
-package com.randochat.main.database
+package com.randochat.main.springapp.database
 
 import org.springframework.data.repository.CrudRepository
 

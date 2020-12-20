@@ -1,4 +1,4 @@
-package com.randochat.main
+package test_spring_app
 //
 //import com.randochat.main.database.AccountRepository
 //import com.randochat.main.endpoints.RegisterAccount

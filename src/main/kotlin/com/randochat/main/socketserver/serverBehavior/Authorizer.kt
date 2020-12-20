@@ -1,18 +1,21 @@
 package com.randochat.main.socketserver.serverBehavior
 
 import com.randochat.main.socketserver.dataAccsess.Directory
+import com.randochat.main.socketserver.dataAccsess.JsonValues
 import com.randochat.main.socketserver.dataAccsess.User
+import com.randochat.main.socketserver.messages.Messages
 import java.net.SocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels.SelectionKey
 import java.nio.channels.Selector
 import java.nio.channels.ServerSocketChannel
 import java.nio.channels.SocketChannel
+import javax.json.JsonObject
 
 //handles intial authorization
 class Authorizer(val selector: Selector) {
     private val suspects = HashMap<SocketAddress, User>()
-
+    var lastSweep = System.currentTimeMillis()
 
     fun investigateConn(key: SelectionKey){
         val channel = key.channel() as ServerSocketChannel
@@ -22,51 +25,80 @@ class Authorizer(val selector: Selector) {
         suspects[newChan.remoteAddress] = User(newChan)
     }
     fun attemptValidate(conn: SocketChannel): Boolean{
-        //todo, if valid token then assign the user object the accountID?
         val message = ByteBuffer.allocate(1024)
         var length = conn.read(message)
-        var token = ""
+        var incommingString = ""
         if (length >= 0){
             for (i in 0 until length){
-                token += message[i].toChar()
+                incommingString += message[i].toChar()
             }
-            println(token)
-            if (token == "HELLO"){
-//                println("valid token")
-                return true
-            }else if (token == "RECONNECT"){
-                // roomId, check if room is awaiting a reconnect, take over that user object and assign it to this connection
-                println("reconnect request")
-                return true
+            val json = Messages.messageFromJsonString(incommingString)
+            if (json.equals(JsonObject.EMPTY_JSON_OBJECT)){
+                return false
             }
-            else{
-                println("invalid token")
-                return killSuspect(conn)
+
+            if (suspects.contains(conn.remoteAddress) && suspects[conn.remoteAddress]!!.authTimeOut > System.currentTimeMillis()) {
+                if (json.containsKey("intent") && json.containsKey("token")) {
+                    if (json.get("intent")!! == JsonValues.OPENNEW) {
+                        //todo, assuming all tokens are valid for now
+                        return true
+                    } else if (json.get("intent")!! == JsonValues.RECONNECT) {
+                        var roomID = json.get("roomID").toString()
+                        var userID = json.get("userID").toString()
+                        if (roomID == "null" || userID == "null") return false
+                        if (Directory.validRoom(roomID)) {
+                            suspects[conn.remoteAddress]!!.userId = JsonValues.strip(userID)
+                            val newUser = Directory.getRoom(roomID).notifyReconnect(suspects[conn.remoteAddress]!!)
+
+                            if (newUser == null){
+                                println("null")
+                                return false
+                            }else{
+                                suspects[conn.remoteAddress] = newUser
+                                return true
+                            }
+
+                        } else {
+                            return true
+                        }
+                    }
+                } else {
+                    println("invalid token")
+//                return killSuspect(conn)
+                    return false
+
+                }
+            }else{
+                return false
             }
-        }else if (suspects[conn.remoteAddress]!!.authTimeOut > System.currentTimeMillis()){
-            println("timeout")
-            return true
         }else{
-            return killSuspect(conn)
+            return false
         }
-        return true
+        return false
     }
     fun killSuspect(conn: SocketChannel): Boolean{
-        //todo, deregister with selector
         println("killing " + conn.remoteAddress)
         //maybe keep a count of all failed attempt, and eventually blacklist them?
+        suspects.remove(conn.remoteAddress)
         conn.close()
         conn.socket().close()
-        suspects.remove(conn.remoteAddress)
         return false
     }
     fun authorize(key: SocketAddress): User {
-//        println("Accetped")
         Directory.addUser(suspects[key]!!)
         val user = suspects[key]!!
-        suspects.remove(key)
-
+        suspects.remove(suspects[key]!!.address)
         return user
+    }
+    fun sweep(){
+        val killList = ArrayList<User>()
+        for (suspect in suspects.values){
+            if (!suspect.isAuthorized && suspect.authTimeOut < System.currentTimeMillis()){
+                killList.add(suspect)
+            }
+        }
+        killList.forEach { killSuspect(it.socketChannel) }
+        lastSweep = System.currentTimeMillis() + 10_000
     }
     fun isSuspect(key: SocketAddress): Boolean {
         return suspects[key] != null

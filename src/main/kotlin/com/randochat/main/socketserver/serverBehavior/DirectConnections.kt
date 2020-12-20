@@ -1,8 +1,8 @@
 package com.randochat.main.socketserver.serverBehavior
 
-import com.randochat.main.socketserver.Client
 import com.randochat.main.socketserver.dataAccsess.Directory
 import com.randochat.main.socketserver.dataAccsess.User
+import java.net.BindException
 import java.net.InetSocketAddress
 import java.net.SocketAddress
 import java.nio.channels.SelectionKey
@@ -14,11 +14,9 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.collections.HashSet
 
 
-/*todo, this server is not a matchmaker. pairs should be created somewhere else.
- *  maybe have a matchmaker server connected on a local network?*/
-class DirectConnections: Thread() {
+class DirectConnections(val port: Int): Thread() {
 
-    val selector = Selector.open()
+    var selector = Selector.open()
     val server = ServerSocketChannel.open()
     val readJobs = ConcurrentLinkedQueue<SelectionKey>()
     val waiting = LinkedList<SocketAddress>()
@@ -26,19 +24,20 @@ class DirectConnections: Thread() {
     // declare initial capacity?
     val nullCode = 101
     val clientHandler = ClientHandler()
-    val authorizer = Authorizer(selector)
+    var authorizer = Authorizer(selector)
+    var directory = Directory
+    var flag = true
+    private val matchmaker = Matchmaker(clientHandler)
 
 
     init {
-        Directory
         server.configureBlocking(false)
-        server.socket().bind(InetSocketAddress("127.0.0.1", 15620))
+//        server.socket().bind(InetSocketAddress("127.0.0.1", port))
         server.register(selector, SelectionKey.OP_ACCEPT)
     }
-
     fun routeConnections(){
         var accepted = 0
-        while (true){
+        while (flag){
             selector.select()
             val keys = selector.selectedKeys().iterator()
             while (keys.hasNext()){
@@ -47,18 +46,21 @@ class DirectConnections: Thread() {
                 if (key.isValid) {
                     if (key.isAcceptable) {
                         authorizer.investigateConn(key)
-//                        acceptConn(key)
                     }
                     if (key.isReadable) {
                         val keyAdd = (key.channel() as SocketChannel).remoteAddress
                         if (authorizer.isSuspect(keyAdd)){
                            if(authorizer.attemptValidate(key.channel() as SocketChannel)){
-                               //done with authorizer after this
-                               addToMatchMaking(authorizer.authorize(keyAdd))
+                               if (!matchmaker.addToMatchMaking(authorizer.authorize(keyAdd))){
+                                   clientHandler.read(key.channel())
+                               }
+
+                           }else{
+                               authorizer.killSuspect(key.channel() as SocketChannel)
                            }
                         }else if (waitList.contains(keyAdd)){
                             //catch reconnects attempt here. also people waiting for a pair
-                            checkStatus(keyAdd)
+                            matchmaker.checkStatus(keyAdd)
                         }else{
                             clientHandler.read(key.channel())
 
@@ -67,24 +69,23 @@ class DirectConnections: Thread() {
                     }
 
                 }
+                if (authorizer.lastSweep < System.currentTimeMillis()){
+                    //probably should be checked on another thread
+                    authorizer.sweep()
+
+                }
             }
         }
     }
-fun addToMatchMaking(user: User){
-    if (waiting.size == 0){
-            waiting.add(user.address)
-        waitList.add(user.address)
-        }else{
-//        println("match found")
-        Directory.initPair(user, Directory.getUser(waiting.peek()))
-        waitList.remove(waiting.remove())
-        waitList.remove(user.address)
-        clientHandler.sendWelcomeMessage(user)
+    fun bind(): Boolean{
+        try {
+            server.socket().bind(InetSocketAddress("127.0.0.1", port))
+        }catch (e: BindException){
+            return false
         }
-}
-fun checkStatus(key: SocketAddress){
-//    println(waiting.size)
-}
+        return true
+    }
+
     override fun run() {
         super.run()
         routeConnections()
@@ -93,15 +94,7 @@ fun checkStatus(key: SocketAddress){
 
 
 fun main() {
-    val acceptConns = DirectConnections()
-    acceptConns.start()
-    repeat(2){
-        val client = Client()
-        client.start()
-    }
-
-
-
-
+//    val acceptConns = DirectConnections()
+//    acceptConns.start()
 
 }

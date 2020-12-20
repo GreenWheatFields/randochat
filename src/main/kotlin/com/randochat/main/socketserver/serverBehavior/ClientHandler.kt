@@ -19,20 +19,23 @@ class ClientHandler(): Thread(){
             println("not a socket channe;")
             return
         }
+
         val user = Directory.getUser(channel.remoteAddress) //?: do something that stops execution if null
         var talkingTo: User
         var room: Room
+        var len = 0
         if (user.room != null){
             room = user.room as Room
             if (room.isHealthy){
                 if (room.twoConnections()) {
                     var message = ByteBuffer.allocate(1024)
                     try {
-                        user.socketChannel.read(message)
+                       len = user.socketChannel.read(message)
                     } catch (e: IOException) {
                         room.notifyDisconnect(user)
                         return
                     }
+                    Messages.stripBufferToByteArray(message, len)
                     talkingTo = Directory.getUser(room.getOther(user.address).address)
                     try {
                         talkingTo.socketChannel.write(ByteBuffer.wrap(message.array()))
@@ -51,10 +54,12 @@ class ClientHandler(): Thread(){
         }
     }
     fun salvageRoom(room: Room){
+        //check if room is still waiting for peeps
         if (System.currentTimeMillis() > room.timeOut){
             println("timeout")
+            room.kill()
             System.exit(5)
-        }else if (System.currentTimeMillis() > room.nextCheck){
+        }else if (room.connectionStatus.size > 1 && System.currentTimeMillis() > room.nextCheck){
             room.checkConnection()
         }else{
             return
@@ -62,10 +67,9 @@ class ClientHandler(): Thread(){
 
         }
     fun sendWelcomeMessage(user: User){
-        //check null here
-        val message = ServerMessages.welcomeMessage(user.room!!)
-        user.socketChannel.write(message)
-        user.pair?.socketChannel?.write(message)
+        val message = ServerMessages.welcomeMessage(user.room!!, user).mark()
+        user.socketChannel.write(ServerMessages.welcomeMessage(user.room!!, user))
+        user.pair!!.socketChannel.write(ServerMessages.welcomeMessage(user.pair!!.room!!, user.pair!!))
     }
 
 

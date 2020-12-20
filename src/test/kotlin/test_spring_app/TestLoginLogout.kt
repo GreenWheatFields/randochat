@@ -1,8 +1,8 @@
 package com.randochat.main
 
-import com.randochat.main.database.Account
-import com.randochat.main.database.AccountFormatter
-import com.randochat.main.values.AuthCodes
+import com.randochat.main.springapp.database.Account
+import com.randochat.main.springapp.database.AccountFormatter
+import com.randochat.main.springapp.values.AuthCodes
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import org.springframework.beans.factory.annotation.Autowired

@@ -2,6 +2,7 @@ package com.randochat.main.socketserver.messages
 
 import java.io.StringReader
 import java.nio.ByteBuffer
+import java.util.*
 import javax.json.*
 import javax.json.stream.JsonParsingException
 
@@ -11,20 +12,18 @@ open class Messages {
     //content: content of a message a string for now
     //status: status of a room? wheter or not there is a disconnect/ user left the app but still connected/ room id
         companion object{
-        fun messageToBuffer(string: String): ByteBuffer{
-            return ByteBuffer.wrap(string.toByteArray())
+        fun messageToBuffer(string: JsonObject): ByteBuffer{
+            return ByteBuffer.wrap(string.toString().toByteArray())
         }
-        fun messageFromBuffer(buf: ByteBuffer): JsonObject {
-            val sb = StringBuilder()
-            for (byte in buf.array()) {
-                sb.append(byte.toChar())
-            }
+        fun messageFromJsonString(string: String): JsonObject {
             return try {
-                Json.createReader(StringReader(sb.toString())).readObject()
+                Json.createReader(StringReader(string)).readObject()
             }catch (e: JsonParsingException){
                 JsonObject.EMPTY_JSON_OBJECT
             }
-
+        }
+        fun stripBufferToByteArray(buf: ByteBuffer, len: Int): ByteArray{
+            return Arrays.copyOfRange(buf.array(), 0 , len)
         }
     }
 
