@@ -48,8 +48,17 @@ class Authorizer(val selector: Selector) {
                         if (roomID == "null" || userID == "null") return false
                         if (Directory.validRoom(roomID)) {
                             suspects[conn.remoteAddress]!!.userId = JsonValues.strip(userID)
-                            Directory.getRoom(roomID).notifyReconnect(suspects[conn.remoteAddress]!!)
-                            //todo, returns connection to matchmaking and to new room.
+                            val newUser = Directory.getRoom(roomID).notifyReconnect(suspects[conn.remoteAddress]!!)
+
+                            if (newUser == null){
+                                println("null")
+                                return false
+                            }else{
+                                suspects[conn.remoteAddress] = newUser
+                                //todo, returns connection to matchmaking and to new room.
+                                return true
+                            }
+
                         } else {
                             return true
                         }
@@ -79,12 +88,12 @@ class Authorizer(val selector: Selector) {
         return false
     }
     fun authorize(key: SocketAddress): User {
-        println("Accetped")
-
+        if (Directory.directory.contains(suspects[key]!!.internalId)){
+            println("here")
+        }
         Directory.addUser(suspects[key]!!)
         val user = suspects[key]!!
-        suspects.remove(key)
-
+        suspects.remove(suspects[key]!!.address)
         return user
     }
     fun sweep(){

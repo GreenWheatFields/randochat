@@ -19,6 +19,7 @@ class ClientHandler(): Thread(){
             println("not a socket channe;")
             return
         }
+
         val user = Directory.getUser(channel.remoteAddress) //?: do something that stops execution if null
         var talkingTo: User
         var room: Room

@@ -10,18 +10,20 @@ class Matchmaker (private val clientHandler: ClientHandler) {
     //handle matchmaking. for now just a queue
     //todo, a handle an authorized user disconneting while waiting for a match
     // probably should be another thread that returns pair objects or something
-    private val waiting = LinkedList<SocketAddress>()
+    private val waiting = LinkedList<User>()
     private val waitList = HashSet<SocketAddress>()
 
     fun addToMatchMaking(user: User): Boolean {
         //adds to waitlist if empty of pairs the two.
-        println(user.pair == null)
+        if (user.pair != null){
+            return true
+        }
         if (waiting.size == 0) {
-            waiting.add(user.address)
+            waiting.add(user)
             return false
         } else {
-            initPair(user, Directory.getUser(waiting.peek()))
-            waitList.remove(waiting.remove())
+            initPair(user, Directory.getUser(waiting.peek().address))
+            waitList.remove(waiting.remove().address)
             waitList.remove(user.address)
             //probably should call this from here, just return user?
             clientHandler.sendWelcomeMessage(user)
