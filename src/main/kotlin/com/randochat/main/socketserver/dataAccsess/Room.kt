@@ -88,7 +88,6 @@ class Room(val id: String, val members: MutableList<User>, var initTime: Long, v
     }
     fun notifyDisconnect(user: User) {
         //this might break when a client disconnects before the pair has even joined
-        println(user.address)
         if (!connectionStatus[user.address]!!){
             return
         }
@@ -101,25 +100,26 @@ class Room(val id: String, val members: MutableList<User>, var initTime: Long, v
         if (timeOut == 0L){
             timeOut = System.currentTimeMillis() + waitTime
         }
+        user.socketChannel.close()
+        user.socketChannel.socket().close()
         isHealthy = false
+
     }
 
     fun notifyReconnect(newUser: User): User? {
         members.forEachIndexed { index, user ->
             if (newUser.userId == user.userId){
-                println(connectionStatus)
                 connectionStatus.remove(user.address)
                 newUser.pair = user.pair
                 Directory.removeUser(user)
                 Directory.addUser(newUser)
                 members[index] = newUser
                 connectionStatus[newUser.address] = true
-                println(connectionStatus)
                 if (twoConnections()){
                     isHealthy = true
                     println("saved lobby")
                 }
-                return user
+                return newUser
             }
         }
         return null

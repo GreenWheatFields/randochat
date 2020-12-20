@@ -62,7 +62,6 @@ class Authorizer(val selector: Selector) {
                         } else {
                             return true
                         }
-                        return true
                     }
                 } else {
                     println("invalid token")
@@ -88,9 +87,6 @@ class Authorizer(val selector: Selector) {
         return false
     }
     fun authorize(key: SocketAddress): User {
-        if (Directory.directory.contains(suspects[key]!!.internalId)){
-            println("here")
-        }
         Directory.addUser(suspects[key]!!)
         val user = suspects[key]!!
         suspects.remove(suspects[key]!!.address)
