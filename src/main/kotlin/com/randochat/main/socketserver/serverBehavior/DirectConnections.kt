@@ -50,9 +50,11 @@ class DirectConnections(val port: Int): Thread() {
                     if (key.isReadable) {
                         val keyAdd = (key.channel() as SocketChannel).remoteAddress
                         if (authorizer.isSuspect(keyAdd)){
-                            //todo, remove suspect
                            if(authorizer.attemptValidate(key.channel() as SocketChannel)){
-                               matchmaker.addToMatchMaking(authorizer.authorize(keyAdd))
+                               if (!matchmaker.addToMatchMaking(authorizer.authorize(keyAdd))){
+                                   clientHandler.read(key.channel())
+                               }
+
                            }else{
                                authorizer.killSuspect(key.channel() as SocketChannel)
                            }

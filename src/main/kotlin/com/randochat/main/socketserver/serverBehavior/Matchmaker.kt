@@ -14,13 +14,13 @@ class Matchmaker (private val clientHandler: ClientHandler) {
     private val waitList = HashSet<SocketAddress>()
 
     fun addToMatchMaking(user: User): Boolean {
-        //adds to waitlist if empty of pairs the two.
+        ///true if further action needed, false if no further action needed
         if (user.pair != null){
-            return true
+            return false
         }
         if (waiting.size == 0) {
             waiting.add(user)
-            return false
+            return true
         } else {
             initPair(user, Directory.getUser(waiting.peek().address))
             waitList.remove(waiting.remove().address)

@@ -55,7 +55,6 @@ class Authorizer(val selector: Selector) {
                                 return false
                             }else{
                                 suspects[conn.remoteAddress] = newUser
-                                //todo, returns connection to matchmaking and to new room.
                                 return true
                             }
 
@@ -78,7 +77,6 @@ class Authorizer(val selector: Selector) {
         return false
     }
     fun killSuspect(conn: SocketChannel): Boolean{
-        //todo, deregister with selector
         println("killing " + conn.remoteAddress)
         //maybe keep a count of all failed attempt, and eventually blacklist them?
         suspects.remove(conn.remoteAddress)

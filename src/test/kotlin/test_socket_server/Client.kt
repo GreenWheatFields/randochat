@@ -8,7 +8,7 @@ import java.nio.channels.SocketChannel
 import java.util.*
 import javax.json.JsonObject
 
-class Client (val port: Int): Thread(){
+open class Client (val port: Int): Thread(){
     lateinit var conn: SocketChannel
     fun connect(sleepTime: Long, recursive: Boolean){
         try{
