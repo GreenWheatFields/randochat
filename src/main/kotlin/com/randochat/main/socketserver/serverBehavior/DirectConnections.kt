@@ -36,6 +36,7 @@ class DirectConnections(val port: Int): Thread() {
         server.register(selector, SelectionKey.OP_ACCEPT)
     }
     fun routeConnections(){
+        //todo, keep track of some data for analytics
         var accepted = 0
         while (flag){
             selector.select()
