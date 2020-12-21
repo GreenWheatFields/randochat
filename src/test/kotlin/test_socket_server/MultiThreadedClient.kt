@@ -8,6 +8,7 @@ import java.nio.ByteBuffer
 import javax.json.JsonObject
 
 //what an actual client will look like. listening and talking on two threaders
+//todo, method that listens writes and occasionally dsconnects/reconnects/ doesnt authorize/ sits idle/ etcetc
 class MultiThreadedClient(val client: Client): Thread() {
     var flag = true
     var length = -1
@@ -15,6 +16,7 @@ class MultiThreadedClient(val client: Client): Thread() {
     var buf = ByteBuffer.allocate(1024)
     val zero: Byte = 0
     val input = ArrayList<String>()
+
     fun connectAndIntroduce(){
         client.connect(0 , true)
         client.introduce(ClientMessages.initMessage)
@@ -43,9 +45,21 @@ class MultiThreadedClient(val client: Client): Thread() {
             read()
         }
     }
+    fun listenAndWriteRandom(){
+        flag = true
+        while (flag){
+            client.conn.write(ByteBuffer.wrap(System.currentTimeMillis().toString().toByteArray()))
+            read()
+            sleep(1)
+        }
+    }
     override fun run() {
         super.run()
-        listen()
+        if (flag){
+            listen()
+        }else{
+            listenAndWriteRandom()
+        }
 //        while (client.conn.isOpen && flag){
 //            read()
 ////            write()

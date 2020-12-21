@@ -13,7 +13,6 @@ import java.nio.channels.SocketChannel
 // methods to talk to clients
 class ClientHandler(): Thread(){
 
-
     fun read(channel: SelectableChannel){
         if (channel !is SocketChannel){
             println("not a socket channe;")

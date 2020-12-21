@@ -10,6 +10,7 @@ import kotlin.collections.HashMap
 //directory: map of addresses to users and their permissions
 //rooms: roomID to toom Object, room is passed to client so that they can reconnect?
 object Directory {
+    //todo, either an StatisticDirectory or add statistic in here
     val directory = ConcurrentHashMap<SocketAddress, User>()
     private val rooms = HashMap<String, Room>()
     private val newEntryTemplate = HashMap<String, Any?>().also {

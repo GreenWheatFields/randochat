@@ -6,6 +6,8 @@ import java.nio.ByteBuffer
 import javax.json.Json
 
 class ServerMessages {
+    //todo, content message should be json or at least have some extra data like server time
+    //also base64 encode everthing?
     companion object{
         fun welcomeMessage(room: Room, user: User): ByteBuffer {
             val status =  Json.createObjectBuilder().add("roomID", room.id).add("roomStatus", room.isHealthy)
