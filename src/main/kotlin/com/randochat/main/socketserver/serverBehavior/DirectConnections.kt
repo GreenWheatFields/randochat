@@ -36,7 +36,7 @@ class DirectConnections(val port: Int): Thread() {
         server.register(selector, SelectionKey.OP_ACCEPT)
     }
     fun routeConnections(){
-        //todo, keep track of some data for analytics
+        //todo, keep track of some data for analytics like current connects, etc, etc
         var accepted = 0
         while (flag){
             selector.select()
@@ -55,7 +55,6 @@ class DirectConnections(val port: Int): Thread() {
                                if (!matchmaker.addToMatchMaking(authorizer.authorize(keyAdd))){
                                    clientHandler.read(key.channel())
                                }
-
                            }else{
                                authorizer.killSuspect(key.channel() as SocketChannel)
                            }

@@ -30,7 +30,7 @@ class Room(val id: String, val members: MutableList<User>, var initTime: Long, v
         }
     }
     //todo, timeout on two conenctions but no activity?
-
+    //todo, handle prompts, voting, logic etc
     var isFull = false
     var connectionStatus = HashMap<SocketAddress, Boolean>(1)
 //    var isHealthy = true // true if waiting with no disconnects,  or active

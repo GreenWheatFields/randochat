@@ -10,6 +10,7 @@ class Matchmaker (private val clientHandler: ClientHandler) {
     //handle matchmaking. for now just a queue
     //todo, a handle an authorized user disconneting while waiting for a match
     // probably should be another thread that returns pair objects or something
+    //todo, real matchmaking, more than a q
     private val waiting = LinkedList<User>()
     private val waitList = HashSet<SocketAddress>()
 

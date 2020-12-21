@@ -14,6 +14,7 @@ import javax.json.JsonObject
 
 //handles intial authorization
 class Authorizer(val selector: Selector) {
+    //todo, blacklist ips?
     private val suspects = HashMap<SocketAddress, User>()
     var lastSweep = System.currentTimeMillis()
 
