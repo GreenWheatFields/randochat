@@ -14,11 +14,14 @@ class Account{
     //id == hashed account name or account name?
     @Id
     @Column
+    lateinit var accountID: String
+    @Column
     lateinit var email: String
     @Column
     lateinit var userName: String
     @Column
     lateinit var password: String
+    //todo, profile. link to profile picite, bio, etc
     //todo later, login attempts/locations/ip addreses etc?
 
 }

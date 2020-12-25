@@ -59,6 +59,7 @@ class AccountFormatter (val accountRepository: AccountRepository){
                     start = i + 1
                 }
             }
+            extractedAccount.accountID = UUID.randomUUID().toString()
             return if (extractedValues == 5 || extractedValues < 3) null else (extractedAccount)
         }
         fun validUserName(user: String): Boolean{

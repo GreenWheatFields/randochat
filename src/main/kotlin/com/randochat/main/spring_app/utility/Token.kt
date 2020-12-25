@@ -5,6 +5,7 @@ import com.auth0.jwt.*
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.exceptions.JWTDecodeException
 import com.auth0.jwt.exceptions.TokenExpiredException
+import com.auth0.jwt.interfaces.DecodedJWT
 import com.randochat.main.spring_app.values.AuthCodes
 import java.util.*
 
@@ -31,20 +32,17 @@ class Token {
                 .sign(algo)
         return token
     }
-    fun checkToken(token: String): Boolean {
+    fun checkToken(token: String): DecodedJWT? {
         //may need to return more information. return response entities from here?
         val validator = JWT.require(algo).withIssuer("test").acceptLeeway(1).build()
         try {
             validator.verify(token)
         }catch (e: JWTDecodeException){
-            return false
+            return null
         }catch (e: TokenExpiredException){
-            return false
+            return null
         }
-        val clearToken = JWT.decode(token)
-        println(clearToken.getClaim("status").asString())
-
-        return true
+        return JWT.decode(token)
     }
 
     fun getSocketToken(): Nothing = TODO()

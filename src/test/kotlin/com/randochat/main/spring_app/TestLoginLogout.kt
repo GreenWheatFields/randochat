@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.util.*
 
 
 @SpringBootTest
@@ -32,10 +33,9 @@ class TestLoginLogoutWithMockServer {
     }
     //todo, @BeforeAll
     @Test
+//    @Disabled
     fun testGetAccount(@Autowired mockServer: MockMvc){
-        mockServer.perform(get("/accounts/get")
-                .header("account", "account")
-                .header("token", Token().genAccountToken()))
+        mockServer.perform(get("/accounts/get?account=${UUID.randomUUID()}&token=${Token().genAccountToken()}"))
     }
 
 
