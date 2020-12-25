@@ -3,6 +3,7 @@ package com.randochat.main
 import com.randochat.main.springapp.database.Account
 import com.randochat.main.springapp.database.AccountFormatter
 import com.randochat.main.springapp.values.AuthCodes
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import org.springframework.beans.factory.annotation.Autowired
@@ -16,14 +17,18 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class TestLoginLogoutServer {
+class TestLoginLogoutWithMockServer {
     @Test
+    @Disabled
     fun testRegisterEndpoint(@Autowired mockServer: MockMvc) {
         mockServer.perform(get("/accounts/create", )
                 .header("newAccount", AccountFormatter.encodeAccount("email@email.com\\username\\VALIDPASSWORD856!\\"))
                 .header("code", AuthCodes.codeAccess[0]))
                 .andExpect(status().isOk)
                 .andExpect(content().string("registered"))
+
+    }
+    fun testGetAccount(@Autowired mockServer: MockMvc){
 
     }
 
