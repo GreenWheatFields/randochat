@@ -15,7 +15,8 @@ class GetAccount @Autowired constructor(val accountRepository: AccountRepository
     //check if
     @GetMapping("/accounts/get")
     fun findAccount(@RequestParam("account") account: String,
-                    @RequestParam("token", required = true) token: String): ResponseEntity<Any>{
+                    @RequestParam("token", required = true,) token: String
+                    ): ResponseEntity<Any>{
         val userToken = Token().checkToken(token) ?: return ResponseEntity(HttpStatus.FORBIDDEN)
         if (userToken.getClaim("id").asString() == account){
             //user getting own account

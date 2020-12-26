@@ -17,13 +17,11 @@ class RegisterAccount @Autowired constructor(final val accountRepo: AccountRepos
     fun register(@RequestHeader("newAccount", required = true) newAccount: String,
                  @RequestHeader("code", required = true) code: String, ): ResponseEntity<Any> {
 
-
-    //todo, allValid() method somewhere that contains all the code below?
         val acc = AccountFormatter.stringToAccount(AccountFormatter.decodeAccount(newAccount)) ?: return ResponseEntity("bad account", HttpStatus.BAD_REQUEST)
-        if ((!AuthCodes.codes.contains(code))) {
+        if (!AuthCodes.codes.contains(code)) {
             return ResponseEntity(HttpStatus.UNAUTHORIZED)
         }else if(accountRepo.existsById(acc.email)){
-            return ResponseEntity(HttpStatus.UNAUTHORIZED)
+            return ResponseEntity("email already exist" ,HttpStatus.UNAUTHORIZED)
         }else{
             accountRepo.save(acc)
             return ResponseEntity(HttpStatus.OK)
