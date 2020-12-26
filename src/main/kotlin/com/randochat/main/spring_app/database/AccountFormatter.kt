@@ -9,16 +9,16 @@ import javax.servlet.http.HttpServletRequest
 class AccountFormatter (val accountRepository: AccountRepository){
     companion object {
         fun encodeAccount(string: String): String{
+            //todo exception handling here?
             return Base64.getEncoder().encodeToString(string.toByteArray())
         }
         fun decodeAccount(accountString: String): String {
             return String(Base64.getDecoder().decode(accountString))
         }
         //this method might be better off outside comapnion object
-        fun stringToAccount(account: String, hashPass: Boolean = true): Account?{
-            val temp = account.toCharArray()
+        fun stringToAccount(account: String, hashPass: Boolean = true, newAccount: Boolean = false): Account?{
+            var temp = account.toCharArray()
             //staing example email@email.com\username\password\
-
             var start = 0
             var extractedValues = 0
             val extractedAccount = Account()
@@ -59,7 +59,9 @@ class AccountFormatter (val accountRepository: AccountRepository){
                     start = i + 1
                 }
             }
-//            extractedAccount.accountID = UUID.randomUUID().toString()
+            if (newAccount){
+                extractedAccount.accountID = UUID.randomUUID().toString()
+            }
             return if (extractedValues == 5 || extractedValues < 3) null else (extractedAccount)
         }
         fun validUserName(user: String): Boolean{

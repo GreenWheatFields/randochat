@@ -46,7 +46,7 @@ class TestLoginLogoutWithMockServer {
     @Test
     fun testLogin(@Autowired mockServer: MockMvc) {
         var json = HashMap<String, String>()
-        json.put("account", "null")
+        json.put("account", AccountFormatter.encodeAccount("email@email.com\\username\\PASSWORD123!\\"))
         json.put("code", "code")
         mockServer.perform(post("/accounts/login")
                 .contentType(MediaType.APPLICATION_JSON)
