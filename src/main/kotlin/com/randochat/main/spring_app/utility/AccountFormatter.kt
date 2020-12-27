@@ -1,12 +1,18 @@
-package com.randochat.main.spring_app.database
+package com.randochat.main.spring_app.utility
 
+import com.randochat.main.spring_app.database.Account
+import com.randochat.main.spring_app.database.AccountRepository
 import com.randochat.main.spring_app.values.AuthCodes
 import org.apache.commons.validator.routines.EmailValidator
 import java.util.*
 import org.springframework.security.crypto.bcrypt.BCrypt
+import java.io.StringReader
+import javax.json.Json
+import javax.json.JsonObject
 import javax.servlet.http.HttpServletRequest
 
 class AccountFormatter (val accountRepository: AccountRepository){
+    //formats the way accountstrings are transferred between client and server
     companion object {
         fun encodeAccount(string: String): String{
             //todo exception handling here?
@@ -61,6 +67,7 @@ class AccountFormatter (val accountRepository: AccountRepository){
             }
             if (newAccount){
                 extractedAccount.accountID = UUID.randomUUID().toString()
+                extractedAccount.accountStatus = "good"
             }
             return if (extractedValues == 5 || extractedValues < 3) null else (extractedAccount)
         }
@@ -111,12 +118,14 @@ class AccountFormatter (val accountRepository: AccountRepository){
             return symbol == capital
         }
 
-        fun validRequestParamsAcc(request: HttpServletRequest, accKey: String, codeKey: String): Boolean{
-            //todo, might break at a null request object
-            //todo, this shuold ideally return an account object. as the current way calls some of these methods twice
-            return(stringToAccount(decodeAccount(request.getHeader(accKey))) != null && AuthCodes.codes.contains(request.getHeader(codeKey)))
-
-
+//        fun validRequestParamsAcc(request: HttpServletRequest, accKey: String, codeKey: String): Boolean{
+//            //todo, might break at a null request object
+//            //todo, this shuold ideally return an account object. as the current way calls some of these methods twice
+//            return(stringToAccount(decodeAccount(request.getHeader(accKey))) != null && AuthCodes.codes.contains(request.getHeader(codeKey)))
+//        }
+        fun getJson(): JsonObject{
+//            return JsonObject("{}")
+            return Json.createReader(StringReader("{temp:values}")).readObject()
         }
 
     }

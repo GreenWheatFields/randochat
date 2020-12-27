@@ -1,16 +1,14 @@
 package com.randochat.main.spring_app.endpoints
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.randochat.main.spring_app.database.AccountFormatter
+import com.randochat.main.spring_app.utility.AccountFormatter
 import com.randochat.main.spring_app.database.AccountRepository
 import com.randochat.main.spring_app.utility.Token
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.crypto.bcrypt.BCrypt
-import org.springframework.util.MultiValueMap
 import org.springframework.web.bind.annotation.*
-import javax.servlet.http.HttpServletRequest
 
 
 @RestController

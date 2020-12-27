@@ -2,7 +2,7 @@ package com.randochat.main.spring_app
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.randochat.main.spring_app.database.Account
-import com.randochat.main.spring_app.database.AccountFormatter
+import com.randochat.main.spring_app.utility.AccountFormatter
 import com.randochat.main.spring_app.utility.Token
 import com.randochat.main.spring_app.values.AuthCodes
 import org.junit.jupiter.api.Disabled
@@ -40,7 +40,7 @@ class TestLoginLogoutWithMockServer {
     @Test
     @Disabled
     fun testGetAccount(@Autowired mockServer: MockMvc) {
-        mockServer.perform(get("/accounts/get?account=${UUID.randomUUID()}&token=${Token().genAccountToken()}"))
+//        mockServer.perform(get("/accounts/get?account=${UUID.randomUUID()}&token=${Token().genAccountToken()}"))
     }
 
     @Test

@@ -21,7 +21,17 @@ class Account{
     lateinit var userName: String
     @Column
     lateinit var password: String
-    //todo, profile. link to profile picite, bio, etc
-    //todo later, login attempts/locations/ip addreses etc?
+    @Column
+    lateinit var bio: String
+    @Column
+    lateinit var location: String
+    @Column
+    lateinit var imageLink: String
+    @Column
+    lateinit var accountStatus: String //clear, locked (too many sign on attempts), banned
+    @Column
+    lateinit var loginAttempts: String //string representation of json
+// totalAttempts: int, rolling24hourAttempts: int, rolling one hours Attempts:, lastCheck: timestamp
+// time:timestamp, ip: ipaddres, location:}
 
 }

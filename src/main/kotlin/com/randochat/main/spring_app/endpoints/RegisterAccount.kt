@@ -1,6 +1,6 @@
 package com.randochat.main.spring_app.endpoints
 
-import com.randochat.main.spring_app.database.AccountFormatter
+import com.randochat.main.spring_app.utility.AccountFormatter
 import com.randochat.main.spring_app.database.AccountRepository
 import com.randochat.main.spring_app.values.AuthCodes
 import org.springframework.beans.factory.annotation.Autowired
