@@ -3,7 +3,6 @@ package com.randochat.main.spring_app
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.randochat.main.spring_app.database.Account
 import com.randochat.main.spring_app.utility.AccountFormatter
-import com.randochat.main.spring_app.utility.Token
 import com.randochat.main.spring_app.values.AuthCodes
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -18,7 +17,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.util.*
 import kotlin.collections.HashMap
 
 
@@ -29,7 +27,7 @@ class TestLoginLogoutWithMockServer {
     @Disabled
     fun testRegisterEndpoint(@Autowired mockServer: MockMvc) {
         mockServer.perform(get("/accounts/create", )
-                .header("newAccount", AccountFormatter.encodeAccount("email@email.com\\username\\VALIDPASSWORD856!\\"))
+                .header("newAccount", AccountFormatter.encodeAccountString("email@email.com\\username\\VALIDPASSWORD856!\\"))
                 .header("code", AuthCodes.codeAccess[0]))
                 .andExpect(status().isOk)
                 .andExpect(content().string("registered"))
@@ -46,7 +44,7 @@ class TestLoginLogoutWithMockServer {
     @Test
     fun testLogin(@Autowired mockServer: MockMvc) {
         var json = HashMap<String, String>()
-        json.put("account", AccountFormatter.encodeAccount("email@email.com\\username\\PASSWORD123!\\"))
+        json.put("account", AccountFormatter.encodeAccountString("email@email.com\\username\\PASSWORD123!\\"))
         json.put("code", "code")
         mockServer.perform(post("/accounts/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -57,7 +55,7 @@ class TestLoginLogoutWithMockServer {
         @Test
         fun testEncodeAndDecode() {
             val account = "email@email.com%username%password"
-            val final = AccountFormatter.decodeAccount(AccountFormatter.encodeAccount(account))
+            val final = AccountFormatter.decodeAccount(AccountFormatter.encodeAccountString(account))
             assert(account == final)
         }
 
@@ -68,7 +66,7 @@ class TestLoginLogoutWithMockServer {
             account.email = "email@email.com"
             account.password = BCrypt.hashpw("password", BCrypt.gensalt())
             account.userName = "username"
-            val accountToCompare = AccountFormatter.stringToAccount(accountString) ?: fail("invalid entry")
+            val accountToCompare = AccountFormatter.n64StringToAccount(accountString) ?: fail("invalid entry")
 
             println("email")
             assert(account.email == accountToCompare.email)
@@ -82,13 +80,13 @@ class TestLoginLogoutWithMockServer {
         @Test
         fun testStringToAccount2() {
             val account = "email@email.com\\username\\VALIDPASSWORD856!\\"
-            if (AccountFormatter.stringToAccount(account) == null) fail("null")
+            if (AccountFormatter.n64StringToAccount(account) == null) fail("null")
         }
 
         @Test
         fun testAccFromStringBadAccount() {
             val accountString = "email@email.com\\userName\\invalidpassword\\"
-            val acc = AccountFormatter.stringToAccount(accountString)
+            val acc = AccountFormatter.n64StringToAccount(accountString)
             assert(acc == null)
         }
 

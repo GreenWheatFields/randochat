@@ -33,7 +33,7 @@ class Token {
                 .sign(algo)
         return token
     }
-    fun checkToken(token: String): DecodedJWT? {
+    fun checkTokenValid(token: String): DecodedJWT? {
         //may need to return more information. return response entities from here?
         val validator = JWT.require(algo).withIssuer("accountServer").acceptLeeway(1).build()
         try {

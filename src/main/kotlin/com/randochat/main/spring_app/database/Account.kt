@@ -10,8 +10,7 @@ import javax.persistence.Table
 @Entity
 @Table(name = "accounts")
 class Account{
-    //todo, account Ids should be random numbers
-    //id == hashed account name or account name?
+    //todo, method that takes an account and returns only the public info? never return account objects directly!!
     @Id
     @Column
     lateinit var accountID: String
@@ -24,7 +23,7 @@ class Account{
     @Column
     lateinit var bio: String
     @Column
-    lateinit var location: String
+    lateinit var location: String //gneralized location and closer location somewhere else
     @Column
     lateinit var imageLink: String
     @Column
@@ -33,5 +32,12 @@ class Account{
     lateinit var loginAttempts: String //string representation of json
 // totalAttempts: int, rolling24hourAttempts: int, rolling one hours Attempts:, lastCheck: timestamp
 // time:timestamp, ip: ipaddres, location:}
+    fun addLoginAttempt(){
+//        if ()
+        // return wheter or not to lock the account
+    }
+    fun getProtectedAccountData(includeEmail: Boolean = false) {
+        //map of account data
+    }
 
 }

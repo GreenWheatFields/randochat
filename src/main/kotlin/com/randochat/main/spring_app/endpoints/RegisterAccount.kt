@@ -17,7 +17,7 @@ class RegisterAccount @Autowired constructor(final val accountRepo: AccountRepos
     fun register(@RequestHeader("newAccount", required = true) newAccount: String,
                  @RequestHeader("code", required = true) code: String, ): ResponseEntity<Any> {
 
-        val acc = AccountFormatter.stringToAccount(AccountFormatter.decodeAccount(newAccount)) ?: return ResponseEntity("bad account", HttpStatus.BAD_REQUEST)
+        val acc = AccountFormatter.n64StringToAccount(AccountFormatter.decodeAccount(newAccount)) ?: return ResponseEntity("bad account", HttpStatus.BAD_REQUEST)
         if (!AuthCodes.codes.contains(code)) {
             return ResponseEntity(HttpStatus.UNAUTHORIZED)
         }else if(accountRepo.existsById(acc.email)){

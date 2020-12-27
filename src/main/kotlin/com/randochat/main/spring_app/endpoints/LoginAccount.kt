@@ -20,14 +20,14 @@ class LoginAccount @Autowired constructor(final val accountRepo: AccountReposito
         if (!body.has("account") || !body.has("code")){
             println("bad body")
         }
-        val acc = AccountFormatter.stringToAccount(AccountFormatter.decodeAccount(body["account"].asText()), hashPass = false)
+        val acc = AccountFormatter.n64StringToAccount(AccountFormatter.decodeAccount(body["account"].asText()), hashPass = false)
                 ?: return ResponseEntity(HttpStatus.FORBIDDEN)
         val storedAccount = accountRepo.findByEmail(acc.email) ?: return ResponseEntity(mapOf("reason" to "email"),HttpStatus.FORBIDDEN)
         if (BCrypt.checkpw(acc.password, storedAccount.password)){
             val token = Token().genAccountToken(storedAccount)
             return ResponseEntity(mapOf("token" to token), HttpStatus.OK)
         }else{
-            //todo, maybe a loginAttempt entity to store the attempt, and total nunmber of attempets?
+          storedAccount.addLoginAttempt()
             return ResponseEntity(mapOf("reason" to "password"), HttpStatus.UNAUTHORIZED)
         }
     }

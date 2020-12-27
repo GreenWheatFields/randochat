@@ -14,16 +14,20 @@ import javax.servlet.http.HttpServletRequest
 class AccountFormatter (val accountRepository: AccountRepository){
     //formats the way accountstrings are transferred between client and server
     companion object {
-        fun encodeAccount(string: String): String{
+        fun encodeAccountString(string: String): String{
             //todo exception handling here?
             return Base64.getEncoder().encodeToString(string.toByteArray())
+        }
+        fun encodeAccountObject(acc: Account): String{
+            return acc.email + "\\" + acc.password
         }
         fun decodeAccount(accountString: String): String {
             return String(Base64.getDecoder().decode(accountString))
         }
         //this method might be better off outside comapnion object
-        fun stringToAccount(account: String, hashPass: Boolean = true, newAccount: Boolean = false): Account?{
+        fun n64StringToAccount(account: String, hashPass: Boolean = true, newAccount: Boolean = false): Account?{
             var temp = account.toCharArray()
+            //todo, accept either email or username
             //staing example email@email.com\username\password\
             var start = 0
             var extractedValues = 0
@@ -93,7 +97,7 @@ class AccountFormatter (val accountRepository: AccountRepository){
         }
         fun validPassword(password: CharArray): Boolean{
             // 8 - 26 chars with symbols. needs one capital letter and one symbol
-            //todo, keep reusing this. replace with enum?
+            //todo, keep reusing this. replace with constant somewhere?
             val temp = "abcdefghijklmnopqrstuvwxyz0123456789".toHashSet()
             val temp2 = "-!#\\\$%&'*+/=?^_`{|}~.".toHashSet()
             val temp3 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toHashSet()
@@ -123,10 +127,7 @@ class AccountFormatter (val accountRepository: AccountRepository){
 //            //todo, this shuold ideally return an account object. as the current way calls some of these methods twice
 //            return(stringToAccount(decodeAccount(request.getHeader(accKey))) != null && AuthCodes.codes.contains(request.getHeader(codeKey)))
 //        }
-        fun getJson(): JsonObject{
-//            return JsonObject("{}")
-            return Json.createReader(StringReader("{temp:values}")).readObject()
-        }
+
 
     }
 
