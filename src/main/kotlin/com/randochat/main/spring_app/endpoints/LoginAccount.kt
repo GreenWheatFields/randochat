@@ -22,12 +22,13 @@ class LoginAccount @Autowired constructor(final val accountRepo: AccountReposito
         }
         val acc = AccountFormatter.b64StringToAccount(AccountFormatter.decodeAccount(body["account"].asText()), hashPass = false)
                 ?: return ResponseEntity(HttpStatus.FORBIDDEN)
+        //todo, breaks when key is user
         val storedAccount = accountRepo.findByEmail(acc.email) ?: return ResponseEntity(mapOf("reason" to "email"),HttpStatus.FORBIDDEN)
         if (BCrypt.checkpw(acc.password, storedAccount.password)){
-            println("good!")
             val token = Token().genAccountToken(storedAccount)
             return ResponseEntity(mapOf("token" to token), HttpStatus.OK)
         }else{
+            //
           storedAccount.addLoginAttempt()
             return ResponseEntity(mapOf("reason" to "password"), HttpStatus.UNAUTHORIZED)
         }

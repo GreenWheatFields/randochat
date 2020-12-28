@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.randochat.main.spring_app.database.Account
 import com.randochat.main.spring_app.utility.AccountFormatter
 import com.randochat.main.spring_app.values.AuthCodes
+import com.randochat.main.spring_app.values.TestAccounts
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -13,8 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCrypt
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import kotlin.collections.HashMap
 
 
@@ -41,12 +41,13 @@ class TestLoginLogoutWithMockServer {
 
     @Test
     fun testLogin(@Autowired mockServer: MockMvc) {
-        var json = HashMap<String, String>()
-        json.put("account", AccountFormatter.encodeAccountString("email@email.com\\Password123!\\"))
+        val json = HashMap<String, String>()
+        json.put("account", AccountFormatter.encodeAccountString((TestAccounts.testAccount1.email + "\\" + TestAccounts.testAccount1.email + "\\")))
         json.put("code", "code")
         mockServer.perform(post("/accounts/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ObjectMapper().writeValueAsString(json)))
+                .andExpect(jsonPath("$.token").isNotEmpty)
     }
 
     class TestLoginLogoutMethods {
