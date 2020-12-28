@@ -4,9 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.randochat.main.spring_app.database.Account
 import com.randochat.main.spring_app.utility.AccountFormatter
 import com.randochat.main.spring_app.values.AuthCodes
-import org.junit.jupiter.api.Disabled
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.fail
+import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -44,7 +42,7 @@ class TestLoginLogoutWithMockServer {
     @Test
     fun testLogin(@Autowired mockServer: MockMvc) {
         var json = HashMap<String, String>()
-        json.put("account", AccountFormatter.encodeAccountString("email@email.com\\username\\PASSWORD123!\\"))
+        json.put("account", AccountFormatter.encodeAccountString("email@email.com\\Password123!\\"))
         json.put("code", "code")
         mockServer.perform(post("/accounts/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -58,6 +56,19 @@ class TestLoginLogoutWithMockServer {
             val final = AccountFormatter.decodeAccount(AccountFormatter.encodeAccountString(account))
             assert(account == final)
         }
+        @Test
+        fun testUsernameOnlyLogin(){
+            val account = AccountFormatter.b64StringToAccount("userName\\Password123?\\")
+                    ?: fail("null account object")
+            assertThrows<UninitializedPropertyAccessException>{ account.email.length }
+
+        }
+        @Test
+        fun testEmailOnlyLogin(){
+            val account = AccountFormatter.b64StringToAccount("email@email.com\\password123")
+                    ?: fail("null account")
+            assertThrows<UninitializedPropertyAccessException> { account.userName }
+        }
 
         @Test
         fun testExtractAccountfromString() {
@@ -66,7 +77,7 @@ class TestLoginLogoutWithMockServer {
             account.email = "email@email.com"
             account.password = BCrypt.hashpw("password", BCrypt.gensalt())
             account.userName = "username"
-            val accountToCompare = AccountFormatter.n64StringToAccount(accountString) ?: fail("invalid entry")
+            val accountToCompare = AccountFormatter.b64StringToAccount(accountString, newAccount = true) ?: fail("invalid entry")
 
             println("email")
             assert(account.email == accountToCompare.email)
@@ -80,13 +91,13 @@ class TestLoginLogoutWithMockServer {
         @Test
         fun testStringToAccount2() {
             val account = "email@email.com\\username\\VALIDPASSWORD856!\\"
-            if (AccountFormatter.n64StringToAccount(account) == null) fail("null")
+            if (AccountFormatter.b64StringToAccount(account, newAccount = true) == null) fail("null")
         }
 
         @Test
         fun testAccFromStringBadAccount() {
             val accountString = "email@email.com\\userName\\invalidpassword\\"
-            val acc = AccountFormatter.n64StringToAccount(accountString)
+            val acc = AccountFormatter.b64StringToAccount(accountString, newAccount = true)
             assert(acc == null)
         }
 
@@ -122,12 +133,13 @@ class TestLoginLogoutWithMockServer {
                 assert(!AccountFormatter.validPassword(badPassowrds[i].toCharArray()))
             }
         }
-//    @Test
-//    fun testCompareingPasswords(){
-//        val pass1 = BCrypt.hashpw("123", BCrypt.gensalt())
-//        println(BCrypt.checkpw("123", pass1))
-//
-//    }
+    @Test
+    fun testCompareingPasswords(){
+        val pass1 = BCrypt.hashpw("Password123!", BCrypt.gensalt())
+        println(pass1)
+        println(BCrypt.checkpw("123", pass1))
+
+    }
 
     }
 }

@@ -24,11 +24,10 @@ class AccountFormatter (val accountRepository: AccountRepository){
         fun decodeAccount(accountString: String): String {
             return String(Base64.getDecoder().decode(accountString))
         }
-        //this method might be better off outside comapnion object
-        fun n64StringToAccount(account: String, hashPass: Boolean = true, newAccount: Boolean = false): Account?{
+        //todo, this method sucks
+        fun b64StringToAccount(account: String, hashPass: Boolean = true, newAccount: Boolean = false): Account?{
             var temp = account.toCharArray()
-            //todo, accept either email or username
-            //staing example email@email.com\username\password\
+            //staing example email@email.com\username\password\ . password always last value
             var start = 0
             var extractedValues = 0
             val extractedAccount = Account()
@@ -44,8 +43,14 @@ class AccountFormatter (val accountRepository: AccountRepository){
                         0 -> {
                           if (EmailValidator.getInstance().isValid(sb.toString())){
                               extractedAccount.email = sb.toString()
-                              extractedValues++
-                          }else{
+                              if (newAccount) extractedValues++ else extractedValues = 2
+                          }else if (!newAccount){
+                              if (validUserName(sb.toString())){
+                                  extractedAccount.userName = sb.toString()
+                                  extractedValues = 2
+                              }
+                          }
+                          else {
                               extractedValues = 5
                               break
                           }
@@ -62,6 +67,9 @@ class AccountFormatter (val accountRepository: AccountRepository){
                                 sb.clear()
                                 extractedAccount.password = password
                                 extractedValues++
+                            }else{
+                                extractedValues = 5
+                                break
                             }
                             break
                         }
@@ -73,7 +81,7 @@ class AccountFormatter (val accountRepository: AccountRepository){
                 extractedAccount.accountID = UUID.randomUUID().toString()
                 extractedAccount.accountStatus = "good"
             }
-            return if (extractedValues == 5 || extractedValues < 3) null else (extractedAccount)
+            return if (extractedValues == 5 || extractedValues == 1) null else (extractedAccount)
         }
         fun validUserName(user: String): Boolean{
             //min of four characters, , max size of 16, for now, i'll allow three special characters"
@@ -87,6 +95,7 @@ class AccountFormatter (val accountRepository: AccountRepository){
                         if(temp2.contains(i)){
                             counter++
                         }else{
+
                             return false
                         }
                     }
@@ -103,10 +112,10 @@ class AccountFormatter (val accountRepository: AccountRepository){
             val temp3 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toHashSet()
             var symbol = 0
             var capital = 1
+            if (password.size < 8 || password.size > 26){
+                return false
+            }
             for (i in password.indices){
-                if (password.size < 8 || password.size > 26){
-                    break
-                }
                 if (!temp.contains(password[i])){
                     if (temp2.contains(password[i])){
                         symbol = 2
