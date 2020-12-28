@@ -28,7 +28,8 @@ class LoginAccount @Autowired constructor(final val accountRepo: AccountReposito
             val token = Token().genAccountToken(storedAccount)
             return ResponseEntity(mapOf("token" to token), HttpStatus.OK)
         }else{
-            //
+            //todo: if storeed account is null create a json object else parse the string and add it
+                //shuold take in an HTTPURL object or whatever
           storedAccount.addLoginAttempt()
             return ResponseEntity(mapOf("reason" to "password"), HttpStatus.UNAUTHORIZED)
         }
