@@ -42,13 +42,14 @@ class TestLoginLogoutWithMockServer {
     @Test
     fun testLogin(@Autowired mockServer: MockMvc) {
         val json = HashMap<String, String>()
-        json.put("account", AccountFormatter.encodeAccountString((TestAccounts.testAccount1.email + "\\" + TestAccounts.testAccount1.email + "\\")))
+        json.put("account", AccountFormatter.encodeAccountString((TestAccounts.testAccount1.email + "\\" + TestAccounts.testAccount1.password + "\\")))
         json.put("code", "code")
         mockServer.perform(post("/accounts/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ObjectMapper().writeValueAsString(json)))
                 .andExpect(jsonPath("$.token").isNotEmpty)
     }
+    //todo, fails at decode?
 
     class TestLoginLogoutMethods {
         @Test

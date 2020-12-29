@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.crypto.bcrypt.BCrypt
 import org.springframework.web.bind.annotation.*
+import javax.servlet.http.HttpServletRequest
 
 
 @RestController
@@ -16,7 +17,7 @@ class LoginAccount @Autowired constructor(final val accountRepo: AccountReposito
     @PostMapping("/accounts/login")
     // todo, invalid loing attempts shuold be logged somewhere
     //also maybe update status of account in database to be logged in?
-    fun login(@RequestBody body: JsonNode): ResponseEntity<Any>{
+    fun login(@RequestBody body: JsonNode, request: HttpServletRequest): ResponseEntity<Any>{
         if (!body.has("account") || !body.has("code")){
             println("bad body")
         }
@@ -24,13 +25,14 @@ class LoginAccount @Autowired constructor(final val accountRepo: AccountReposito
                 ?: return ResponseEntity(HttpStatus.FORBIDDEN)
         //todo, breaks when key is user
         val storedAccount = accountRepo.findByEmail(acc.email) ?: return ResponseEntity(mapOf("reason" to "email"),HttpStatus.FORBIDDEN)
+        storedAccount.addLoginAttempt(request)
         if (BCrypt.checkpw(acc.password, storedAccount.password)){
             val token = Token().genAccountToken(storedAccount)
             return ResponseEntity(mapOf("token" to token), HttpStatus.OK)
         }else{
             //todo: if storeed account is null create a json object else parse the string and add it
                 //shuold take in an HTTPURL object or whatever
-          storedAccount.addLoginAttempt()
+          storedAccount.addLoginAttempt(request)
             return ResponseEntity(mapOf("reason" to "password"), HttpStatus.UNAUTHORIZED)
         }
     }
