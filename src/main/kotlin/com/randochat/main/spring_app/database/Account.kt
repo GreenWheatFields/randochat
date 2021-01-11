@@ -35,30 +35,27 @@ class Account{
     lateinit var accountStatus: String //clear, locked (too many sign on attempts), banned
     @Column
     lateinit var loginAttempts: String //string representation of json
-    fun addLoginAttempt(request: HttpServletRequest){
+    fun addLoginAttempt(request: HttpServletRequest): Boolean {
         var json: JSONObject
-        json = JSONObject("{'test':2}")
-        println(json)
-//        var json: JsonObjectBuilder
-//        var loginAttemptsJson: Any
-//        if (this::loginAttempts.isInitialized){
-//            json = Json.createObjectBuilder(Json.createReader(StringReader(loginAttempts)).readObject())
-//        }else{
-//            json = Json.createObjectBuilder().also {
-//                it.add("totalAttempts", Json.createValue(1))
-//                it.add("rolling24HourAttempts", Json.createValue(1))
-//                it.add("rolling1hourAttempts", Json.createValue(1))
-//                it.add("lastCheck",Json.createValue(System.currentTimeMillis()))
-//                it.add("attemptLog", Json.createObjectBuilder().build())
-//            }
-//        }
-//    //ip address, time, total
-//        //increment
-//        val temp = json.build()
-//        loginAttemptsJson = Json.createObjectBuilder(temp.get("attemptLog")!!.asJsonObject()).add("test1", "test1").build()
-//        val temp2 = Json.createObjectBuilder(temp).add("attemptLog", loginAttemptsJson).build()
-//        println(temp2)
-//        // return wheter or not to lock the account
+
+        if (this::loginAttempts.isInitialized){
+            json = JSONObject(loginAttempts)
+            //todo, increment values, catch parse error
+            // this method won't be necessary till a bit later
+
+        }else{
+            json = JSONObject().also {
+                it.put("totalAttempts", 1)
+                it.put("rolling24HourAttempts", 1)
+                it.put("rolling1hourAttempts", 1)
+                it.put("lastCheck", System.currentTimeMillis())
+                it.put("attemptLog", "null")
+            }
+        }
+
+    //ip address, time, total
+        //increment
+        return (json.get("rolling24Attempts") as Int) < 3
     }
     fun getProtectedAccountData(includeEmail: Boolean = false) {
         //map of account data
