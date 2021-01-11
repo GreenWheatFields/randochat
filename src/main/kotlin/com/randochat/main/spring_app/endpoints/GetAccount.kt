@@ -18,10 +18,12 @@ class GetAccount @Autowired constructor(val accountRepository: AccountRepository
                     ): ResponseEntity<Any>{
         val userToken = Token().checkTokenValid(token) ?: return ResponseEntity(HttpStatus.FORBIDDEN)
         if (userToken.getClaim("id").asString() == accountID){
-            val acc = accountRepository.findByAccountID(accountID)!!.getProtectedAccountData()
+            val acc = accountRepository.findByAccountID(accountID)?.getProtectedAccountData() ?: return ResponseEntity(HttpStatus.FORBIDDEN)
             return ResponseEntity(acc, HttpStatus.OK)
         }
         if (accountRepository.existsById(accountID)){
+            //either checking matches or matched via conversation. the only reason to acsess an account
+            //maybe people will have acsess to small parts of the other account if theyre currently talking
             //if isAuthorized
             //!account.blocklist.contains
             //account.matches.contains

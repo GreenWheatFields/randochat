@@ -49,7 +49,7 @@ class Account{
                 it.put("rolling24HourAttempts", 1)
                 it.put("rolling1hourAttempts", 1)
                 it.put("lastCheck", System.currentTimeMillis())
-                it.put("attemptLog", "null")
+                it.put("attemptLog", "null") //nested json
             }
         }
 
@@ -58,7 +58,7 @@ class Account{
         return (json.get("rolling24Attempts") as Int) < 3
     }
     fun getProtectedAccountData(includeEmail: Boolean = false) {
-        //map of account data
+
     }
 
 
