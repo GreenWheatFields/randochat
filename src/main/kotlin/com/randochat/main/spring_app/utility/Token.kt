@@ -22,6 +22,7 @@ payload: accountId, isAccountBanned/account acsess: int?, ipaddress when token g
 class Token {
     //pass in account object from database?
     //todo algo and validator as singletons?
+    //todo should this be static
     val algo = Algorithm.HMAC256(AuthCodes.key)
 
     fun genAccountToken(account: Account): String {

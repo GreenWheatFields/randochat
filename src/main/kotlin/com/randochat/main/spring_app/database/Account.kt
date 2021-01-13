@@ -55,7 +55,7 @@ class Account{
 
     //ip address, time, total
         //increment
-        return (json.get("rolling24Attempts") as Int) < 3
+        return (json.get("rolling24HourAttempts") as Int) < 3
     }
     fun getProtectedAccountData(includeEmail: Boolean = false) {
 

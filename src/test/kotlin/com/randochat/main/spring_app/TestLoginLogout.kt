@@ -21,6 +21,7 @@ import kotlin.collections.HashMap
 @SpringBootTest
 @AutoConfigureMockMvc
 class TestLoginLogoutWithMockServer {
+    //todo, methodo to get a valid token from the server for some tests
     @Test
     @Disabled
     fun testRegisterEndpoint(@Autowired mockServer: MockMvc) {
@@ -50,6 +51,16 @@ class TestLoginLogoutWithMockServer {
                 .andExpect(jsonPath("$.token").isNotEmpty)
     }
     //todo, fails at decode?
+    @Test
+    fun testUpdate(@Autowired mockServer: MockMvc){
+        val json = HashMap<String, String>()
+        json.put("bio", "NEW BIO")
+        json.put("picture", "PICTURE URL")
+        json.put("email", "EMAIL")
+        mockServer.perform(post("/accounts/update")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(ObjectMapper().writeValueAsString(json)))
+    }
 
     class TestLoginLogoutMethods {
         @Test
