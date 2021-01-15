@@ -79,6 +79,7 @@ class UpdateAccount @Autowired constructor(final val accountRepo: AccountReposit
     }
     fun updateImage(imageURL: String){
         //todo
+        account.imageLink = imageURL
     }
 
 }

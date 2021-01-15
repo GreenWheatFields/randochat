@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletRequest
 import org.json.*
 
 
-//todo, create this table in the db
 @Entity
 @Table(name = "accounts")
 class Account{

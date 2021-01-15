@@ -10,8 +10,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 class GetAccount @Autowired constructor(val accountRepository: AccountRepository){
     //authorized users only. called after the server gives a client an account id. acsess to this endpoint needs to be strict
-    //maybe will need another accountProperties table so I can't accidentally return an accounts password.
-    //check if
+    //used to get own account or get another account. Can only get another account if the two are matched and not banned/blocked
     @GetMapping("/accounts/get")
     fun findAccount(@RequestParam("account") accountID: String,
                     @RequestParam("token", required = true,) token: String
