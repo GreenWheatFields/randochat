@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.json.*
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import kotlin.system.exitProcess
 
 @SpringBootTest
@@ -24,6 +25,7 @@ import kotlin.system.exitProcess
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TestAccountFlow {
     lateinit var accessToken: String
+    lateinit var accountId: String
     @BeforeAll
     fun login(@Autowired mockServer: MockMvc){
         val json = HashMap<String, String>()
@@ -35,10 +37,14 @@ class TestAccountFlow {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.token").isNotEmpty)
                 .andDo {
                     try {
-                        accessToken = JSONObject(it.response.contentAsString)["token"].toString()
+                        JSONObject(it.response.contentAsString).also {
+                            accessToken = it["token"].toString()
+                            accountId = it["id"].toString()
+                        }
+
                     }
                     catch (e: JSONException){
-                        println("bad token or bad json pase")
+                        println("bad token or bad json parse")
                         exitProcess(1)
                     }
                      }
@@ -46,7 +52,9 @@ class TestAccountFlow {
     }
     @Test
     fun testGetAccount(@Autowired mockServer: MockMvc){
-        mockServer.perform(get("/accounts/create?account="))
+        mockServer.perform(get("/accounts/get?account=$accountId&token=$accessToken"))
+                .andExpect(status().isOk)
+        //todo, no content
     }
     @Test
     fun testUpdateAccBio(@Autowired mockServer: MockMvc){
