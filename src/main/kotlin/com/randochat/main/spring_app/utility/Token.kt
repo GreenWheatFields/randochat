@@ -4,6 +4,7 @@ package com.randochat.main.spring_app.utility
 import com.auth0.jwt.*
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.exceptions.JWTDecodeException
+import com.auth0.jwt.exceptions.JWTVerificationException
 import com.auth0.jwt.exceptions.TokenExpiredException
 import com.auth0.jwt.interfaces.DecodedJWT
 import com.randochat.main.spring_app.database.Account
@@ -23,16 +24,18 @@ class Token {
     //pass in account object from database?
     //todo algo and validator as singletons?
     //todo should this be static
+
     val algo = Algorithm.HMAC256(AuthCodes.key)
 
-    fun genAccountToken(account: Account): String {
+    fun genAccountToken(account: Account, expiresAt: Int = 10_0000, args: Map<String, String>? = null): String {
         //take in an account entity and parse it?
         val token = JWT.create().withIssuer("accountServer")
                 .withClaim("id", account.accountID)
-                .withClaim("status", "temporary ban") //account.status
-                .withExpiresAt(Date(System.currentTimeMillis() + 10_000))
-                .sign(algo)
-        return token
+                .withClaim("status", "account.status") //todo lateinit error here
+                .withClaim("blockList", "account.blocklist")
+                .withClaim("matches", "account.matches")
+                .withExpiresAt(Date(System.currentTimeMillis() + expiresAt))
+        return token.sign(algo)
     }
     fun checkTokenValid(token: String): DecodedJWT? {
         //may need to return more information. return response entities from here?
@@ -46,12 +49,25 @@ class Token {
         }
         return JWT.decode(token)
     }
-
+    fun copyToken(token: String): JWTCreator.Builder?{
+        var rawToken: DecodedJWT
+        try {
+            rawToken = JWT.require(algo).withIssuer("accountServer").acceptLeeway(1).build().verify(token)
+        }catch (e: JWTVerificationException){
+            return null
+        }
+        var newToken = JWT.create().withIssuer("accountServer").withExpiresAt(Date(System.currentTimeMillis() + 10_000))
+        for (claim in rawToken.claims.keys){
+            newToken.withClaim(claim, rawToken.getClaim(claim).asString())
+        }
+        return newToken
+    }
     fun getSocketToken(): Nothing = TODO()
-
+    fun sign(token: JWTCreator.Builder): String {
+        return token.sign(algo)
+    }
 }
 
 fun main() {
-//    Token().checkToken(Token().genAccountToken())
 
 }
