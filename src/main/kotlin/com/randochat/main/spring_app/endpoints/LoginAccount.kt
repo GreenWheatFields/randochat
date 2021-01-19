@@ -28,7 +28,7 @@ class LoginAccount @Autowired constructor(final val accountRepo: AccountReposito
         storedAccount.addLoginAttempt(request)
         if (BCrypt.checkpw(acc.password, storedAccount.password)){
             val token = Token().genAccountToken(storedAccount)
-            return ResponseEntity(mapOf("token" to token), HttpStatus.OK)
+            return ResponseEntity(mapOf("token" to token, "id" to storedAccount.accountID), HttpStatus.OK)
         }else{
             if (storedAccount.addLoginAttempt(request)){
                 //lock account account
