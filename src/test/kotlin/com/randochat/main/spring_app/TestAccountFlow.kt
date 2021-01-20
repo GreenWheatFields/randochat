@@ -52,12 +52,12 @@ class TestAccountFlow {
 
     }
     @Test
-    fun testGetAccount(@Autowired mockServer: MockMvc){
+    fun testGetOwnAccount(@Autowired mockServer: MockMvc){
         mockServer.perform(get("/accounts/get?account=$accountId&token=$accessToken"))
                 .andExpect(status().isOk)
-                .andDo {
-                    println(it.response.contentAsString)
-                }
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(accountId))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.bio").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.password").doesNotExist())
     }
     @Test
     fun testUpdateAccBio(@Autowired mockServer: MockMvc){
