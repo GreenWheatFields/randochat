@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.json.*
+import org.springframework.test.web.servlet.MvcResult
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import kotlin.system.exitProcess
@@ -54,7 +55,9 @@ class TestAccountFlow {
     fun testGetAccount(@Autowired mockServer: MockMvc){
         mockServer.perform(get("/accounts/get?account=$accountId&token=$accessToken"))
                 .andExpect(status().isOk)
-        //todo, no content
+                .andDo {
+                    println(it.response.contentAsString)
+                }
     }
     @Test
     fun testUpdateAccBio(@Autowired mockServer: MockMvc){

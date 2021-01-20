@@ -1,8 +1,5 @@
 package com.randochat.main.spring_app.database
 
-import java.io.StringReader
-import java.math.BigInteger
-import javax.json.*
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.Id
@@ -21,7 +18,7 @@ class Account{
     @Column
     lateinit var email: String
     @Column
-    lateinit var userName: String
+    lateinit var username: String
     @Column
     lateinit var password: String
     @Column
@@ -29,15 +26,15 @@ class Account{
     @Column
     lateinit var location: String //gneralized location and closer location somewhere else
     @Column
-    lateinit var imageLink: String
+    var imageLink: String? = null
     @Column
-    lateinit var accountStatus: String //clear, locked (too many sign on attempts), banned
+    lateinit var accountStatus: String //ok, locked , banned
     @Column
     lateinit var loginAttempts: String //string representation of json
 //    @Column
 //    lateinit var blockedUsers: arrat of account ids
     fun addLoginAttempt(request: HttpServletRequest): Boolean {
-        var json: JSONObject
+        val json: JSONObject
 
         if (this::loginAttempts.isInitialized){
             json = JSONObject(loginAttempts)
@@ -58,7 +55,15 @@ class Account{
         //increment
         return (json.get("rolling24HourAttempts") as Int) < 3
     }
-    fun getProtectedAccountData(includeEmail: Boolean = false) {
+    fun getProtectedAccountData(includeEmail: Boolean = false): Map<Any, Any?> {
+        println(username)
+        return mapOf(
+                "id" to accountID,
+                "username" to username,
+                "bio" to bio,
+                "imageLink" to imageLink,
+                "status" to accountStatus //todo, this inst being intialized when it exist in the databse
+        )
 
     }
 

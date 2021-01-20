@@ -80,7 +80,7 @@ class TestLoginLogoutWithMockServer {
         fun testEmailOnlyLogin(){
             val account = AccountFormatter.b64StringToAccount("email@email.com\\password123")
                     ?: fail("null account")
-            assertThrows<UninitializedPropertyAccessException> { account.userName }
+            assertThrows<UninitializedPropertyAccessException> { account.username }
         }
 
         @Test
@@ -89,7 +89,7 @@ class TestLoginLogoutWithMockServer {
             val account = Account()
             account.email = "email@email.com"
             account.password = BCrypt.hashpw("password", BCrypt.gensalt())
-            account.userName = "username"
+            account.username = "username"
             val accountToCompare = AccountFormatter.b64StringToAccount(accountString, newAccount = true) ?: fail("invalid entry")
 
             println("email")
@@ -98,7 +98,7 @@ class TestLoginLogoutWithMockServer {
             println("passwords")
             assert(account.password.length > 8 && accountToCompare.password.length > 8)
             println("username")
-            assert(account.userName == accountToCompare.userName)
+            assert(account.username == accountToCompare.username)
         }
 
         @Test

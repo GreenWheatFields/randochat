@@ -2,14 +2,9 @@ package com.randochat.main.spring_app.utility
 
 import com.randochat.main.spring_app.database.Account
 import com.randochat.main.spring_app.database.AccountRepository
-import com.randochat.main.spring_app.values.AuthCodes
 import org.apache.commons.validator.routines.EmailValidator
 import java.util.*
 import org.springframework.security.crypto.bcrypt.BCrypt
-import java.io.StringReader
-import javax.json.Json
-import javax.json.JsonObject
-import javax.servlet.http.HttpServletRequest
 
 class AccountFormatter (val accountRepository: AccountRepository){
     //formats the way accountstrings are transferred between client and server
@@ -46,7 +41,7 @@ class AccountFormatter (val accountRepository: AccountRepository){
                               if (newAccount) extractedValues++ else extractedValues = 2
                           }else if (!newAccount){
                               if (validUserName(sb.toString())){
-                                  extractedAccount.userName = sb.toString()
+                                  extractedAccount.username = sb.toString()
                                   extractedValues = 2
                               }
                           }
@@ -57,7 +52,7 @@ class AccountFormatter (val accountRepository: AccountRepository){
                         }
                         1 -> {
                             if (validUserName(sb.toString())){
-                                extractedAccount.userName = sb.toString()
+                                extractedAccount.username = sb.toString()
                                 extractedValues++
                             }
                         }

@@ -23,6 +23,7 @@ class RegisterAccount @Autowired constructor(final val accountRepo: AccountRepos
         }else if(accountRepo.existsById(acc.email)){
             return ResponseEntity("email already exist" ,HttpStatus.UNAUTHORIZED)
         }else{
+            acc.accountStatus = "ok"
             accountRepo.save(acc)
             return ResponseEntity(HttpStatus.OK)
         }

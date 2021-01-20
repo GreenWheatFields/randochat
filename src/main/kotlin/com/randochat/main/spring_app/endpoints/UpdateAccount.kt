@@ -74,7 +74,7 @@ class UpdateAccount @Autowired constructor(final val accountRepo: AccountReposit
     }
     fun updateUsername(newUser: String){
         if (AccountFormatter.validUserName(newUser)){
-            account.userName = newUser
+            account.username = newUser
         }
     }
     fun updateImage(imageURL: String){

@@ -1,5 +1,6 @@
 package com.randochat.main.spring_app.endpoints
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.randochat.main.spring_app.database.AccountRepository
 import com.randochat.main.spring_app.utility.Token
 import org.springframework.beans.factory.annotation.Autowired
@@ -18,8 +19,8 @@ class GetAccount @Autowired constructor(val accountRepository: AccountRepository
                     ): ResponseEntity<Any>{
         val userToken = Token().checkTokenValid(token) ?: return ResponseEntity(HttpStatus.FORBIDDEN)
         if (userToken.getClaim("id").asString() == accountID){
-            val acc = accountRepository.findByAccountID(accountID)?.getProtectedAccountData() ?: return ResponseEntity(HttpStatus.FORBIDDEN)
-            return ResponseEntity(acc, HttpStatus.OK)
+            val acc = accountRepository.findByAccountID(accountID) ?: return ResponseEntity(HttpStatus.FORBIDDEN)
+            return ResponseEntity(acc.getProtectedAccountData(), HttpStatus.OK)
         }
         if (accountRepository.existsById(accountID)){
             //either checking matches or matched via conversation. the only reason to acsess an account
