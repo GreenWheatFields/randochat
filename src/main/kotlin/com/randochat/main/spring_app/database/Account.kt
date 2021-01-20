@@ -25,10 +25,10 @@ class Account{
     lateinit var bio: String
     @Column
     lateinit var location: String //gneralized location and closer location somewhere else
-    @Column
+    @Column(name = "imagelink")
     var imageLink: String? = null
-    @Column
-    lateinit var accountStatus: String //ok, locked , banned
+    @Column(name = "accountstatus")
+    var accountStatus: String? = null //ok, locked , banned
     @Column
     lateinit var loginAttempts: String //string representation of json
 //    @Column
@@ -56,13 +56,12 @@ class Account{
         return (json.get("rolling24HourAttempts") as Int) < 3
     }
     fun getProtectedAccountData(includeEmail: Boolean = false): Map<Any, Any?> {
-        println(username)
         return mapOf(
                 "id" to accountID,
                 "username" to username,
                 "bio" to bio,
                 "imageLink" to imageLink,
-                "status" to accountStatus //todo, this inst being intialized when it exist in the databse
+                "status" to accountStatus
         )
 
     }
