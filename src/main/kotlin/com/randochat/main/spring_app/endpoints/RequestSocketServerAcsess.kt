@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletRequest
 // and create a pait for it
 @RestController
 class RequestSocketServerAcsess {
-    @PostMapping
+    @PostMapping("/accounts/talk")
     fun genSocketToken(@RequestBody body: JsonNode, request: HttpServletRequest): ResponseEntity<Any> {
         //take in the token returned on login. add ip addrses and ping.
         if (!body.has("token") || !body.has("time") || !body.has("ping")){

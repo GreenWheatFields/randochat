@@ -1,6 +1,7 @@
 package com.randochat.main.spring_app
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.randochat.main.spring_app.database.AccountRepository
 import com.randochat.main.spring_app.utility.AccountFormatter
 import com.randochat.main.spring_app.values.TestAccounts
 import org.junit.jupiter.api.BeforeAll
@@ -20,6 +21,7 @@ import org.springframework.test.web.servlet.MvcResult
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import kotlin.system.exitProcess
+import com.randochat.main.spring_app.values.TestAccounts.Companion.testAccount1
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -27,10 +29,12 @@ import kotlin.system.exitProcess
 class TestAccountFlow {
     lateinit var accessToken: String
     lateinit var accountId: String
+    @Autowired
+    lateinit var accountRepo: AccountRepository
     @BeforeAll
     fun login(@Autowired mockServer: MockMvc){
         val json = HashMap<String, String>()
-        json.put("account", AccountFormatter.encodeAccountString((TestAccounts.testAccount1.email + "\\" + TestAccounts.testAccount1.password + "\\")))
+        json.put("account", AccountFormatter.encodeAccountString((testAccount1.email + "\\" + testAccount1.password + "\\")))
         json.put("code", "code")
         mockServer.perform(MockMvcRequestBuilders.post("/accounts/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -60,6 +64,21 @@ class TestAccountFlow {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.password").doesNotExist())
     }
     @Test
+    fun testGetSocketKey(@Autowired mockServer: MockMvc){
+        //todo token error
+        mockServer.perform(MockMvcRequestBuilders.post("/accounts/talk")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(ObjectMapper().writeValueAsString(
+                        mapOf(
+                                "token" to accessToken,
+                                "time" to System.currentTimeMillis())
+                ))).andDo {
+                    println(it.response.contentAsString)
+        }
+    }
+
+    @Test
+    @Disabled
     fun testUpdateAccBio(@Autowired mockServer: MockMvc){
         println(accessToken)
     }
