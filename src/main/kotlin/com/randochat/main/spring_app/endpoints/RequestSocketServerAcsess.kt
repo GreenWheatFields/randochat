@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import java.util.*
 import javax.servlet.http.HttpServletRequest
+import kotlin.system.exitProcess
 
 //query socket server and see if it wants another connection
 //later this could be used as a type of load balancer
@@ -23,8 +24,9 @@ class RequestSocketServerAcsess {
         if (!body.has("token") || !body.has("time") || !body.has("ping")){
             //bad request
         }
-        val token = Token().checkTokenValid(body["token"].toString()) //?: bad token
-        val newToken = Token().copyToken(token.toString()) ?: return ResponseEntity<Any>(HttpStatus.INTERNAL_SERVER_ERROR)
+        val token = Token().checkTokenValid(body["token"].toString().substring(1, body["token"].toString().length - 1)) ?: exitProcess(1)
+
+        val newToken = Token().copyToken(token) ?: return ResponseEntity<Any>(HttpStatus.INTERNAL_SERVER_ERROR)
         val ping = System.currentTimeMillis() - body["time"].asLong()
         newToken.withExpiresAt(Date(System.currentTimeMillis() + 100_000))
         newToken.withClaim("ping", ping)

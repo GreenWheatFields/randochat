@@ -24,18 +24,22 @@ class UpdateAccount @Autowired constructor(final val accountRepo: AccountReposit
           //if invalid bio
         //json {token, bio/username/picture/etce}
         // can only update one field per call?
-        if (!body.contains("token")){
+        if (!body.has("token")){
             return ResponseEntity("no token", HttpStatus.UNAUTHORIZED)
         }
 
-        val token = Token().checkTokenValid(body["token"].toString()) ?: return ResponseEntity("bad token", HttpStatus.UNAUTHORIZED)
-        account = accountRepo.findByAccountID(token.id) ?: return ResponseEntity("acciybt not found", HttpStatus.FORBIDDEN)
+        val token = Token().checkTokenValid(Token.strip(body["token"].toString())) ?: return ResponseEntity("bad token", HttpStatus.UNAUTHORIZED)
+        if (!token.claims.containsKey("id")){
+            return ResponseEntity("no id", HttpStatus.FORBIDDEN)
+        }
+        account = accountRepo.findByAccountID(token.getClaim("id").asString()) ?: return ResponseEntity("acciybt not found", HttpStatus.FORBIDDEN)
         var jsonSize = 0
         for (field in body.fieldNames()){
             if (jsonSize > 3){
                 return ResponseEntity("too many entries",HttpStatus.FORBIDDEN)
             }
-            val content = body[field].toString()
+            println(field)
+            val content = Token.strip(body[field].toString())
             when (field){
                 "bio" -> updateBio(content)
                 "email" -> updateEmail(content)
@@ -61,6 +65,7 @@ class UpdateAccount @Autowired constructor(final val accountRepo: AccountReposit
     fun updateEmail(newEmail: String){
         if(EmailValidator.getInstance().isValid(newEmail)){
             //todo, send a code to the new email address to see if its valid
+                println("email")
             account.email = newEmail
         }
     }

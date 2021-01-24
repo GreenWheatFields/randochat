@@ -24,6 +24,11 @@ class Token {
     //pass in account object from database?
     //todo algo and validator as singletons?
     //todo should this be static
+    companion object{
+        fun strip(s: String): String{
+            return s.substring(1, s.length - 1)
+        }
+    }
 
     val algo = Algorithm.HMAC256(AuthCodes.key)
 
@@ -49,16 +54,10 @@ class Token {
         }
         return JWT.decode(token)
     }
-    fun copyToken(token: String): JWTCreator.Builder?{
-        var rawToken: DecodedJWT
-        try {
-            rawToken = JWT.require(algo).withIssuer("accountServer").acceptLeeway(1).build().verify(token)
-        }catch (e: JWTVerificationException){
-            return null
-        }
-        var newToken = JWT.create().withIssuer("accountServer").withExpiresAt(Date(System.currentTimeMillis() + 10_000))
-        for (claim in rawToken.claims.keys){
-            newToken.withClaim(claim, rawToken.getClaim(claim).asString())
+    fun copyToken(token: DecodedJWT): JWTCreator.Builder?{
+        val newToken = JWT.create().withIssuer("accountServer").withExpiresAt(Date(System.currentTimeMillis() + 10_000))
+        for (claim in token.claims.keys){
+            newToken.withClaim(claim, token.getClaim(claim).asString())
         }
         return newToken
     }

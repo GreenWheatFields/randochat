@@ -22,10 +22,12 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import kotlin.system.exitProcess
 import com.randochat.main.spring_app.values.TestAccounts.Companion.testAccount1
+import javax.transaction.Transactional
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Transactional
 class TestAccountFlow {
     lateinit var accessToken: String
     lateinit var accountId: String
@@ -72,15 +74,26 @@ class TestAccountFlow {
                         mapOf(
                                 "token" to accessToken,
                                 "time" to System.currentTimeMillis())
-                ))).andDo {
-                    println(it.response.contentAsString)
-        }
+                )))
+                .andExpect(status().isOk)
+//                .andDo {
+//                    println(it.response.contentAsString)
+//                    println(it.response.status)
+//        }
     }
 
     @Test
-    @Disabled
+    @Transactional
     fun testUpdateAccBio(@Autowired mockServer: MockMvc){
-        println(accessToken)
+//        println(accountRepo.findByEmail(testAccount1.email)!!.email)
+        mockServer.perform(MockMvcRequestBuilders.post("/accounts/update")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(ObjectMapper().writeValueAsString(
+                        mapOf(
+                                "token" to accessToken,
+                                "email" to "newemail@email.com"
+                ))))//.andExpect(status().isOk)
+//        println(accountRepo.findByEmail(testAccount1.email)!!.email)
     }
 
 }
