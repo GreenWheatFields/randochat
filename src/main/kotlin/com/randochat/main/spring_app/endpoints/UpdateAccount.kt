@@ -19,6 +19,7 @@ class UpdateAccount @Autowired constructor(final val accountRepo: AccountReposit
     //verify, image
     //name/email/password/ changes
     lateinit var account: Account
+    var denialReason = ""
     @PostMapping("/accounts/update")
     fun updateAccount(@RequestBody body: JsonNode): ResponseEntity<Any>{
           //if invalid bio
@@ -52,26 +53,31 @@ class UpdateAccount @Autowired constructor(final val accountRepo: AccountReposit
 
         }
         accountRepo.save(account)
-        return ResponseEntity(HttpStatus.OK)
+        return ResponseEntity(denialReason, if (denialReason == "") HttpStatus.OK else HttpStatus.FORBIDDEN)
 
     }
     fun updateBio(newBio: String) {
         if (newBio.length > 150){
             account.bio = newBio
         }else{
-            //return ResponseEntitiy("bio too long, Htpp.OK)
+            denialReason = "bio too long"
         }
     }
     fun updateEmail(newEmail: String){
         if(EmailValidator.getInstance().isValid(newEmail)){
+            if (accountRepo.findByEmail(newEmail) != null){
+                denialReason = "email already i use"
+                return
+            }
             //todo, send a code to the new email address to see if its valid
-                println("email")
             account.email = newEmail
         }
     }
     fun updatePassword(newPass: String){
         if (AccountFormatter.validPassword(newPass.toCharArray())){
             account.password = newPass
+        }else{
+            denialReason = "bad password"
         }
     }
     fun updateLocation(newLocation: String){
@@ -80,6 +86,8 @@ class UpdateAccount @Autowired constructor(final val accountRepo: AccountReposit
     fun updateUsername(newUser: String){
         if (AccountFormatter.validUserName(newUser)){
             account.username = newUser
+        }else{
+            denialReason = "bad username"
         }
     }
     fun updateImage(imageURL: String){

@@ -1,13 +1,10 @@
 package com.randochat.main.spring_app
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.randochat.main.spring_app.database.Account
 import com.randochat.main.spring_app.database.AccountRepository
 import com.randochat.main.spring_app.utility.AccountFormatter
 import com.randochat.main.spring_app.values.TestAccounts
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Disabled
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -22,6 +19,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import kotlin.system.exitProcess
 import com.randochat.main.spring_app.values.TestAccounts.Companion.testAccount1
+import org.junit.jupiter.api.*
 import javax.transaction.Transactional
 
 @SpringBootTest
@@ -76,24 +74,20 @@ class TestAccountFlow {
                                 "time" to System.currentTimeMillis())
                 )))
                 .andExpect(status().isOk)
-//                .andDo {
-//                    println(it.response.contentAsString)
-//                    println(it.response.status)
-//        }
     }
 
     @Test
     @Transactional
     fun testUpdateAccBio(@Autowired mockServer: MockMvc){
-//        println(accountRepo.findByEmail(testAccount1.email)!!.email)
+        val new = accountRepo.findByAccountID(testAccount1.accountID)?.email ?: fail("account not found")
         mockServer.perform(MockMvcRequestBuilders.post("/accounts/update")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ObjectMapper().writeValueAsString(
                         mapOf(
                                 "token" to accessToken,
                                 "email" to "newemail@email.com"
-                ))))//.andExpect(status().isOk)
-//        println(accountRepo.findByEmail(testAccount1.email)!!.email)
+                )))).andExpect(status().isOk)
+        assert(accountRepo.findByAccountID(testAccount1.accountID)!!.email != new &&accountRepo.findByAccountID(testAccount1.accountID)!!.email == "newemail@email.com")
     }
 
 }
