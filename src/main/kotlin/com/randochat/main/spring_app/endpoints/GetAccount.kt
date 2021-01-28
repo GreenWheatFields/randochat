@@ -17,7 +17,7 @@ class GetAccount @Autowired constructor(val accountRepository: AccountRepository
     fun findAccount(@RequestParam("account") accountID: String,
                     @RequestParam("token", required = true,) token: String
                     ): ResponseEntity<Any>{
-        val userToken = Token().checkTokenValid(token) ?: return ResponseEntity(HttpStatus.FORBIDDEN)
+        val userToken = Token.checkTokenValid(token) ?: return ResponseEntity(HttpStatus.FORBIDDEN)
         if (userToken.getClaim("id").asString() == accountID){
             val acc = accountRepository.findByAccountID(accountID) ?: return ResponseEntity(HttpStatus.FORBIDDEN)
             return ResponseEntity(acc.getProtectedAccountData(), HttpStatus.OK)

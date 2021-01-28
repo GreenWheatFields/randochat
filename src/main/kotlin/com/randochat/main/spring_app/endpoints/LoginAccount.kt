@@ -27,7 +27,7 @@ class LoginAccount @Autowired constructor(final val accountRepo: AccountReposito
         val storedAccount = accountRepo.findByEmail(acc.email) ?: return ResponseEntity(mapOf("reason" to "email"),HttpStatus.FORBIDDEN)
         storedAccount.addLoginAttempt(request)
         if (BCrypt.checkpw(acc.password, storedAccount.password)){
-            val token = Token().genAccountToken(storedAccount)
+            val token = Token.genAccountToken(storedAccount)
             return ResponseEntity(mapOf("token" to token, "id" to storedAccount.accountID), HttpStatus.OK)
         }else{
             if (storedAccount.addLoginAttempt(request)){

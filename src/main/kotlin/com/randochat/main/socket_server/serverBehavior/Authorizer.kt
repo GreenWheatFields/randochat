@@ -41,33 +41,13 @@ class Authorizer(val selector: Selector) {
 
             if (suspects.contains(conn.remoteAddress) && suspects[conn.remoteAddress]!!.authTimeOut > System.currentTimeMillis()) {
                 if (json.containsKey("intent") && json.containsKey("token")) {
+                    val userToken = Token.checkTokenValid(json["token"].toString()) ?: return killSuspect(conn)
                     if (json.get("intent")!! == JsonValues.OPENNEW) {
-                        //todo, assuming all tokens are valid for now
+                        suspects[conn.remoteAddress]!!.token = userToken
                         return true
-                    } else if (json.get("intent")!! == JsonValues.RECONNECT) {
-                        var roomID = json.get("roomID").toString()
-                        var userID = json.get("userID").toString()
-                        if (roomID == "null" || userID == "null") return false
-                        if (Directory.validRoom(roomID)) {
-                            suspects[conn.remoteAddress]!!.userId = JsonValues.strip(userID)
-                            val newUser = Directory.getRoom(roomID).notifyReconnect(suspects[conn.remoteAddress]!!)
-
-                            if (newUser == null){
-                                println("null")
-                                return false
-                            }else{
-                                suspects[conn.remoteAddress] = newUser
-                                return true
-                            }
-
-                        } else {
-                            return true
                         }
-                    }
                 } else {
-                    println("invalid token")
-//                return killSuspect(conn)
-                    return false
+                return killSuspect(conn)
 
                 }
             }else{
