@@ -20,14 +20,12 @@ payload: accountId, isAccountBanned/account acsess: int?, ipaddress when token g
 
 
 
-class Token {
+object Token {
     //pass in account object from database?
     //todo algo and validator as singletons?
     //todo should this be static
-    companion object{
-        fun strip(s: String): String{
-            return s.substring(1, s.length - 1)
-        }
+    fun strip(s: String): String{
+        return s.substring(1, s.length - 1)
     }
 
     val algo = Algorithm.HMAC256(AuthCodes.key)

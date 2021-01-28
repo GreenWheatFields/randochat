@@ -61,7 +61,7 @@ class DirectConnections(val port: Int): Thread() {
                             //catch reconnects attempt here. also people waiting for a pair
                             matchmaker.checkStatus(keyAdd)
                         }else{
-                            clientHandler.read(key.channel())
+                            //clientHandler.read(key.channel())
 
                         }
 

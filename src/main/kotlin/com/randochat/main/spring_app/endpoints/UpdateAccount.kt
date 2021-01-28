@@ -29,7 +29,7 @@ class UpdateAccount @Autowired constructor(final val accountRepo: AccountReposit
             return ResponseEntity("no token", HttpStatus.UNAUTHORIZED)
         }
 
-        val token = Token().checkTokenValid(Token.strip(body["token"].toString())) ?: return ResponseEntity("bad token", HttpStatus.UNAUTHORIZED)
+        val token = Token.checkTokenValid(Token.strip(body["token"].toString())) ?: return ResponseEntity("bad token", HttpStatus.UNAUTHORIZED)
         if (!token.claims.containsKey("id")){
             return ResponseEntity("no id", HttpStatus.FORBIDDEN)
         }
