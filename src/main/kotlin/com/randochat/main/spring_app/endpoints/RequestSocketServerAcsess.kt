@@ -24,16 +24,16 @@ class RequestSocketServerAcsess {
         if (!body.has("token") || !body.has("time") || !body.has("ping")){
             //bad request
         }
-        val token = Token().checkTokenValid(body["token"].toString().substring(1, body["token"].toString().length - 1)) ?: exitProcess(1)
+        val token = Token.checkTokenValid(body["token"].toString().substring(1, body["token"].toString().length - 1)) ?: exitProcess(1)
 
-        val newToken = Token().copyToken(token) ?: return ResponseEntity<Any>(HttpStatus.INTERNAL_SERVER_ERROR)
+        val newToken = Token.copyToken(token) ?: return ResponseEntity<Any>(HttpStatus.INTERNAL_SERVER_ERROR)
         val ping = System.currentTimeMillis() - body["time"].asLong()
         newToken.withExpiresAt(Date(System.currentTimeMillis() + 100_000))
         newToken.withClaim("ping", ping)
         newToken.withClaim("ipAddress", request.remoteAddr)
         newToken.withClaim("serverKey", "serverKEY") // servev gens a randome key every so often
         //eventually send ip address of socket server
-        return ResponseEntity<Any>(mapOf("socketToken" to Token().sign(newToken)), HttpStatus.OK)
+        return ResponseEntity<Any>(mapOf("socketToken" to Token.sign(newToken)), HttpStatus.OK)
 
 
     }
