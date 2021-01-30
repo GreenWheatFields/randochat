@@ -31,7 +31,10 @@ class Account{
     var accountStatus: String? = null //ok, locked , banned
     @Column
     lateinit var loginAttempts: String //string representation of json
-//    @Column
+    @Column
+    var seeking: Int = 0 //1 for male. 2 for female. 3 for no prefrence
+
+    //    @Column
 //    lateinit var blockedUsers: arrat of account ids
     fun addLoginAttempt(request: HttpServletRequest): Boolean {
         val json: JSONObject

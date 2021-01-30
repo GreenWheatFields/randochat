@@ -31,8 +31,9 @@ class DirectConnections(val port: Int): Thread() {
 
     init {
         server.configureBlocking(false)
-//        server.socket().bind(InetSocketAddress("127.0.0.1", port))
+        server.socket().bind(InetSocketAddress("127.0.0.1", port))
         server.register(selector, SelectionKey.OP_ACCEPT)
+        matchmaker.start()
     }
     fun routeConnections(){
         //todo, keep track of some data for analytics like current connects, etc, etc
@@ -93,7 +94,6 @@ class DirectConnections(val port: Int): Thread() {
 
 
 fun main() {
-//    val acceptConns = DirectConnections()
-//    acceptConns.start()
-
+    val acceptConns = DirectConnections(15620)
+    acceptConns.start()
 }

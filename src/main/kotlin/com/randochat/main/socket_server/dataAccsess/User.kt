@@ -24,7 +24,10 @@ class User (var socketChannel: SocketChannel){
         socketChannel = user.socketChannel
         address = user.socketChannel.remoteAddress
     }
-    fun assignTokenValues(token: String){
-//        token.get()
+    fun assignTokenValues(token: DecodedJWT){
+        //dont think this will work rn
+        blockList = token.getClaim("blockList").asArray(String::class.java)
+        ping = token.getClaim("ping").asInt()
+        actualUserId = token.getClaim("id").asString()
     }
 }
