@@ -37,6 +37,8 @@ object Token {
                 .withClaim("status", "account.status") //todo lateinit error here
                 .withClaim("blockList", "account.blocklist")
                 .withClaim("matches", "account.matches")
+                .withClaim("seeking", account.seeking)
+                .withClaim("gender", account.gender)
                 .withExpiresAt(Date(System.currentTimeMillis() + expiresAt))
         return token.sign(algo)
     }

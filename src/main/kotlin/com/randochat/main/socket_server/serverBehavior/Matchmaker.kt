@@ -12,7 +12,6 @@ class Matchmaker (private val clientHandler: ClientHandler): Thread() {
     //todo, a handle an authorized user disconneting while waiting for a match
     // probably should be another thread that returns pair objects or something
     //todo, real matchmaking, more than a q
-    private val waiting = LinkedList<User>()
     private val waitList = HashSet<SocketAddress>()
     private val testList = ConcurrentLinkedQueue<User>()
 
@@ -26,15 +25,13 @@ class Matchmaker (private val clientHandler: ClientHandler): Thread() {
         if (user.pair != null){
             return false
         }
-        if (waiting.size == 0) {
-            waiting.add(user)
+        if (testList.size == 0) {
             testList.add(user)
             return true
         } else {
-            initPair(user, Directory.getUser(waiting.peek().address))
-            waitList.remove(waiting.remove().address)
+            initPair(user, Directory.getUser(testList.peek().address))
+            waitList.remove(testList.remove().address)
             waitList.remove(user.address)
-            testList.remove()
             //probably should call this from here, just return user?
             clientHandler.sendWelcomeMessage(user)
             return true
@@ -42,7 +39,10 @@ class Matchmaker (private val clientHandler: ClientHandler): Thread() {
     }
     fun matchmake(){
         while (true) {
-//            val pair1 = testlis
+            val pair1 = testList.peek()
+            val filterGenders = testList.filter { if (it.seeking != 3) it.seeking == pair1.gender else(true)}
+//            val findBestMatch
+            return
         }
     }
     fun checkStatus(key: SocketAddress){

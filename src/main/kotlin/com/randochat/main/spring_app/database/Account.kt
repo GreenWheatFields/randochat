@@ -33,6 +33,8 @@ class Account{
     lateinit var loginAttempts: String //string representation of json
     @Column
     var seeking: Int = 0 //1 for male. 2 for female. 3 for no prefrence
+    @Column
+    var gender: Int = 0
 
     //    @Column
 //    lateinit var blockedUsers: arrat of account ids

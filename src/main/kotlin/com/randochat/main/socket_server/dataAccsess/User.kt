@@ -19,6 +19,8 @@ class User (var socketChannel: SocketChannel){
     var blockList: Array<String>? = null
     var ping: Int = 0
     var actualUserId: String? = null
+    var seeking: Int = 0
+    var gender: Int = 0
 
     fun reassign(user: User){
         socketChannel = user.socketChannel
@@ -29,5 +31,7 @@ class User (var socketChannel: SocketChannel){
         blockList = token.getClaim("blockList").asArray(String::class.java)
         ping = token.getClaim("ping").asInt()
         actualUserId = token.getClaim("id").asString()
+        seeking = token.getClaim("seeking").asInt()
+        gender = token.getClaim("gender").asInt()
     }
 }
