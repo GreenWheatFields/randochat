@@ -41,7 +41,9 @@ class Matchmaker (private val clientHandler: ClientHandler): Thread() {
         while (true) {
             val pair1 = testList.peek()
             val filterGenders = testList.filter { if (it.seeking != 3) it.seeking == pair1.gender else(true)}
-//            val findBestMatch
+            val pair2 = filterGenders.first()
+            println(pair1.address)
+            println(pair2.address)
             return
         }
     }
