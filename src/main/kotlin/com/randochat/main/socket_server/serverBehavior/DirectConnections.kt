@@ -31,7 +31,7 @@ class DirectConnections(val port: Int): Thread() {
 
     init {
         server.configureBlocking(false)
-//        server.socket().bind(InetSocketAddress("127.0.0.1", port))
+        server.socket().bind(InetSocketAddress("127.0.0.1", port))
         server.register(selector, SelectionKey.OP_ACCEPT)
 //        matchmaker.start()
     }

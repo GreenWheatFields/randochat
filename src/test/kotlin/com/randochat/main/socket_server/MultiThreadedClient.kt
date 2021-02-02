@@ -50,16 +50,16 @@ class MultiThreadedClient(val client: Client): Thread() {
             sleep(1)
         }
     }
-    override fun run() {
-        super.run()
-        if (flag){
-            listen()
-        }else{
-            listenAndWriteRandom()
-        }
+//    override fun run() {
+//        super.run()
+//        if (flag){
+//            listen()
+//        }else{
+//            listenAndWriteRandom()
+//        }
 //        while (client.conn.isOpen && flag){
 //            read()
 ////            write()
 //        }
     }
-}
+

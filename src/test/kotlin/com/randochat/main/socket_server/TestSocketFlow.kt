@@ -40,16 +40,15 @@ class TestSocketFlow {
     }
     @BeforeEach
     fun startSocketServer(){
-        print("starting server")
         val server = DirectConnections(15620)
         server.start()
     }
     @Test
     fun testSocketS(){
         var token1 = login(account1)
-        while (true){
-            ;
-        }
+        val threadedClient = MultiThreadedClient(Client(15620))
+        threadedClient.start()
+        threadedClient.connectAndIntroduce()
     }
 
 }
