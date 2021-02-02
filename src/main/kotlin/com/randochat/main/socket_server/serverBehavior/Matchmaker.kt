@@ -3,6 +3,7 @@ package com.randochat.main.socket_server.serverBehavior
 import com.randochat.main.socket_server.dataAccsess.Directory
 import com.randochat.main.socket_server.dataAccsess.Room
 import com.randochat.main.socket_server.dataAccsess.User
+import com.randochat.main.socket_server.messages.Messages
 import java.net.SocketAddress
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -42,8 +43,8 @@ class Matchmaker (private val clientHandler: ClientHandler): Thread() {
             val pair1 = testList.peek()
             val filterGenders = testList.filter { if (it.seeking != 3) it.seeking == pair1.gender else(true)}
             val pair2 = filterGenders.first()
-            println(pair1.address)
-            println(pair2.address)
+            initPair(pair1, pair2)
+
             return
         }
     }
@@ -52,9 +53,10 @@ class Matchmaker (private val clientHandler: ClientHandler): Thread() {
         //return key.isPaired() or something
     }
     fun initPair(user1: User, user2: User){
-        //todo, return pair to two peers and remove them from this serverwldisc
-        val room = Room.generateRoom(user1, this)
-        room.add(user2)
-        Directory.savePair(user1, user2, room)
+        //for now. ip address of the other user so they can attempt to connect
+        //later: prompts, account profiles, vote time etc
+        for (i in listOf(user1, user2)){
+            i.socketChannel.write(Messages.stringToBuffer("sucesss"))
+        }
     }
 }

@@ -25,6 +25,9 @@ open class Messages {
         fun stripBufferToByteArray(buf: ByteBuffer, len: Int): ByteArray{
             return Arrays.copyOfRange(buf.array(), 0 , len)
         }
+        fun stringToBuffer(string: String): ByteBuffer {
+            return ByteBuffer.wrap(string.toByteArray())
+        }
     }
 
 

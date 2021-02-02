@@ -64,6 +64,7 @@ object Token {
     fun getSocketToken(): Nothing = TODO()
     fun sign(token: JWTCreator.Builder): String {
         return token.sign(algo)
+        // wtf is this
     }
 }
 

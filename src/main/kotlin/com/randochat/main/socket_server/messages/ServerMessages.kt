@@ -16,5 +16,6 @@ class ServerMessages {
                     .add("content", "null").build()
             return Messages.messageToBuffer(temp)
         }
+
     }
 }
