@@ -6,6 +6,7 @@ import com.randochat.main.spring_app.database.Account
 import com.randochat.main.spring_app.utility.Token
 import com.randochat.main.spring_app.values.TestAccounts
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
@@ -37,7 +38,7 @@ class TestSocketFlow {
         return Token.sign(copy)
 
     }
-    @BeforeAll
+    @BeforeEach
     fun startSocketServer(){
         print("starting server")
         val server = DirectConnections(15620)
