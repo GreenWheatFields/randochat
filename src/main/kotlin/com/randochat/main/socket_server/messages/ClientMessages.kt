@@ -6,9 +6,9 @@ import javax.json.*
 class ClientMessages {
     companion object{
         //todo token
-        fun initMessage(){
-            Json.createObjectBuilder().add("intent", "OPENNEW")
-            .add("token", "VALIDTOKEN").build().toString()
+        fun initMessage(token: String = "VALIDTOKEN"): String {
+            return Json.createObjectBuilder().add("intent", "OPENNEW")
+            .add("token", token).build().toString()
         }
         fun getReconnectMessage(roomId: String, userID: String): String{
             return Json.createObjectBuilder().add("intent", "RECONNECT").add("token", "VALIDTOKEN")

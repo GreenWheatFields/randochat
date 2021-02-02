@@ -40,7 +40,7 @@ class TestConnectionEvents{
         clients.add(Client(port))
         clients.forEach { it.connect(0, true) }
         sleep(100)
-        clients.forEach { it.introduce(ClientMessages.initMessage) }
+        clients.forEach { it.introduce(ClientMessages.initMessage()) }
         val json = clients[0].waitForResponse()
         val json2 = clients[1].waitForResponse()
         val roomId = (json.get("status") as JsonObject).get("roomID").toString()
@@ -66,7 +66,7 @@ class TestConnectionEvents{
         }
         clients.forEach { it.connect(0, true) }
         sleep(11_000)
-        clients[0].introduce(ClientMessages.initMessage)
+        clients[0].introduce(ClientMessages.initMessage())
         sleep(500L)
         //todo, optionally remove sleep from client.sleep methos
         clients.forEach { assertThrows<IOException>{ it.send(1, false) } }
@@ -90,7 +90,7 @@ class TestConnectionEvents{
     fun testTimeout(){
         client.connect(0 , true)
         sleep(1100L)
-        client.introduce(ClientMessages.initMessage)
+        client.introduce(ClientMessages.initMessage())
         assertThrows<IOException> {client.send(2)  }
     }
 

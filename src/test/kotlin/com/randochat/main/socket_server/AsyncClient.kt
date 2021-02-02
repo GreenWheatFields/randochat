@@ -6,7 +6,7 @@ import java.nio.ByteBuffer
 
 //what an actual client will look like. listening and talking on two threaders
 //todo, method that listens writes and occasionally dsconnects/reconnects/ doesnt authorize/ sits idle/ etcetc
-class MultiThreadedClient(val client: Client): Thread() {
+class AsyncClient(val client: Client): Thread() {
     var flag = true
     var length = -1
     var index = 0
@@ -14,9 +14,9 @@ class MultiThreadedClient(val client: Client): Thread() {
     val zero: Byte = 0
     val input = ArrayList<String>()
 
-    fun connectAndIntroduce(){
+    fun connectAndIntroduce(token: String){
         client.connect(0 , true)
-        client.introduce(ClientMessages.initMessage)
+        client.introduce(ClientMessages.initMessage(token))
     }
     fun read(){
         length = client.conn.read(buf)

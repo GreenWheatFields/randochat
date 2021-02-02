@@ -1,18 +1,12 @@
 package com.randochat.main.socket_server
 
-import com.auth0.jwt.JWTCreator
 import com.randochat.main.socket_server.serverBehavior.DirectConnections
 import com.randochat.main.spring_app.database.Account
 import com.randochat.main.spring_app.utility.Token
 import com.randochat.main.spring_app.values.TestAccounts
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.web.servlet.MockMvc
 import kotlin.system.exitProcess
 
 
@@ -46,9 +40,10 @@ class TestSocketFlow {
     @Test
     fun testSocketS(){
         var token1 = login(account1)
-        val threadedClient = MultiThreadedClient(Client(15620))
+        val threadedClient = AsyncClient(Client(15620))
         threadedClient.start()
-        threadedClient.connectAndIntroduce()
+        //todo, token error here
+        threadedClient.connectAndIntroduce(token1)
     }
 
 }
