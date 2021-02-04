@@ -4,9 +4,12 @@ import com.randochat.main.socket_server.serverBehavior.DirectConnections
 import com.randochat.main.spring_app.database.Account
 import com.randochat.main.spring_app.utility.Token
 import com.randochat.main.spring_app.values.TestAccounts
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import java.lang.Thread.currentThread
+import java.lang.Thread.sleep
 import kotlin.system.exitProcess
 
 
@@ -17,6 +20,7 @@ import kotlin.system.exitProcess
 //return a pair
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TestSocketFlow {
+    lateinit var server: DirectConnections
     val account1 = TestAccounts.testAccount1
     val account2 = TestAccounts.testAccount2
     var account1Token = login(account1)
@@ -34,11 +38,14 @@ class TestSocketFlow {
     }
     @BeforeEach
     fun startSocketServer(){
-        val server = DirectConnections(15620)
-        server.start()
+        server = DirectConnections(15620)
+
     }
     @Test
     fun testSocketS(){
+        print(currentThread().name)
+        println("testing sockers")
+        server.start()
         var token1 = login(account1)
         var token2 = login(account2)
         val threadedClient = AsyncClient(Client(15620))
@@ -48,6 +55,13 @@ class TestSocketFlow {
         threadedClient2.start()
         threadedClient.connectAndIntroduce(token1)
         threadedClient2.connectAndIntroduce(token2)
+        sleep(5000)
     }
+    @AfterEach
+    fun close(){
+        print("closing")
+        server.close()
+    }
+
 
 }

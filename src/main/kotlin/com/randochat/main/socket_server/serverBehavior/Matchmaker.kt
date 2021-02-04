@@ -13,32 +13,36 @@ class Matchmaker (private val clientHandler: ClientHandler, val waitList: Concur
     // probably should be another thread that returns pair objects or something
     //todo, real matchmaking, more than a q
     private val pairQueue = ConcurrentLinkedQueue<User>()
+    var flag = true
 
-    override fun start() {
-        super.start()
+    override fun run() {
+        println(currentThread().id)
         matchmake()
     }
 
     fun addToMatchMaking(user: User){
-        print("adding")
         if (waitList.contains(user.address)){
             if (user.equals(waitList[user.address])){
                 //todo, this wont catch. instead compare every field of the object
             }
         }else{
-            print("further adding")
             waitList[user.address] = user
             pairQueue.add(user)
+            println("added")
         }
     }
     fun matchmake(){
-        while (pairQueue.size > 1) {
-            print("matchamking")
-            val pair1 = pairQueue.peek()
-            val filterGenders = pairQueue.filter { if (it.seeking != 3) it.seeking == pair1.gender else(true)}
-            val pair2 = filterGenders.first()
-            initPair(pair1, pair2)
+        while (flag){
+            sleep(500)
         }
+
+//        while (pairQueue.size > 1) {
+//            print("matchamking")
+//            val pair1 = pairQueue.peek()
+//            val filterGenders = pairQueue.filter { if (it.seeking != 3) it.seeking == pair1.gender else(true)}
+//            val pair2 = filterGenders.first()
+//            initPair(pair1, pair2)
+//        }
     }
     fun checkStatus(key: SocketAddress){
 //    println(waiting.size)

@@ -28,14 +28,15 @@ class DirectConnections(val port: Int): Thread() {
     var authorizer = Authorizer(selector)
     var directory = Directory
     var flag = true
-    private val matchmaker = Matchmaker(clientHandler, waitList)
+    val matchmaker = Matchmaker(clientHandler, waitList)
+
 
 
     init {
         server.configureBlocking(false)
         server.socket().bind(InetSocketAddress("127.0.0.1", port))
         server.register(selector, SelectionKey.OP_ACCEPT)
-        matchmaker.start()
+
     }
     fun routeConnections(){
         //todo, keep track of some data for analytics like current connects, etc, etc
@@ -54,7 +55,6 @@ class DirectConnections(val port: Int): Thread() {
                         val keyAdd = (key.channel() as SocketChannel).remoteAddress
                         if (authorizer.isSuspect(keyAdd)){
                            if(authorizer.attemptValidate(key.channel() as SocketChannel)){
-                               println("authing")
                                matchmaker.addToMatchMaking(authorizer.authorize(keyAdd))
 //                               if (!matchmaker.addToMatchMaking(authorizer.authorize(keyAdd))){
 ////                                   clientHandler.read(key.channel())
@@ -89,15 +89,22 @@ class DirectConnections(val port: Int): Thread() {
         }
         return true
     }
+    fun close(){
+        matchmaker.flag = false
+        matchmaker.interrupt()
+
+    }
 
     override fun run() {
-        super.run()
+        println(currentThread().id)
+        matchmaker.start()
         routeConnections()
+
     }
 }
 
 
 fun main() {
-    val acceptConns = DirectConnections(15620)
-    acceptConns.start()
+    val acceptConns = DirectConnections(15620).start()
+
 }
