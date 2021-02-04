@@ -40,9 +40,14 @@ class TestSocketFlow {
     @Test
     fun testSocketS(){
         var token1 = login(account1)
+        var token2 = login(account2)
         val threadedClient = AsyncClient(Client(15620))
+        val threadedClient2 = AsyncClient(Client(15620))
+
         threadedClient.start()
+        threadedClient2.start()
         threadedClient.connectAndIntroduce(token1)
+        threadedClient2.connectAndIntroduce(token2)
     }
 
 }
