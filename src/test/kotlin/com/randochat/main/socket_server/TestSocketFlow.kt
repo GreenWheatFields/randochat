@@ -42,7 +42,6 @@ class TestSocketFlow {
         var token1 = login(account1)
         val threadedClient = AsyncClient(Client(15620))
         threadedClient.start()
-        //todo, token error here
         threadedClient.connectAndIntroduce(token1)
     }
 

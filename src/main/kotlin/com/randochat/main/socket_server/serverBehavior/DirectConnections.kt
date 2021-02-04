@@ -1,6 +1,7 @@
 package com.randochat.main.socket_server.serverBehavior
 
 import com.randochat.main.socket_server.dataAccsess.Directory
+import com.randochat.main.socket_server.dataAccsess.User
 import java.net.BindException
 import java.net.InetSocketAddress
 import java.net.SocketAddress
@@ -9,6 +10,7 @@ import java.nio.channels.Selector
 import java.nio.channels.ServerSocketChannel
 import java.nio.channels.SocketChannel
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.collections.HashSet
 
@@ -19,14 +21,14 @@ class DirectConnections(val port: Int): Thread() {
     val server = ServerSocketChannel.open()
     val readJobs = ConcurrentLinkedQueue<SelectionKey>()
     val waiting = LinkedList<SocketAddress>()
-    val waitList = HashSet<SocketAddress>()
+    val waitList = ConcurrentHashMap<SocketAddress, User>()
     // declare initial capacity?
     val nullCode = 101
     val clientHandler = ClientHandler()
     var authorizer = Authorizer(selector)
     var directory = Directory
     var flag = true
-    private val matchmaker = Matchmaker(clientHandler)
+    private val matchmaker = Matchmaker(clientHandler, waitList)
 
 
     init {
@@ -52,14 +54,15 @@ class DirectConnections(val port: Int): Thread() {
                         val keyAdd = (key.channel() as SocketChannel).remoteAddress
                         if (authorizer.isSuspect(keyAdd)){
                            if(authorizer.attemptValidate(key.channel() as SocketChannel)){
-                               if (!matchmaker.addToMatchMaking(authorizer.authorize(keyAdd))){
-//                                   clientHandler.read(key.channel())
-                               }
+                               matchmaker.addToMatchMaking(authorizer.authorize(keyAdd))
+//                               if (!matchmaker.addToMatchMaking(authorizer.authorize(keyAdd))){
+////                                   clientHandler.read(key.channel())
+//                               }
                            }else{
                                authorizer.killSuspect(key.channel() as SocketChannel)
                            }
-                        }else if (waitList.contains(keyAdd)){
-                            //catch reconnects attempt here. also people waiting for a pair
+                        }else if (waitList.containsKey(keyAdd)){
+                            //reconnect while still in queue
                             matchmaker.checkStatus(keyAdd)
                         }else{
                             //clientHandler.read(key.channel())

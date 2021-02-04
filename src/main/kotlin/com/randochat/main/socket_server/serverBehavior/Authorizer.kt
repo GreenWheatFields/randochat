@@ -18,7 +18,7 @@ class Authorizer(val selector: Selector) {
     //todo, blacklist ips?
     private val suspects = HashMap<SocketAddress, User>()
     var lastSweep = System.currentTimeMillis()
-
+    //todo, 'intent' in messages is likely useless. Directory may be too
     fun investigateConn(key: SelectionKey){
         val channel = key.channel() as ServerSocketChannel
         val newChan = channel.accept()
@@ -41,13 +41,13 @@ class Authorizer(val selector: Selector) {
 
             if (suspects.contains(conn.remoteAddress) && suspects[conn.remoteAddress]!!.authTimeOut > System.currentTimeMillis()) {
                 if (json.containsKey("intent") && json.containsKey("token")) {
-                    val userToken = Token.checkTokenValid(json["token"].toString()) ?: return killSuspect(conn)
+                    val userToken = Token.checkTokenValid(Token.strip(json["token"].toString())) ?: return false
                     if (json.get("intent")!! == JsonValues.OPENNEW) {
                         suspects[conn.remoteAddress]!!.token = userToken
                         return true
                         }
                 } else {
-                return killSuspect(conn)
+                return false
 
                 }
             }else{
